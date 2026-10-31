@@ -97,6 +97,39 @@
       ]
     },
     {
+      "id": "hangul_batchim",
+      "icon": "🔚",
+      "name": {"th": "ตัวสะกด (받침) 7 เสียง", "en": "Final consonants (받침): 7 sounds"},
+      "level": 0,
+      "words": [
+        {"term": "학", "roman": "hak", "tr": {"th": "ฮัก (hak)", "en": "hak (final k)"}, "note": {"th": "ตัวสะกด ㄱ ออกเสียง ก กด (k) ไม่ปล่อยลม ตัว ㅋ และ ㄲ ที่เป็นตัวสะกดก็ออกเสียงเดียวกัน", "en": "final ㄱ is an unreleased k; ㅋ and ㄲ as finals sound the same"}},
+        {"term": "한", "roman": "han", "tr": {"th": "ฮัน (han)", "en": "han (final n)"}, "note": {"th": "ตัวสะกด ㄴ ออกเสียง น (n)", "en": "final ㄴ is n"}},
+        {"term": "핟", "roman": "hat", "tr": {"th": "ฮัด (hat)", "en": "hat (final t)"}, "note": {"th": "ตัวสะกด ㄷ ออกเสียง ด กด (t) ตัว ㅅ ㅆ ㅈ ㅊ ㅌ ㅎ ที่เป็นตัวสะกดก็ออกเสียงเดียวกัน (พยางค์นี้ไม่ค่อยพบ ใช้เป็นตัวอย่าง)", "en": "final ㄷ is an unreleased t; ㅅ ㅆ ㅈ ㅊ ㅌ ㅎ as finals sound the same (this syllable is rare, shown as an example)"}},
+        {"term": "할", "roman": "hal", "tr": {"th": "ฮัล (hal)", "en": "hal (final l)"}, "note": {"th": "ตัวสะกด ㄹ ออกเสียงคล้าย ล (l)", "en": "final ㄹ is l"}},
+        {"term": "함", "roman": "ham", "tr": {"th": "ฮัม (ham)", "en": "ham (final m)"}, "note": {"th": "ตัวสะกด ㅁ ออกเสียง ม (m) ปิดริมฝีปาก", "en": "final ㅁ is m, lips closed"}},
+        {"term": "합", "roman": "hap", "tr": {"th": "ฮับ (hap)", "en": "hap (final p)"}, "note": {"th": "ตัวสะกด ㅂ ออกเสียง บ กด (p) ตัว ㅍ ที่เป็นตัวสะกดก็ออกเสียงเดียวกัน", "en": "final ㅂ is an unreleased p; ㅍ as a final sounds the same"}},
+        {"term": "항", "roman": "hang", "tr": {"th": "ฮัง (hang)", "en": "hang (final ng)"}, "note": {"th": "ตัวสะกด ㅇ ออกเสียง ง (ng)", "en": "final ㅇ is ng"}}
+      ]
+    },
+    {
+      "id": "hangul_batchim_words",
+      "icon": "📘",
+      "name": {"th": "คำที่มีตัวสะกด", "en": "Words with final consonants"},
+      "level": 0,
+      "words": [
+        {"term": "힘", "roman": "him", "tr": {"th": "พลัง / แรง", "en": "strength"}},
+        {"term": "잎", "roman": "ip", "tr": {"th": "ใบไม้", "en": "leaf"}, "note": {"th": "ㅍ เป็นตัวสะกด อ่านว่า ㅂ (p)", "en": "final ㅍ is read as p"}},
+        {"term": "빛", "roman": "bit", "tr": {"th": "แสง", "en": "light"}, "note": {"th": "ㅊ เป็นตัวสะกด อ่านว่า ㄷ (t)", "en": "final ㅊ is read as t"}},
+        {"term": "값", "roman": "gap", "tr": {"th": "ราคา", "en": "price"}, "note": {"th": "ตัวสะกดคู่ ㅂㅅ อ่านเฉพาะ ㅂ (p)", "en": "of the double final ㅂㅅ only ㅂ (p) is read"}},
+        {"term": "삶", "roman": "sam", "tr": {"th": "ชีวิต", "en": "life"}, "note": {"th": "ตัวสะกดคู่ ㄹㅁ อ่านเฉพาะ ㅁ จึงออกเสียง ซัม", "en": "of the double final ㄹㅁ only ㅁ is read, so it sounds like sam"}},
+        {"term": "멋", "roman": "meot", "tr": {"th": "ความเท่ / สไตล์", "en": "style / charm"}, "note": {"th": "ㅅ เป็นตัวสะกด อ่านว่า ㄷ (t)", "en": "final ㅅ is read as t"}},
+        {"term": "숯", "roman": "sut", "tr": {"th": "ถ่าน", "en": "charcoal"}, "note": {"th": "ㅊ เป็นตัวสะกด อ่านว่า ㄷ (t)", "en": "final ㅊ is read as t"}},
+        {"term": "활", "roman": "hwal", "tr": {"th": "ธนู", "en": "bow (archery)"}},
+        {"term": "창", "roman": "chang", "tr": {"th": "หน้าต่าง", "en": "window"}},
+        {"term": "참", "roman": "cham", "tr": {"th": "จริงๆ / ช่าง…", "en": "really / truly"}}
+      ]
+    },
+    {
       "id": "greetings",
       "icon": "👋",
       "name": {"th": "คำทักทายและวลีพื้นฐาน", "en": "Greetings & basic phrases"},
