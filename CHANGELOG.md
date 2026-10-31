@@ -2,6 +2,18 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.10.0] - 2026-10-31
+
+- ภาษาญี่ปุ่น: เพิ่มหมวดตัวอักษรคานะ 10 ชุดสำหรับมือใหม่ที่เริ่มจากศูนย์ ได้แก่ ฮิรางานะ 4 ชุด (แถวหลัก เสียงก้อง เสียงควบ) คาตาคานะ 5 ชุด (รวมเสียงคำต่างประเทศ เช่น ファ ティ) และเครื่องหมายพิเศษ (゛ ゜ っ ー) อยู่ต้นรายการระดับ 1
+- ทุกตัวมีโรมาจิและเสียงอ่านแบบอักษรไทย พิมพ์ตอบเป็นโรมาจิได้
+
+<details><summary>English</summary>
+
+- Japanese: 10 new kana sets for absolute beginners: 4 hiragana sets (main rows, voiced, combined sounds), 5 katakana sets (including foreign sounds such as ファ ティ) and the special marks (゛ ゜ っ ー), at the top of level 1
+- Every letter has its romaji and a Thai sound guide, and you can type the romaji to answer
+
+</details>
+
 ## [1.9.0] - 2026-10-31
 
 - ภาษาเกาหลี: เพิ่มหมวดฮันกึล 5 ชุดสำหรับมือใหม่ที่เริ่มจากศูนย์ ได้แก่ สระพื้นฐาน พยัญชนะพื้นฐาน พยัญชนะเสียงตึง สระประสม และลองอ่านคำง่ายๆ (ระดับ 1 อยู่ต้นรายการ)
