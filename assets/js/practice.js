@@ -2,7 +2,7 @@
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
 import { settings, saveSettings, wordKey, getProgress, todayAnswers, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, nameOf, levelOf, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
+import { state, h, fill, render, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
 import { MODES, itemsFor, pickItems, startGame } from './game.js';
 import { langSummary, dayTotals, streak } from './progress.js';
@@ -167,7 +167,7 @@ export async function renderPractice() {
   modeTiles[0].classList.add('mode-mix');
 
   // ---- word sets, one level at a time ----
-  const levels = [...new Set(vocab.sets.map(levelOf))].sort();
+  const levels = [...new Set(vocab.sets.map(levelOf))].sort((a, b) => a - b);
   let level = settings.level[code];
   if (!levels.includes(level)) level = levelOf(vocab.sets.find((x) => chosen.has(x.id)) || vocab.sets[0]);
 
@@ -271,7 +271,7 @@ export async function renderPractice() {
                 showLevel();
               },
             }),
-            h('span', {}, t.levelN.replace('{n}', lv)))))
+            h('span', {}, levelLabel(t, lv)))))
     : null;
 
   // Select all / clear act on the rows being shown (the level, or the search results).
@@ -299,7 +299,7 @@ export async function renderPractice() {
         h('span', { class: 'row-text' },
           h('span', { class: 'next-label' }, icon('sparkles', { size: 14 }), t.nextUp),
           h('span', { class: 'row-label' }, nameOf(rec.set.name)),
-          h('span', { class: 'row-sub' }, `${t.levelN.replace('{n}', levelOf(rec.set))} · ${t.mastered} ${rec.mastered}/${rec.total}`),
+          h('span', { class: 'row-sub' }, `${levelLabel(t, levelOf(rec.set))} · ${t.mastered} ${rec.mastered}/${rec.total}`),
           h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${(rec.mastered / rec.total) * 100}%` }))),
         h('span', { class: 'next-play', 'aria-hidden': 'true' }, icon('play', { size: 18, fill: true })),
         h('span', { class: 'sr-only' }, t.practiceThisSet))

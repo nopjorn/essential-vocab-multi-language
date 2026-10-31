@@ -1,7 +1,7 @@
 // First-run welcome: three short steps (language, level, daily goal) before Home.
 // Shown only while nothing is saved on the device; finishing or skipping saves settings.
 import { settings, saveSettings, firstRun } from './store.js';
-import { state, h, render, nameOf, loadLang, levelOf, ensureAudio } from './core.js';
+import { state, h, render, nameOf, loadLang, levelOf, levelLabel, ensureAudio } from './core.js';
 import { icon } from './icons.js';
 import { sfx } from './sound.js';
 
@@ -26,7 +26,8 @@ export function renderWelcome(onDone) {
     // Start with the first two sets of the chosen level.
     try {
       const vocab = await loadLang(choice.lang);
-      settings.sets[choice.lang] = vocab.sets.filter((x) => levelOf(x) === choice.level).slice(0, 2).map((x) => x.id);
+      const first = vocab.sets.filter((x) => levelOf(x) === choice.level).slice(0, 2).map((x) => x.id);
+      if (first.length) settings.sets[choice.lang] = first;
     } catch {
       /* offline before the vocab is cached: Home falls back to the first sets */
     }
@@ -79,10 +80,10 @@ export function renderWelcome(onDone) {
       return [
         h('h1', { class: 'welcome-title' }, t.welcomeLevel),
         h('p', { class: 'welcome-sub' }, t.welcomeLevelSub),
-        options('level', [1, 2, 3].map((lv) => ({
+        options('level', (state.index.learn.find((l) => l.code === choice.lang)?.letters ? [0, 1, 2, 3] : [1, 2, 3]).map((lv) => ({
           value: lv,
-          lead: h('span', { class: 'level-num' }, lv),
-          label: `${t.levelN.replace('{n}', lv)} · ${t.levelNames[lv]}`,
+          lead: h('span', { class: 'level-num' }, lv === 0 ? 'あ' : lv),
+          label: lv === 0 ? t.levelLetters : `${levelLabel(t, lv)} · ${t.levelNames[lv]}`,
           sub: t.levelDesc[lv],
         }))),
       ];

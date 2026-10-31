@@ -30,7 +30,7 @@ for (const lang of index.learn) {
     setIds.add(set.id);
     if (!set.name?.th) errors.push(`${where(set.id)}: missing Thai set name`);
     if (set.words.length < 4) errors.push(`${where(set.id)}: needs at least 4 words`);
-    if (![1, 2, 3].includes(set.level)) errors.push(`${where(set.id)}: "level" must be 1, 2 or 3`);
+    if (![0, 1, 2, 3].includes(set.level)) errors.push(`${where(set.id)}: "level" must be 0 (letters), 1, 2 or 3`);
     perLevel[set.level] = (perLevel[set.level] || 0) + set.words.length;
 
     const terms = new Set();
@@ -55,7 +55,7 @@ for (const lang of index.learn) {
       }
     }
   }
-  const levels = Object.entries(perLevel).map(([lv, n]) => `L${lv} ${n}`).join(' / ');
+  const levels = Object.entries(perLevel).map(([lv, n]) => (lv === '0' ? `letters ${n}` : `L${lv} ${n}`)).join(' / ');
   console.log(`${lang.code}: ${vocab.sets.length} sets, ${total} words (${levels}), translations: ${[...available].join(', ') || '(none)'}`);
 }
 

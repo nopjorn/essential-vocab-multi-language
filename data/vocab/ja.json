@@ -10,7 +10,7 @@
       "id": "hiragana_1",
       "icon": "🌸",
       "name": {"th": "ฮิรางานะ แถว あ–な", "en": "Hiragana: あ to な rows"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "あ", "roman": "a", "tr": {"th": "อะ (a)", "en": "a"}},
         {"term": "い", "roman": "i", "tr": {"th": "อิ (i)", "en": "i"}},
@@ -43,7 +43,7 @@
       "id": "hiragana_2",
       "icon": "🌷",
       "name": {"th": "ฮิรางานะ แถว は–ん", "en": "Hiragana: は to ん rows"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "は", "roman": "ha", "tr": {"th": "ฮะ (ha)", "en": "ha"}, "note": {"th": "เมื่อเป็นคำช่วย (บอกหัวข้อ) อ่านว่า วะ (wa)", "en": "as the topic particle it is read wa"}},
         {"term": "ひ", "roman": "hi", "tr": {"th": "ฮิ (hi)", "en": "hi"}},
@@ -72,7 +72,7 @@
       "id": "hiragana_voiced",
       "icon": "🔊",
       "name": {"th": "ฮิรางานะ เสียงก้อง (が ざ だ ば ぱ)", "en": "Hiragana: voiced sounds (が ざ だ ば ぱ)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "が", "roman": "ga", "tr": {"th": "กะ (ga)", "en": "ga"}},
         {"term": "ぎ", "roman": "gi", "tr": {"th": "กิ (gi)", "en": "gi"}},
@@ -105,7 +105,7 @@
       "id": "hiragana_yoon",
       "icon": "🎀",
       "name": {"th": "ฮิรางานะ เสียงควบ (きゃ しゃ …)", "en": "Hiragana: combined sounds (きゃ しゃ …)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "きゃ", "roman": "kya", "tr": {"th": "เคียะ (kya)", "en": "kya"}},
         {"term": "きゅ", "roman": "kyu", "tr": {"th": "คิว (kyu)", "en": "kyu"}},
@@ -146,7 +146,7 @@
       "id": "katakana_1",
       "icon": "🔷",
       "name": {"th": "คาตาคานะ แถว ア–ナ", "en": "Katakana: ア to ナ rows"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "ア", "roman": "a", "tr": {"th": "อะ (a)", "en": "a"}},
         {"term": "イ", "roman": "i", "tr": {"th": "อิ (i)", "en": "i"}},
@@ -179,7 +179,7 @@
       "id": "katakana_2",
       "icon": "🔶",
       "name": {"th": "คาตาคานะ แถว ハ–ン", "en": "Katakana: ハ to ン rows"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "ハ", "roman": "ha", "tr": {"th": "ฮะ (ha)", "en": "ha"}, "note": {"th": "เมื่อเป็นคำช่วย (บอกหัวข้อ) อ่านว่า วะ (wa)", "en": "as the topic particle it is read wa"}},
         {"term": "ヒ", "roman": "hi", "tr": {"th": "ฮิ (hi)", "en": "hi"}},
@@ -208,7 +208,7 @@
       "id": "katakana_voiced",
       "icon": "📢",
       "name": {"th": "คาตาคานะ เสียงก้อง (ガ ザ ダ バ パ)", "en": "Katakana: voiced sounds (ガ ザ ダ バ パ)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "ガ", "roman": "ga", "tr": {"th": "กะ (ga)", "en": "ga"}},
         {"term": "ギ", "roman": "gi", "tr": {"th": "กิ (gi)", "en": "gi"}},
@@ -241,7 +241,7 @@
       "id": "katakana_yoon",
       "icon": "✨",
       "name": {"th": "คาตาคานะ เสียงควบ (キャ シャ …)", "en": "Katakana: combined sounds (キャ シャ …)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "キャ", "roman": "kya", "tr": {"th": "เคียะ (kya)", "en": "kya"}},
         {"term": "キュ", "roman": "kyu", "tr": {"th": "คิว (kyu)", "en": "kyu"}},
@@ -282,7 +282,7 @@
       "id": "katakana_foreign",
       "icon": "🌍",
       "name": {"th": "คาตาคานะ เสียงคำต่างประเทศ (ファ ティ …)", "en": "Katakana: foreign sounds (ファ ティ …)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "ファ", "roman": "fa", "tr": {"th": "ฟะ (fa)", "en": "fa"}},
         {"term": "フィ", "roman": "fi", "tr": {"th": "ฟิ (fi)", "en": "fi"}},
@@ -303,7 +303,7 @@
       "id": "kana_marks",
       "icon": "➰",
       "name": {"th": "เครื่องหมายพิเศษของคานะ", "en": "Special kana marks"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "゛", "roman": "dakuten", "tr": {"th": "เครื่องหมายเสียงก้อง (ten-ten)", "en": "voicing mark (dakuten)"}, "note": {"th": "ติดมุมขวาบนของตัวอักษร เช่น か → が, さ → ざ", "en": "added to the top right of a letter, e.g. か → が, さ → ざ"}},
         {"term": "゜", "roman": "handakuten", "tr": {"th": "เครื่องหมายวงกลมเล็ก (maru)", "en": "semi-voicing mark (handakuten)"}, "note": {"th": "ใช้กับแถว は เท่านั้น เช่น は → ぱ", "en": "used only on the h-row, e.g. は → ぱ"}},

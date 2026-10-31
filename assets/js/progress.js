@@ -1,6 +1,6 @@
 // Progress page: overview across all languages, and a detail view per language.
 import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, MASTERED_BOX } from './store.js';
-import { state, h, render, nameOf, levelOf, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
+import { state, h, render, nameOf, levelOf, levelLabel, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
 import { itemsFor, startGame } from './game.js';
 import { icon, MODE_ICON } from './icons.js';
 import { badgeList } from './badges.js';
@@ -205,13 +205,13 @@ export async function renderProgress(lang) {
 // Per-set progress, grouped by level when the language has more than one.
 function bySet(s) {
   const t = state.t;
-  const levels = [...new Set(s.sets.map((x) => levelOf(x.set)))].sort();
+  const levels = [...new Set(s.sets.map((x) => levelOf(x.set)))].sort((a, b) => a - b);
   return levels.map((lv) => {
     const sets = s.sets.filter((x) => levelOf(x.set) === lv);
     const mastered = sets.reduce((n, x) => n + x.mastered, 0);
     const total = sets.reduce((n, x) => n + x.total, 0);
     return [
-      groupTitle(levels.length > 1 ? `${t.bySet} · ${t.levelN.replace('{n}', lv)} ${t.levelNames[lv]}` : t.bySet,
+      groupTitle(levels.length > 1 ? `${t.bySet} · ${levelLabel(t, lv)} ${t.levelNames[lv]}` : t.bySet,
         h('span', { class: 'muted' }, `${mastered}/${total}`)),
       h('ul', { class: 'group list' }, sets.map((x) =>
         h('li', { class: 'row' },
