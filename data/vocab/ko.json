@@ -7,6 +7,96 @@
   "license": "CC0-1.0",
   "sets": [
     {
+      "id": "hangul_vowels",
+      "icon": "🅰️",
+      "name": {"th": "สระพื้นฐาน (ฮันกึล)", "en": "Basic vowels (Hangul)"},
+      "level": 1,
+      "words": [
+        {"term": "ㅏ", "roman": "a", "tr": {"th": "อา", "en": "a (as in “father”)"}},
+        {"term": "ㅑ", "roman": "ya", "tr": {"th": "ยา", "en": "ya"}},
+        {"term": "ㅓ", "roman": "eo", "tr": {"th": "ออ (ปากอ้ากว้างกว่าเสียง ㅗ)", "en": "eo (like “u” in “bus”, mouth open)"}},
+        {"term": "ㅕ", "roman": "yeo", "tr": {"th": "ยอ", "en": "yeo"}},
+        {"term": "ㅗ", "roman": "o", "tr": {"th": "โอ", "en": "o (as in “go”)"}},
+        {"term": "ㅛ", "roman": "yo", "tr": {"th": "โย", "en": "yo"}},
+        {"term": "ㅜ", "roman": "u", "tr": {"th": "อู", "en": "u (as in “moon”)"}},
+        {"term": "ㅠ", "roman": "yu", "tr": {"th": "ยู", "en": "yu"}},
+        {"term": "ㅡ", "roman": "eu", "tr": {"th": "อือ (ยิ้มกว้าง ริมฝีปากแบน)", "en": "eu (lips spread flat)"}},
+        {"term": "ㅣ", "roman": "i", "tr": {"th": "อี", "en": "i (as in “see”)"}}
+      ]
+    },
+    {
+      "id": "hangul_consonants",
+      "icon": "🔤",
+      "name": {"th": "พยัญชนะพื้นฐาน (ฮันกึล)", "en": "Basic consonants (Hangul)"},
+      "level": 1,
+      "words": [
+        {"term": "ㄱ", "reading": "기역", "roman": "giyeok", "tr": {"th": "ก (g/k)", "en": "g / k"}, "note": {"th": "ต้นพยางค์ออกเสียงระหว่าง ก กับ ค ท้ายพยางค์เป็น ก กด", "en": "between g and k at the start; k at the end"}},
+        {"term": "ㄴ", "reading": "니은", "roman": "nieun", "tr": {"th": "น (n)", "en": "n"}, "note": {"th": "เสียง น", "en": "n sound"}},
+        {"term": "ㄷ", "reading": "디귿", "roman": "digeut", "tr": {"th": "ด (d/t)", "en": "d / t"}, "note": {"th": "ต้นพยางค์ระหว่าง ด กับ ต ท้ายพยางค์เป็น ด กด", "en": "between d and t at the start; t at the end"}},
+        {"term": "ㄹ", "reading": "리을", "roman": "rieul", "tr": {"th": "ร / ล (r/l)", "en": "r / l"}, "note": {"th": "ต้นพยางค์คล้าย ร เบาๆ ท้ายพยางค์คล้าย ล", "en": "a light r at the start; l at the end"}},
+        {"term": "ㅁ", "reading": "미음", "roman": "mieum", "tr": {"th": "ม (m)", "en": "m"}, "note": {"th": "เสียง ม", "en": "m sound"}},
+        {"term": "ㅂ", "reading": "비읍", "roman": "bieup", "tr": {"th": "บ (b/p)", "en": "b / p"}, "note": {"th": "ต้นพยางค์ระหว่าง บ กับ ป ท้ายพยางค์เป็น บ กด", "en": "between b and p at the start; p at the end"}},
+        {"term": "ㅅ", "reading": "시옷", "roman": "siot", "tr": {"th": "ส (s)", "en": "s"}, "note": {"th": "เสียง ส (ถ้าตามด้วย ㅣ จะคล้าย ซี/ชี)", "en": "s sound (sounds like “sh” before ㅣ)"}},
+        {"term": "ㅇ", "reading": "이응", "roman": "ieung", "tr": {"th": "ไม่ออกเสียง / ง (ท้ายพยางค์)", "en": "silent at the start / ng at the end"}, "note": {"th": "ต้นพยางค์เป็นแค่ตัวเว้นที่ ไม่ออกเสียง ท้ายพยางค์ออกเสียง ง", "en": "a placeholder at the start; ng at the end"}},
+        {"term": "ㅈ", "reading": "지읒", "roman": "jieut", "tr": {"th": "จ (j)", "en": "j"}, "note": {"th": "เสียงระหว่าง จ กับ ช", "en": "between j and ch"}},
+        {"term": "ㅊ", "reading": "치읓", "roman": "chieut", "tr": {"th": "ช (ch, มีลม)", "en": "ch (aspirated)"}, "note": {"th": "ออกเสียง ช พร้อมพ่นลมออกแรงๆ", "en": "ch with a strong puff of air"}},
+        {"term": "ㅋ", "reading": "키읔", "roman": "kieuk", "tr": {"th": "ค (k, มีลม)", "en": "k (aspirated)"}, "note": {"th": "ออกเสียง ค พร้อมพ่นลมออกแรงๆ", "en": "k with a strong puff of air"}},
+        {"term": "ㅌ", "reading": "티읕", "roman": "tieut", "tr": {"th": "ท (t, มีลม)", "en": "t (aspirated)"}, "note": {"th": "ออกเสียง ท พร้อมพ่นลมออกแรงๆ", "en": "t with a strong puff of air"}},
+        {"term": "ㅍ", "reading": "피읖", "roman": "pieup", "tr": {"th": "พ (p, มีลม)", "en": "p (aspirated)"}, "note": {"th": "ออกเสียง พ พร้อมพ่นลมออกแรงๆ", "en": "p with a strong puff of air"}},
+        {"term": "ㅎ", "reading": "히읗", "roman": "hieut", "tr": {"th": "ฮ (h)", "en": "h"}, "note": {"th": "เสียง ฮ เบาๆ", "en": "a soft h"}}
+      ]
+    },
+    {
+      "id": "hangul_tense",
+      "icon": "💪",
+      "name": {"th": "พยัญชนะเสียงตึง (ฮันกึล)", "en": "Tense consonants (Hangul)"},
+      "level": 1,
+      "words": [
+        {"term": "ㄲ", "reading": "쌍기역", "roman": "ssanggiyeok", "tr": {"th": "ก เสียงตึง (kk)", "en": "kk (tense)"}, "note": {"th": "ออกเสียง ก แบบเกร็งคอ ไม่มีลม", "en": "a tense k with no puff of air"}},
+        {"term": "ㄸ", "reading": "쌍디귿", "roman": "ssangdigeut", "tr": {"th": "ต เสียงตึง (tt)", "en": "tt (tense)"}, "note": {"th": "ออกเสียง ต แบบเกร็งคอ ไม่มีลม", "en": "a tense t with no puff of air"}},
+        {"term": "ㅃ", "reading": "쌍비읍", "roman": "ssangbieup", "tr": {"th": "ป เสียงตึง (pp)", "en": "pp (tense)"}, "note": {"th": "ออกเสียง ป แบบเกร็งคอ ไม่มีลม", "en": "a tense p with no puff of air"}},
+        {"term": "ㅆ", "reading": "쌍시옷", "roman": "ssangsiot", "tr": {"th": "ซ เสียงตึง (ss)", "en": "ss (tense)"}, "note": {"th": "ออกเสียง ซ แบบเกร็งคอ", "en": "a tense s"}},
+        {"term": "ㅉ", "reading": "쌍지읒", "roman": "ssangjieut", "tr": {"th": "จ เสียงตึง (jj)", "en": "jj (tense)"}, "note": {"th": "ออกเสียง จ แบบเกร็งคอ", "en": "a tense j"}}
+      ]
+    },
+    {
+      "id": "hangul_vowels_2",
+      "icon": "🔠",
+      "name": {"th": "สระประสม (ฮันกึล)", "en": "Compound vowels (Hangul)"},
+      "level": 1,
+      "words": [
+        {"term": "ㅐ", "roman": "ae", "tr": {"th": "แอ", "en": "ae (as in “bed”)"}, "note": {"th": "ปัจจุบันออกเสียงเกือบเหมือน ㅔ", "en": "today it sounds almost the same as ㅔ"}},
+        {"term": "ㅔ", "roman": "e", "tr": {"th": "เอ", "en": "e (as in “bed”)"}, "note": {"th": "ปัจจุบันออกเสียงเกือบเหมือน ㅐ", "en": "today it sounds almost the same as ㅐ"}},
+        {"term": "ㅒ", "roman": "yae", "tr": {"th": "แย", "en": "yae"}},
+        {"term": "ㅖ", "roman": "ye", "tr": {"th": "เย", "en": "ye"}},
+        {"term": "ㅘ", "roman": "wa", "tr": {"th": "วา", "en": "wa"}},
+        {"term": "ㅙ", "roman": "wae", "tr": {"th": "แว", "en": "wae"}},
+        {"term": "ㅚ", "roman": "oe", "tr": {"th": "เว (คล้ายเสียง ㅞ)", "en": "oe (close to “we”)"}},
+        {"term": "ㅝ", "roman": "wo", "tr": {"th": "วอ", "en": "wo"}},
+        {"term": "ㅞ", "roman": "we", "tr": {"th": "เว", "en": "we"}},
+        {"term": "ㅟ", "roman": "wi", "tr": {"th": "วี", "en": "wi"}},
+        {"term": "ㅢ", "roman": "ui", "tr": {"th": "อึย (อือ+อี รวดเดียว)", "en": "ui (eu + i, said in one go)"}}
+      ]
+    },
+    {
+      "id": "hangul_words",
+      "icon": "📖",
+      "name": {"th": "ลองอ่านคำง่ายๆ (ฮันกึล)", "en": "First words to read (Hangul)"},
+      "level": 1,
+      "words": [
+        {"term": "소리", "roman": "sori", "tr": {"th": "เสียง", "en": "sound"}},
+        {"term": "허리", "roman": "heori", "tr": {"th": "เอว", "en": "waist"}},
+        {"term": "이마", "roman": "ima", "tr": {"th": "หน้าผาก", "en": "forehead"}},
+        {"term": "도마", "roman": "doma", "tr": {"th": "เขียง", "en": "cutting board"}},
+        {"term": "호두", "roman": "hodu", "tr": {"th": "วอลนัต", "en": "walnut"}},
+        {"term": "시소", "roman": "siso", "tr": {"th": "ไม้กระดกหรือกระดานหก", "en": "seesaw"}},
+        {"term": "휴지", "roman": "hyuji", "tr": {"th": "กระดาษทิชชู", "en": "tissue paper"}},
+        {"term": "이거", "roman": "igeo", "tr": {"th": "อันนี้", "en": "this one"}},
+        {"term": "그거", "roman": "geugeo", "tr": {"th": "อันนั้น (ใกล้ผู้ฟัง)", "en": "that one (near you)"}},
+        {"term": "저거", "roman": "jeogeo", "tr": {"th": "อันนั้น (ไกลทั้งคู่)", "en": "that one (over there)"}}
+      ]
+    },
+    {
       "id": "greetings",
       "icon": "👋",
       "name": {"th": "คำทักทายและวลีพื้นฐาน", "en": "Greetings & basic phrases"},
