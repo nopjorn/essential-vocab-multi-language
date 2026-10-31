@@ -112,8 +112,20 @@ export function speechTag(code = settings.lang) {
   return vocabCache.get(code)?.speech || code;
 }
 
+// A lone Hangul letter is read out by name or not at all on many voices, so say it inside a
+// syllable instead: consonant + ㅏ (ㄱ → 가), vowel with a silent ㅇ (ㅏ → 아).
+const CHOSEONG = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+const JUNGSEONG = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
+function spokenForm(text) {
+  if (text.length !== 1) return text;
+  const lead = CHOSEONG.indexOf(text);
+  const vowel = JUNGSEONG.indexOf(text);
+  if (lead < 0 && vowel < 0) return text;
+  return String.fromCharCode(0xac00 + (lead >= 0 ? lead * 588 : 11 * 588 + vowel * 28));
+}
+
 export function say(text, code = settings.lang) {
-  speak(text, speechTag(code));
+  speak(code === 'ko' ? spokenForm(text) : text, speechTag(code));
 }
 
 export function speakerBtn(text, { big = false, lang = settings.lang } = {}) {

@@ -2,6 +2,18 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.9.0] - 2026-10-31
+
+- ภาษาเกาหลี: เพิ่มหมวดฮันกึล 5 ชุดสำหรับมือใหม่ที่เริ่มจากศูนย์ ได้แก่ สระพื้นฐาน พยัญชนะพื้นฐาน พยัญชนะเสียงตึง สระประสม และลองอ่านคำง่ายๆ (ระดับ 1 อยู่ต้นรายการ)
+- ตัวอักษรฮันกึลตัวเดียวกดฟังได้ โดยอ่านเป็นพยางค์ให้ เช่น ㄱ → 가, ㅏ → 아
+
+<details><summary>English</summary>
+
+- Korean: 5 new Hangul sets for absolute beginners: basic vowels, basic consonants, tense consonants, compound vowels and first words to read (level 1, at the top of the list)
+- A single Hangul letter can now be played aloud inside a syllable, e.g. ㄱ → 가, ㅏ → 아
+
+</details>
+
 ## [1.8.0] - 2026-10-18
 
 - หน้าต้อนรับเมื่อเปิดแอปครั้งแรก เลือกภาษา ระดับ และเป้าหมายรายวันได้ใน 3 ขั้น
