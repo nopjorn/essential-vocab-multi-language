@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.12.0] - 2026-10-31
+
+- ภาษาเกาหลี: เพิ่มชุดตัวสะกด (받침) 2 ชุดในแท็บ "ตัวอักษร" ได้แก่ ตัวสะกด 7 เสียง (ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ) และคำที่มีตัวสะกด พร้อมหมายเหตุตัวสะกดที่ออกเสียงเหมือนกันและตัวสะกดคู่
+
+<details><summary>English</summary>
+
+- Korean: 2 new final-consonant (받침) sets in the "Letters" tab: the 7 final sounds (ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ) and words with final consonants, with notes on letters that share a sound and on double finals
+
+</details>
+
 ## [1.11.0] - 2026-10-31
 
 - ชุดตัวอักษรฮันกึล (เกาหลี) และคานะ (ญี่ปุ่น) ย้ายออกจากระดับ 1 ไปอยู่แท็บ "ตัวอักษร" แยกต่างหาก อยู่ก่อนระดับ 1 เพราะยังไม่ใช่คำศัพท์

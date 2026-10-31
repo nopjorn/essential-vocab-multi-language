@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.12.0",
+    "date": "2026-10-31",
+    "changes": {
+      "th": [
+        "ภาษาเกาหลี: เพิ่มชุดตัวสะกด (받침) 2 ชุดในแท็บ \"ตัวอักษร\" ได้แก่ ตัวสะกด 7 เสียง (ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ) และคำที่มีตัวสะกด พร้อมหมายเหตุตัวสะกดที่ออกเสียงเหมือนกันและตัวสะกดคู่"
+      ],
+      "en": [
+        "Korean: 2 new final-consonant (받침) sets in the \"Letters\" tab: the 7 final sounds (ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ) and words with final consonants, with notes on letters that share a sound and on double finals"
+      ]
+    }
+  },
+  {
     "version": "1.11.0",
     "date": "2026-10-31",
     "changes": {
