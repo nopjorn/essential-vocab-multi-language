@@ -30,7 +30,7 @@ const DEFAULT_SETTINGS = {
   lang: 'en',
   target: 'th',
   sets: {}, // { [lang]: [setId, ...] }
-  level: {}, // { [lang]: 1 | 2 | 3 } level shown in the word-set list
+  level: {}, // { [lang]: 0 | 1 | 2 | 3 } level shown in the word-set list
   mode: 'mix',
   count: 10,
   dailyGoal: 20, // answers per day; the Home ring fills toward it

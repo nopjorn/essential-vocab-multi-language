@@ -1,8 +1,8 @@
 {
   "learn": [
     {"code": "en", "file": "vocab/en.json", "flag": "🇬🇧", "name": {"th": "อังกฤษ", "en": "English"}, "nativeName": "English"},
-    {"code": "ko", "file": "vocab/ko.json", "flag": "🇰🇷", "name": {"th": "เกาหลี", "en": "Korean"}, "nativeName": "한국어"},
-    {"code": "ja", "file": "vocab/ja.json", "flag": "🇯🇵", "name": {"th": "ญี่ปุ่น", "en": "Japanese"}, "nativeName": "日本語"}
+    {"code": "ko", "letters": true, "file": "vocab/ko.json", "flag": "🇰🇷", "name": {"th": "เกาหลี", "en": "Korean"}, "nativeName": "한국어"},
+    {"code": "ja", "letters": true, "file": "vocab/ja.json", "flag": "🇯🇵", "name": {"th": "ญี่ปุ่น", "en": "Japanese"}, "nativeName": "日本語"}
   ],
   "translate": [
     {"code": "th", "name": {"th": "ไทย", "en": "Thai"}, "nativeName": "ไทย"},

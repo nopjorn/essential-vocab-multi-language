@@ -43,7 +43,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 
 ## What the app can do
 
-- **Learn** English, Korean, Japanese (3 levels each, ≈3,000 words per language); translations in Thai, and English for Korean/Japanese. Korean starts with 5 Hangul letter sets and Japanese with 10 kana sets for absolute beginners
+- **Learn** English, Korean, Japanese (3 levels each, ≈3,000 words per language); translations in Thai, and English for Korean/Japanese. Korean (5 Hangul sets) and Japanese (10 kana sets) have a separate "Letters" tab for absolute beginners
 - **Welcome** (first run only): 3 steps to pick language, level and daily goal (Skip keeps defaults)
 - **Home**: language switch, Today card (daily-goal ring, streak, Continue / Quick 5, mastered + accuracy footer),
   "Up next" recommended set (plays it alone), mode tiles (Mixed is the wide suggested tile), search for sets and the
@@ -120,7 +120,7 @@ scripts/
                          "tr": {"th": "วันนี้", "en": "today"}, "note": {"th": "...", "en": "..."} }] }] }
 ```
 
-- `level` on every set: 1 = beginner (≈A1), 2 = everyday (≈A2), 3 = intermediate (≈B1). Home shows one level at a
+- `level` on every set: 0 = letters (see below), 1 = beginner (≈A1), 2 = everyday (≈A2), 3 = intermediate (≈B1). Home shows one level at a
   time (segmented control, remembered per language in `settings.level`); Progress groups sets by level
 - `term` required; `reading` (kana, only when it differs from `term`), `roman`, and `note` are optional
 - `tr.th` is required; a translation language is offered only if **every** word has it
@@ -133,8 +133,9 @@ scripts/
   jobs, hobbies, feelings, daily, verbs_2, adjectives_2, position, countries, phone_net, health, weather, rooms,
   adverbs, amounts; level 2 = people_2 … city_2; level 3 = society … geography (see the files for the full list).
   Existing set ids and terms are progress keys: never rename them (progress would be lost)
-- Korean level 1 begins with 5 `hangul_*` sets (vowels, consonants, tense consonants, compound vowels, first words): `term` is the bare letter, `reading` the letter name (기역), `tr` the Thai/English sound. `say()` in core.js speaks a lone letter inside a syllable (ㄱ → 가, ㅏ → 아)
-- Japanese level 1 begins with 10 kana sets (`hiragana_1/2/voiced/yoon`, `katakana_1/2/voiced/yoon/foreign`, `kana_marks`): `term` is the kana, `roman` the romaji, `tr.th` is "<Thai sound> (<romaji>)". Single kana are spoken as they are
+- `level` 0 = "Letters" (alphabet) for languages with `"letters": true` in `languages.json` (ko, ja): its own tab on Home before level 1, also offered in the welcome. Not counted in the ≈1,000-words-per-level figures
+- Korean level 0 holds 5 `hangul_*` sets (vowels, consonants, tense consonants, compound vowels, first words): `term` is the bare letter, `reading` the letter name (기역), `tr` the Thai/English sound. `say()` in core.js speaks a lone letter inside a syllable (ㄱ → 가, ㅏ → 아)
+- Japanese level 0 holds 10 kana sets (`hiragana_1/2/voiced/yoon`, `katakana_1/2/voiced/yoon/foreign`, `kana_marks`): `term` is the kana, `roman` the romaji, `tr.th` is "<Thai sound> (<romaji>)". Single kana are spoken as they are
 - Korean verbs/adjectives use dictionary form; Japanese verbs use dictionary form
 - Romanization: Korean = Revised Romanization; Japanese = Hepburn with macrons (typing also accepts ou/oo/no-macron)
 - One word per line in JSON so diffs stay readable

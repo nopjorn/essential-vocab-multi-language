@@ -2,6 +2,18 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.11.0] - 2026-10-31
+
+- ชุดตัวอักษรฮันกึล (เกาหลี) และคานะ (ญี่ปุ่น) ย้ายออกจากระดับ 1 ไปอยู่แท็บ "ตัวอักษร" แยกต่างหาก อยู่ก่อนระดับ 1 เพราะยังไม่ใช่คำศัพท์
+- หน้าต้อนรับมีตัวเลือก "ตัวอักษร" สำหรับผู้ที่ยังอ่านฮันกึลหรือคานะไม่ได้ และหน้าความคืบหน้าแยกกลุ่มตัวอักษรออกมาด้วย
+
+<details><summary>English</summary>
+
+- The Hangul (Korean) and kana (Japanese) sets moved out of level 1 into their own "Letters" tab before level 1, since they are not words yet
+- The welcome screen offers "Letters" for people who cannot read Hangul or kana yet, and the Progress page lists the letters as a separate group
+
+</details>
+
 ## [1.10.0] - 2026-10-31
 
 - ภาษาญี่ปุ่น: เพิ่มหมวดตัวอักษรคานะ 10 ชุดสำหรับมือใหม่ที่เริ่มจากศูนย์ ได้แก่ ฮิรางานะ 4 ชุด (แถวหลัก เสียงก้อง เสียงควบ) คาตาคานะ 5 ชุด (รวมเสียงคำต่างประเทศ เช่น ファ ティ) และเครื่องหมายพิเศษ (゛ ゜ っ ー) อยู่ต้นรายการระดับ 1

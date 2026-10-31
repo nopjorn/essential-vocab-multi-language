@@ -10,7 +10,7 @@
       "id": "hangul_vowels",
       "icon": "🅰️",
       "name": {"th": "สระพื้นฐาน (ฮันกึล)", "en": "Basic vowels (Hangul)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "ㅏ", "roman": "a", "tr": {"th": "อา", "en": "a (as in “father”)"}},
         {"term": "ㅑ", "roman": "ya", "tr": {"th": "ยา", "en": "ya"}},
@@ -28,7 +28,7 @@
       "id": "hangul_consonants",
       "icon": "🔤",
       "name": {"th": "พยัญชนะพื้นฐาน (ฮันกึล)", "en": "Basic consonants (Hangul)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "ㄱ", "reading": "기역", "roman": "giyeok", "tr": {"th": "ก (g/k)", "en": "g / k"}, "note": {"th": "ต้นพยางค์ออกเสียงระหว่าง ก กับ ค ท้ายพยางค์เป็น ก กด", "en": "between g and k at the start; k at the end"}},
         {"term": "ㄴ", "reading": "니은", "roman": "nieun", "tr": {"th": "น (n)", "en": "n"}, "note": {"th": "เสียง น", "en": "n sound"}},
@@ -50,7 +50,7 @@
       "id": "hangul_tense",
       "icon": "💪",
       "name": {"th": "พยัญชนะเสียงตึง (ฮันกึล)", "en": "Tense consonants (Hangul)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "ㄲ", "reading": "쌍기역", "roman": "ssanggiyeok", "tr": {"th": "ก เสียงตึง (kk)", "en": "kk (tense)"}, "note": {"th": "ออกเสียง ก แบบเกร็งคอ ไม่มีลม", "en": "a tense k with no puff of air"}},
         {"term": "ㄸ", "reading": "쌍디귿", "roman": "ssangdigeut", "tr": {"th": "ต เสียงตึง (tt)", "en": "tt (tense)"}, "note": {"th": "ออกเสียง ต แบบเกร็งคอ ไม่มีลม", "en": "a tense t with no puff of air"}},
@@ -63,7 +63,7 @@
       "id": "hangul_vowels_2",
       "icon": "🔠",
       "name": {"th": "สระประสม (ฮันกึล)", "en": "Compound vowels (Hangul)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "ㅐ", "roman": "ae", "tr": {"th": "แอ", "en": "ae (as in “bed”)"}, "note": {"th": "ปัจจุบันออกเสียงเกือบเหมือน ㅔ", "en": "today it sounds almost the same as ㅔ"}},
         {"term": "ㅔ", "roman": "e", "tr": {"th": "เอ", "en": "e (as in “bed”)"}, "note": {"th": "ปัจจุบันออกเสียงเกือบเหมือน ㅐ", "en": "today it sounds almost the same as ㅐ"}},
@@ -82,7 +82,7 @@
       "id": "hangul_words",
       "icon": "📖",
       "name": {"th": "ลองอ่านคำง่ายๆ (ฮันกึล)", "en": "First words to read (Hangul)"},
-      "level": 1,
+      "level": 0,
       "words": [
         {"term": "소리", "roman": "sori", "tr": {"th": "เสียง", "en": "sound"}},
         {"term": "허리", "roman": "heori", "tr": {"th": "เอว", "en": "waist"}},

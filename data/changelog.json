@@ -1,5 +1,19 @@
 [
   {
+    "version": "1.11.0",
+    "date": "2026-10-31",
+    "changes": {
+      "th": [
+        "ชุดตัวอักษรฮันกึล (เกาหลี) และคานะ (ญี่ปุ่น) ย้ายออกจากระดับ 1 ไปอยู่แท็บ \"ตัวอักษร\" แยกต่างหาก อยู่ก่อนระดับ 1 เพราะยังไม่ใช่คำศัพท์",
+        "หน้าต้อนรับมีตัวเลือก \"ตัวอักษร\" สำหรับผู้ที่ยังอ่านฮันกึลหรือคานะไม่ได้ และหน้าความคืบหน้าแยกกลุ่มตัวอักษรออกมาด้วย"
+      ],
+      "en": [
+        "The Hangul (Korean) and kana (Japanese) sets moved out of level 1 into their own \"Letters\" tab before level 1, since they are not words yet",
+        "The welcome screen offers \"Letters\" for people who cannot read Hangul or kana yet, and the Progress page lists the letters as a separate group"
+      ]
+    }
+  },
+  {
     "version": "1.10.0",
     "date": "2026-10-31",
     "changes": {
