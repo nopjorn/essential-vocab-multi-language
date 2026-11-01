@@ -14,6 +14,7 @@ const CORE = [
   'assets/js/app.js',
   'assets/js/app-info.js',
   'assets/js/badges.js',
+  'assets/js/engage.js',
   'assets/js/core.js',
   'assets/js/game.js',
   'assets/js/guide.js',

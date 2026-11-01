@@ -12,6 +12,11 @@ export function applyTheme() {
   const root = document.documentElement;
   if (settings.theme === 'light' || settings.theme === 'dark') root.dataset.theme = settings.theme;
   else delete root.dataset.theme;
+  // Unlockable accent colour and flashcard pattern; the defaults need no attribute.
+  if (settings.accent && settings.accent !== 'indigo') root.dataset.accent = settings.accent;
+  else delete root.dataset.accent;
+  if (settings.cardStyle && settings.cardStyle !== 'plain') root.dataset.card = settings.cardStyle;
+  else delete root.dataset.card;
 
   // Status bar / browser chrome color follows the effective theme.
   const metas = document.querySelectorAll('meta[name="theme-color"]');

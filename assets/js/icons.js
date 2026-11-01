@@ -47,10 +47,17 @@ const P = {
   bulb: '<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
   medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 10L6 3h4l2 5"/><path d="M15.5 10L18 3h-4l-2 5"/><path d="M12 12.5v5"/>',
+  heart: '<path d="M12 20.5s-8-4.8-8-11A4.5 4.5 0 0 1 12 6.6a4.5 4.5 0 0 1 8 2.9c0 6.2-8 11-8 11z"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9-5.4 2.9 1.1-6-4.5-4.2 6.1-.8z"/>',
+  lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  gift: '<rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8"/><path d="M12 8v13"/><path d="M12 8C10.5 5 7 4.5 7 6.5S10 8 12 8zM12 8c1.5-3 5-3.5 5-1.5S14 8 12 8z"/>',
+  palette: '<path d="M12 3a9 9 0 1 0 0 18c1.2 0 2-.8 2-1.8 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><path d="M7.5 11h.01M10 7h.01M15 7.5h.01"/>',
+  owl: '<circle cx="8.5" cy="11" r="2.5"/><circle cx="15.5" cy="11" r="2.5"/><path d="M5 5l3 3M19 5l-3 3"/><path d="M4 9a8 8 0 0 0 16 0V5"/><path d="M4 5v4"/><path d="M11 15l1 1.5 1-1.5"/>',
+  sunrise: '<path d="M4 18h16"/><path d="M7 18a5 5 0 0 1 10 0"/><path d="M12 4v4M5.6 8.6l1.4 1.4M18.4 8.6L17 10M2 14h2M20 14h2"/><path d="M9 21h6"/>',
 };
 
 // Mode → icon name
-export const MODE_ICON = { mix: 'shuffle', flash: 'flash', quiz: 'quiz', reverse: 'reverse', listen: 'listen', type: 'type', match: 'match' };
+export const MODE_ICON = { mix: 'shuffle', flash: 'flash', quiz: 'quiz', reverse: 'reverse', listen: 'listen', type: 'type', match: 'match', survival: 'heart' };
 
 const NS = 'http://www.w3.org/2000/svg';
 

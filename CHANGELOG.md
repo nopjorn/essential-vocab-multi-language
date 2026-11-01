@@ -2,6 +2,34 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.13.0] - 2026-11-01
+
+- เกราะกันสตรีค 🛡️: เล่นติดกันครบ 7 วันได้เกราะ 1 อัน (เก็บได้ 2 อัน) วันที่ไม่ได้เล่นจะใช้เกราะแทนการเสียสตรีค
+- การ์ด "วันนี้" มีแถบสัปดาห์ (จ.–อา.) บอกวันที่เล่น วันที่ทำเป้าครบ และวันที่ใช้เกราะ และเตือน "เล่นวันนี้เพื่อรักษาสตรีค" เมื่อยังไม่ได้เล่น
+- ภารกิจประจำวัน 3 ข้อ สุ่มใหม่ทุกวัน ทำครบได้ +100 XP
+- XP และเลเวลผู้เล่น: ได้ XP จากการตอบ วันที่เล่น และภารกิจ มีแถบ XP และเลเวลอัปในหน้าสรุปผล
+- ดาว 1–3 ดวงต่อชุดคำศัพท์ตามความแม่นยำ แสดงข้างชื่อชุดในหน้าหลัก
+- โหมดใหม่ "เอาตัวรอด": ตอบไปเรื่อย ๆ ผิดได้ 3 ครั้ง ยิ่งไปไกลยิ่งยาก พร้อมสถิติสูงสุด
+- การ์ด "คิดถึงนะ" เมื่อห่างไป 3 วันขึ้นไป พร้อมปุ่มทบทวนคำที่เคยเรียน
+- ฉลองหลักไมล์เต็มจอ: จำได้ 100/250/500… คำ ตอบครบ 500/1,000… ข้อ และจำครบทุกชุดของระดับ
+- ตราสะสมใหม่ 12 แบบ: สตรีค 100/365 วัน จบระดับ 1/2/3 รอบเพอร์เฟกต์ เอาตัวรอด เล่นครบทุกโหมด นกฮูกกลางคืน นกตื่นเช้า และเรียน 3 ภาษา
+- ของสะสมปลดล็อกได้ในหน้าตั้งค่า: สีหลักของแอป (เขียว ชมพู ส้ม) ลายแฟลชการ์ด (จุด ริ้ว) และชุดเสียง (นุ่มนวล เกมย้อนยุค)
+
+<details><summary>English</summary>
+
+- Streak freezes 🛡️: play 7 days in a row to earn one (hold up to 2); a missed day uses one instead of breaking your streak
+- The "Today" card has a week strip (Mon–Sun) showing days played, goals reached and freezes used, and reminds you to "play today to keep your streak"
+- Daily quests: 3 new ones every day, +100 XP for finishing all of them
+- XP and player level: earn XP from answers, days played and quests, with an XP bar and level ups on the results screen
+- 1–3 stars per word set based on accuracy, shown next to the set on Home
+- New "Survival" mode: keep answering until you miss 3 times, it gets harder as you go, with a best score
+- A "We missed you" card after 3 or more days away, with a short review of words you know
+- Full-screen milestone celebrations: 100/250/500… words mastered, 500/1,000… answers, and every set of a level mastered
+- 12 new badges: 100/365-day streaks, levels 1/2/3 complete, perfect rounds, survival, all modes played, night owl, early bird and 3 languages
+- Unlockable looks in Settings: accent colours (green, pink, orange), flashcard patterns (dots, stripes) and sound packs (soft, retro)
+
+</details>
+
 ## [1.12.0] - 2026-10-31
 
 - ภาษาเกาหลี: เพิ่มชุดตัวสะกด (받침) 2 ชุดในแท็บ "ตัวอักษร" ได้แก่ ตัวสะกด 7 เสียง (ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ) และคำที่มีตัวสะกด พร้อมหมายเหตุตัวสะกดที่ออกเสียงเหมือนกันและตัวสะกดคู่
