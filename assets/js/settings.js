@@ -2,7 +2,9 @@
 import { settings, saveSettings, resetLanguage, exportData, importData, dayKey, BACKUP_FORMAT } from './store.js';
 import { state, h, render, nameOf, pageHead, groupTitle, setUiLang, loadLang, speechTag, toast } from './core.js';
 import { speechSupported, hasVoice } from './speech.js';
-import { themeControl } from './theme.js';
+import { themeControl, applyTheme } from './theme.js';
+import { playerLevel, LOOKS, isUnlocked, unlockNeed } from './engage.js';
+import { sfx } from './sound.js';
 import { icon } from './icons.js';
 import { versionLabel, APP_VERSION } from './app-info.js';
 
@@ -81,6 +83,37 @@ async function importProgress(file, t) {
     toast(t.importDone.replace('{n}', words));
     renderSettings();
   }
+}
+
+// One unlockable look (accent, card pattern or sound pack) as a row of choices; locked ones
+// show what unlocks them.
+function lookPicker(key, t) {
+  const swatch = key === 'accent';
+  return h('div', { class: `look-picker${swatch ? ' swatches' : ''}`, role: 'radiogroup', 'aria-label': t.lookGroups[key] },
+    LOOKS[key].map((value) => {
+      const open = isUnlocked(key, value);
+      const id = `${key}:${value}`;
+      return h('label', { class: `look${open ? '' : ' locked'}`, title: open ? t.lookNames[id] : unlockNeed(key, value) },
+        h('input', {
+          type: 'radio',
+          name: key,
+          value,
+          checked: settings[key] === value,
+          disabled: !open,
+          onchange: () => {
+            settings[key] = value;
+            saveSettings();
+            applyTheme();
+            if (key === 'soundPack') sfx('combo', value);
+          },
+        }),
+        h('span', { class: 'look-face' },
+          swatch ? h('i', { class: `look-swatch sw-${value}`, 'aria-hidden': 'true' })
+            : key === 'cardStyle' ? h('i', { class: `look-card card-${value}`, 'aria-hidden': 'true' })
+              : icon('music', { size: 18 }),
+          h('span', { class: 'look-name' }, t.lookNames[id]),
+          open ? null : h('span', { class: 'look-lock' }, icon('lock', { size: 12 }), unlockNeed(key, value))));
+    }));
 }
 
 export async function renderSettings() {
@@ -192,6 +225,24 @@ export async function renderSettings() {
         h('div', { class: 'row-head' }, rowIcon('sun', 'gray'), rowText(t.theme)),
         themeControl()),
     ),
+
+    groupTitle(t.groupCollection),
+    (() => {
+      const lv = playerLevel();
+      return h('div', { class: 'group' },
+        h('a', { class: 'row', href: '#/progress' },
+          rowIcon('trophy', 'orange'),
+          h('span', { class: 'row-text' },
+            h('span', { class: 'row-label' }, t.playerLevel.replace('{n}', lv.level)),
+            h('span', { class: 'xp-bar' }, h('span', { class: 'xp-fill', style: `width:${lv.pct}%` })),
+            h('span', { class: 'row-sub' }, `${lv.xp - lv.from}/${lv.to - lv.from} XP`)),
+          icon('chevronRight', { size: 18, cls: 'chev' })),
+        ['accent', 'cardStyle', 'soundPack'].map((key) =>
+          h('div', { class: 'row stacked' },
+            h('div', { class: 'row-head' }, rowIcon({ accent: 'palette', cardStyle: 'flash', soundPack: 'music' }[key], { accent: 'indigo', cardStyle: 'teal', soundPack: 'green' }[key]), rowText(t.lookGroups[key])),
+            lookPicker(key, t))));
+    })(),
+    h('p', { class: 'group-foot' }, t.collectionNote),
 
     groupTitle(t.groupData),
     h('div', { class: 'group' },

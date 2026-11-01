@@ -1,15 +1,18 @@
 // Home tab: language switch, progress summary, game mode and word sets, plus
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
-import { settings, saveSettings, wordKey, getProgress, todayAnswers, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
+import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, MASTERED_BOX } from './store.js';
+import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
-import { MODES, itemsFor, pickItems, startGame } from './game.js';
-import { langSummary, dayTotals, streak } from './progress.js';
+import { MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
+import { langSummary, dayTotals, streakInfo, FREEZE_MAX } from './progress.js';
+import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway } from './engage.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
 
 const QUICK_COUNT = 5;
+const AWAY_DAYS = 3; // gone this long: Home greets you back with a short review
+const REVIEW_COUNT = 10;
 
 // Sets chosen for a language; new users start with its first two sets.
 function chosenIds(vocab) {
@@ -113,21 +116,77 @@ export async function renderPractice() {
   );
 
   // ---- today: daily goal ring, streak and one-tap start ----
+  syncQuests(code); // a round left early can still have finished the quests
   const goal = settings.dailyGoal;
   const done = todayAnswers(code);
   const goalPct = goal ? Math.min(100, Math.round((done / goal) * 100)) : 0;
-  const days = streak(dayTotals(code));
+  const st = streakInfo(dayTotals(code));
+  const days = st.days;
+  const atRisk = days > 0 && !st.today;
+  const lv = playerLevel();
+  const locale = settings.target === 'th' ? 'th-TH' : 'en-US';
+  const week = h('ol', { class: 'week', 'aria-label': t.thisWeek }, weekDays(code).map((d) => {
+    const state_ = d.goal ? 'goal' : d.played ? 'played' : d.frozen ? 'frozen' : d.future ? 'future' : d.today ? 'open' : 'missed';
+    return h('li', { class: `wd ${state_}${d.today ? ' today' : ''}`, 'aria-label': `${d.date.toLocaleDateString(locale, { weekday: 'long' })}: ${t.weekState[state_]}` },
+      h('span', { class: 'wd-name', 'aria-hidden': 'true' }, d.date.toLocaleDateString(locale, { weekday: 'narrow' })),
+      h('span', { class: 'wd-dot', 'aria-hidden': 'true' },
+        d.goal || d.played ? icon('check', { size: 13 }) : d.frozen ? icon('shield', { size: 13 }) : null));
+  }));
   const todayCard = h('section', { class: 'today-card' },
     h('div', { class: `goal-ring${goal && done >= goal ? ' done' : ''}${done >= 100 ? (done >= 1000 ? ' d4' : ' d3') : ''}`, style: `--p:${goalPct}`, role: 'img', 'aria-label': `${t.todayGoal} ${done}/${goal}` },
       h('b', {}, goal ? `${done}` : '–'), goal ? h('span', {}, `/${goal}`) : null),
     h('div', { class: 'today-text' },
       h('strong', {}, goal && done >= goal ? t.goalReached : done ? t.todayKeepGoing : t.todayStart),
-      h('span', { class: 'today-sub' }, icon('flame', { size: 15 }), days ? `${days} ${t.days}` : t.streakStart)),
+      h('span', { class: `today-sub${atRisk ? ' risk' : ''}` }, icon('flame', { size: 15 }),
+        atRisk ? t.keepStreak.replace('{n}', days) : days ? `${days} ${t.days}` : t.streakStart),
+      h('span', { class: 'today-chips' },
+        h('a', { class: 'mini-chip lv', href: '#/progress', title: `${lv.xp - lv.from}/${lv.to - lv.from} XP` },
+          icon('trophy', { size: 13 }), t.levelShort.replace('{n}', lv.level),
+          h('span', { class: 'mini-meter' }, h('span', { style: `width:${lv.pct}%` }))),
+        h('span', { class: `mini-chip freeze${st.freezes ? ' on' : ''}`, title: t.freezeHelp },
+          icon('shield', { size: 13 }), `${st.freezes}/${FREEZE_MAX}`))),
+    week,
     h('div', { class: 'today-actions' },
       h('button', { class: 'btn primary', type: 'button', onclick: () => startPractice() }, icon('play', { size: 16, fill: true }), t.continueBtn),
       h('button', { class: 'btn', type: 'button', onclick: () => startPractice({ count: QUICK_COUNT }) }, icon('clock', { size: 16 }), t.quickN.replace('{n}', QUICK_COUNT))),
     summary,
   );
+
+  // ---- daily quests ----
+  const quests = dailyQuests(code);
+  const questsLeft = quests.filter((q) => !q.done).length;
+  const questCard = h('section', { class: `quest-card${questsLeft ? '' : ' done'}` },
+    h('div', { class: 'quest-head' },
+      h('strong', {}, icon(questsLeft ? 'target' : 'gift', { size: 18 }), t.questsTitle),
+      h('span', { class: 'muted' }, questsLeft ? t.questsReward : t.questsDone)),
+    h('ul', { class: 'quest-list' }, quests.map((q) =>
+      h('li', { class: `quest${q.done ? ' done' : ''}` },
+        h('span', { class: 'quest-check', 'aria-hidden': 'true' }, q.done ? icon('check', { size: 14 }) : null),
+        h('span', { class: 'quest-body' },
+          h('span', { class: 'quest-text' }, q.text),
+          h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${(q.have / q.need) * 100}%` }))),
+        h('span', { class: 'quest-count' }, `${q.have}/${q.need}`)))),
+  );
+
+  // ---- welcome back after a few days away: no guilt, just a short review ----
+  const away = st.today ? 0 : daysAway(code);
+  let awayCard = null;
+  if (away >= AWAY_DAYS) {
+    const pool = itemsFor(vocab, vocab.sets.map((x) => x.id));
+    // words already met, the ones not seen for longest first (mastered words before the rest)
+    const seen = pool.map((it) => ({ it, p: getProgress(it.key) })).filter((x) => x.p.t)
+      .sort((a, b) => (b.p.b >= MASTERED_BOX) - (a.p.b >= MASTERED_BOX) || a.p.t - b.p.t)
+      .slice(0, REVIEW_COUNT).map((x) => x.it);
+    awayCard = h('section', { class: 'away-card' },
+      h('span', { class: 'away-ic', 'aria-hidden': 'true' }, icon('heart', { size: 22, fill: true })),
+      h('span', { class: 'row-text' },
+        h('strong', {}, t.awayTitle),
+        h('span', { class: 'row-sub' }, t.awaySub.replace('{n}', away))),
+      seen.length >= 4
+        ? h('button', { class: 'btn primary', type: 'button', onclick: () => { ensureAudio(); startGame(shuffle(seen), pool, { mode: 'mix' }); } },
+            icon('repeat', { size: 16 }), t.awayBtn.replace('{n}', seen.length))
+        : null);
+  }
 
   // ---- what Start will play (the button itself is in the tab bar) ----
   const setsFoot = h('p', { class: 'group-foot sets-foot' });
@@ -160,11 +219,16 @@ export async function renderPractice() {
       },
     },
     h('span', { class: 'mode-ic' }, icon(MODE_ICON[m], { size: 26 })),
-    m === 'mix'
-      ? h('span', { class: 'mode-text' }, h('span', { class: 'mode-name' }, t.modes[m][0], h('span', { class: 'mini-badge' }, t.recommended)), h('span', { class: 'mode-sub' }, t.modes[m][1]))
+    m === 'mix' || m === 'survival'
+      ? h('span', { class: 'mode-text' },
+          h('span', { class: 'mode-name' }, t.modes[m][0],
+            m === 'mix' ? h('span', { class: 'mini-badge' }, t.recommended)
+              : getRecords(code).survival ? h('span', { class: 'mini-badge gold' }, `${t.best} ${getRecords(code).survival}`) : null),
+          h('span', { class: 'mode-sub' }, t.modes[m][1]))
       : h('span', { class: 'mode-name' }, t.modes[m][0])),
   );
   modeTiles[0].classList.add('mode-mix');
+  modeTiles[MODES.indexOf('survival')].classList.add('mode-mix', 'mode-survival');
 
   // ---- word sets, one level at a time ----
   const levels = [...new Set(vocab.sets.map(levelOf))].sort((a, b) => a - b);
@@ -186,6 +250,7 @@ export async function renderPractice() {
     }
     info.push({ set, total, mastered, seen });
     const complete = mastered === total;
+    const stars = getRecords(code).stars?.[set.id] || 0;
     const row = h('label', { class: `row set-row${complete ? ' complete' : ''}` },
       h('input', {
         type: 'checkbox',
@@ -203,7 +268,8 @@ export async function renderPractice() {
         complete ? h('span', { class: 'set-crown' }, icon('crown', { size: 12 })) : null),
       h('span', { class: 'row-text' },
         h('span', { class: 'row-label' }, nameOf(set.name)),
-        h('span', { class: 'row-sub' }, complete ? `${total} ${t.words} · ${t.setComplete}` : `${total} ${t.words} · ${t.mastered} ${mastered}`),
+        h('span', { class: 'row-sub' }, complete ? `${total} ${t.words} · ${t.setComplete}` : `${total} ${t.words} · ${t.mastered} ${mastered}`,
+          stars ? starRow(stars, { size: 13, cls: 'inline' }) : null),
         h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${total ? (mastered / total) * 100 : 0}%` })),
       ),
       // Inside the label, so stop the tap from toggling the checkbox.
@@ -311,7 +377,9 @@ export async function renderPractice() {
   render(
     pageHead(t.practiceTitle, { sub: t.practiceSub }),
     langSwitch,
+    awayCard,
     todayCard,
+    questCard,
     recCard,
     isIOS() && !isStandalone()
       ? h('a', { class: 'install-card', href: '#/help/install' },

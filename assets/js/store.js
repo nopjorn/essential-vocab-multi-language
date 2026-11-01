@@ -38,6 +38,10 @@ const DEFAULT_SETTINGS = {
   autoSpeak: true,
   sound: true, // short sound effects for right/wrong answers and combos
   theme: 'system', // 'system' | 'light' | 'dark'
+  // Unlockable looks (engage.js decides what is unlocked; the default is always available)
+  accent: 'indigo', // 'indigo' | 'green' | 'pink' | 'orange'
+  cardStyle: 'plain', // flashcard pattern: 'plain' | 'dots' | 'stripes'
+  soundPack: 'classic', // 'classic' | 'soft' | 'retro'
 };
 
 // Nothing saved yet on this device: show the welcome screen instead of Home.
@@ -70,9 +74,13 @@ export function getProgress(key) {
 
 // ---------- activity stats ----------
 // days: { 'YYYY-MM-DD': { [lang]: [answers, correct] } }
-// sessions: [{ lang, mode, n, c, s: seconds, t: timestamp }], newest last
-// records: { [lang]: { match: fastest full match round in seconds, combo: longest answer streak } }
-const stats = { days: {}, sessions: [], records: {}, ...load(STATS_KEY, {}) };
+// sessions: [{ lang, mode, n, c, s: seconds, t: timestamp, b?: best combo, m?: newly mastered }], newest last
+// records: { [lang]: { match: fastest full match round in seconds, combo: longest answer streak,
+//   survival?: most correct answers in survival, stars?: { [setId]: 1..3 }, perfect?: perfect rounds,
+//   modes?: [modes played], owl?: played late at night, early?: played early in the morning } }
+// quests: { 'YYYY-MM-DD': [lang, ...] } days on which all three daily quests of a language were done
+// Fields marked ? were added later and are optional, so older data needs no migration.
+const stats = { days: {}, sessions: [], records: {}, quests: {}, ...load(STATS_KEY, {}) };
 
 export function dayKey(d = new Date()) {
   const p = (n) => String(n).padStart(2, '0');
@@ -121,12 +129,46 @@ export function getRecords(lang) {
 }
 
 // Saves a personal best and returns true when it beats the old one
-// (match: lower seconds is better, combo: higher is better).
+// (match: lower seconds is better, combo and survival: higher is better).
 export function saveRecord(lang, kind, value) {
   const r = (stats.records[lang] ||= {});
-  const better = kind === 'match' ? !(r.match <= value) : !(r.combo >= value);
+  const better = kind === 'match' ? !(r.match <= value) : !(r[kind] >= value);
   if (!better) return false;
   r[kind] = value;
+  save(STATS_KEY, stats);
+  return true;
+}
+
+// Best stars (1–3) of a word set; returns true when this round improved them.
+export function saveStars(lang, setId, n) {
+  const r = (stats.records[lang] ||= {});
+  const stars = (r.stars ||= {});
+  if ((stars[setId] || 0) >= n) return false;
+  stars[setId] = n;
+  save(STATS_KEY, stats);
+  return true;
+}
+
+// Lifetime facts about finished rounds that badges need. Kept in records because the
+// session list is trimmed to MAX_SESSIONS and would forget them.
+export function noteRound(lang, { mode, n, c }, when = new Date()) {
+  const r = (stats.records[lang] ||= {});
+  if (n >= 10 && c === n) r.perfect = (r.perfect || 0) + 1;
+  if (n > 0) {
+    r.modes ||= [];
+    if (!r.modes.includes(mode)) r.modes.push(mode);
+    const hour = when.getHours();
+    if (hour >= 22 || hour < 4) r.owl = true;
+    if (hour >= 4 && hour < 7) r.early = true;
+  }
+  save(STATS_KEY, stats);
+}
+
+// All three daily quests of a language done today; returns true the first time.
+export function markQuestsDone(lang, day = dayKey()) {
+  const list = (stats.quests[day] ||= []);
+  if (list.includes(lang)) return false;
+  list.push(lang);
   save(STATS_KEY, stats);
   return true;
 }
@@ -164,6 +206,10 @@ export function resetLanguage(lang) {
   for (const day of Object.values(stats.days)) delete day[lang];
   stats.sessions = stats.sessions.filter((s) => s.lang !== lang);
   delete stats.records[lang];
+  for (const [day, langs] of Object.entries(stats.quests)) {
+    stats.quests[day] = langs.filter((l) => l !== lang);
+    if (!stats.quests[day].length) delete stats.quests[day];
+  }
   save(PROGRESS_KEY, progress);
   save(STATS_KEY, stats);
 }
@@ -226,6 +272,24 @@ export function importData(data) {
       if (!r || typeof r !== 'object') continue;
       if (num(r.match) > 0) saveRecord(lang, 'match', r.match);
       if (num(r.combo) > 0) saveRecord(lang, 'combo', r.combo);
+      if (num(r.survival) > 0) saveRecord(lang, 'survival', r.survival);
+      const mine = (stats.records[lang] ||= {});
+      if (r.stars && typeof r.stars === 'object') {
+        for (const [setId, n] of Object.entries(r.stars)) {
+          if (num(n) > 0) saveStars(lang, setId, Math.min(3, Math.floor(n)));
+        }
+      }
+      if (num(r.perfect) > (mine.perfect || 0)) mine.perfect = Math.floor(r.perfect);
+      if (Array.isArray(r.modes)) mine.modes = [...new Set([...(mine.modes || []), ...r.modes.filter((m) => typeof m === 'string')])];
+      if (r.owl === true) mine.owl = true;
+      if (r.early === true) mine.early = true;
+    }
+  }
+  const quests = data.stats?.quests;
+  if (quests && typeof quests === 'object') {
+    for (const [date, langs] of Object.entries(quests)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Array.isArray(langs)) continue;
+      stats.quests[date] = [...new Set([...(stats.quests[date] || []), ...langs.filter((l) => typeof l === 'string')])];
     }
   }
   save(PROGRESS_KEY, progress);

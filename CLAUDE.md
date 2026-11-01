@@ -11,8 +11,9 @@ Safari or as a Home Screen app.
 - Learn: English 🇬🇧 (85 sets, 3,291 words), Korean 🇰🇷 (93 sets, 3,283), Japanese 🇯🇵 (95 sets, 3,399),
   each in 3 levels (≈1,000 words per level)
 - Translate into: Thai (all languages); English (Korean and Japanese)
-- 7 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, match; Leitner boxes 0–5 (box ≥ 3 = mastered)
-- Game feel: combo counter, Web Audio sound effects (Settings toggle), pop/shake feedback, match timer with best time, badges
+- 8 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, match, survival (3 hearts); Leitner boxes 0–5 (box ≥ 3 = mastered)
+- Game feel: combo counter, Web Audio sound effects (Settings toggle, unlockable sound packs), pop/shake feedback, match timer with best time, badges,
+  stars per set, daily quests, XP/player level, streak freezes, milestones, unlockable looks (accent colour, flashcard pattern)
 - Native-app style UI: bottom tab bar (Home · Progress · **Start** · Guide · Settings; Start is a raised round
   button that starts a round from any tab), iOS large titles, inset grouped lists, full-screen games,
   swipeable flashcards (right = known, left = not yet)
@@ -45,19 +46,21 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 
 - **Learn** English, Korean, Japanese (3 levels each, ≈3,000 words per language); translations in Thai, and English for Korean/Japanese. Korean (7 Hangul sets) and Japanese (10 kana sets) have a separate "Letters" tab for absolute beginners
 - **Welcome** (first run only): 3 steps to pick language, level and daily goal (Skip keeps defaults)
-- **Home**: language switch, Today card (daily-goal ring, streak, Continue / Quick 5, mastered + accuracy footer),
+- **Home**: language switch, "We missed you" card after ≥ 3 days away (review of known words), Today card (daily-goal ring, streak
+  or "play today to keep your streak", level chip, streak freezes, Mon–Sun week strip, Continue / Quick 5, mastered + accuracy footer),
+  3 daily quests,
   "Up next" recommended set (plays it alone), mode tiles (Mixed is the wide suggested tile), search for sets and the
-  words inside them, level switch, multi-select word sets (fully mastered sets get a gold crown)
+  words inside them, level switch, multi-select word sets (fully mastered sets get a gold crown; best 1–3 stars per set)
 - **Word list of a set** (list icon on a set row): every word with reading, translation, note and speaker;
   tap the circle to mark a word as already known (mastered, undoable; not counted as an answer);
   "Practice this set" plays only that set
-- **7 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint),
-  match (timed, best-time record); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
+- **8 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint),
+  match (timed, best-time record), survival (3 hearts, harder as the score grows, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
   options at the bottom of the screen on phones
-- **Results screen**: animated ring, newly mastered words, comparison with the last game, goal progress, best combo,
-  new records, newly earned badges
-- **Progress**: overview and per-language detail (tiles, badges, per-level set bars, 14-day chart, weak words with one-tap practice, history)
-- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, sound effects, theme, export/import progress backup (.json, merged on import), per-language reset, what's new
+- **Results screen**: animated ring, stars, newly mastered words, comparison with the last game, goal progress, best combo,
+  new records, XP bar + level up, daily quests, newly earned badges and unlocks, set stars, full-screen milestone celebration
+- **Progress**: overview (player level card, best streak, quest days) and per-language detail (tiles, 23 badges, per-level set bars, 14-day chart, weak words with one-tap practice, history)
+- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, sound effects, theme, Collection (player level, accent colour, flashcard pattern, sound pack; locked ones show what unlocks them), export/import progress backup (.json, merged on import), per-language reset, what's new
 - **PWA**: installable on iPhone/iPad, works offline, update toast, in-app guide
 
 ## Layout
@@ -80,21 +83,25 @@ assets/js/
                 playSet() (one set on its own; Up next card and word list)
   settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, sound effects, theme,
                 daily goal, progress export/import, per-language reset, about (version, what's new, guide, install)
-  game.js       item building, weighted picking, distractors, all 7 modes (mix picks quiz/reverse/listen, type once box ≥ 2),
+  game.js       item building, weighted picking, distractors, all 8 modes (survival: endless queue, hearts, harder by score) (mix picks quiz/reverse/listen, type once box ≥ 2),
                 combo + bursts, flashcard undo (store.undoRecord), type hint, match timer/record, results screen
-                (animated ring, newly mastered words, vs last game, goal progress, best combo, records, new badges, confetti)
-  sound.js      Web Audio sound effects sfx(name) (no audio files; settings.sound), buzz() vibration where supported
-  badges.js     badges per language computed from progress/stats (streak, words, sets, combo); badgeList(), earnedIds()
+                (animated ring, stars, newly mastered words, vs last game, goal progress, best combo, records, XP bar, quests,
+                new badges/unlocks/set stars, confetti, milestone overlay); startGame(items, pool, { mode }) can override the mode
+  sound.js      Web Audio sound effects sfx(name) (no audio files; settings.sound; packs classic/soft/retro via settings.soundPack), buzz() vibration where supported
+  badges.js     badges per language computed from progress/stats/records (streak, words, sets, levels, combo, perfect, survival,
+                modes, owl/early, polyglot); badgeList(), earnedIds()
+  engage.js     daily quests (seeded per day+language; stats.quests marks finished days), XP + player level, milestones,
+                unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card
   welcome.js    first-run welcome (language, level, daily goal); shown while store.firstRun and not finished
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
   words.js      word list of one set (#/words/<lang>/<set>, opened from the list icon on a Home set row; Practice this set)
-  progress.js   progress overview + per-language detail (tiles, badges, stacked bars, 14-day chart, weak words)
+  progress.js   streakInfo() (streak, best, freezes earned every 7 days, max 2), progress overview + per-language detail (tiles, badges, stacked bars, 14-day chart, weak words)
   info.js       guide and changelog pages
   guide.js      guide content {th, en}
   i18n.js       UI strings {th, en}; uiFor(code) falls back to Thai
   store.js      localStorage: settings, per-word progress, daily stats, sessions, records, last seen version; firstRun;
                 record() returns an undo token for undoRecord(); exportData()/importData() backup (merge)
-  theme.js      applyTheme(), theme segmented control (used in Settings)
+  theme.js      applyTheme() (theme + data-accent + data-card), theme segmented control (used in Settings)
   speech.js     Web Speech API wrapper (iOS needs a user tap before first speech)
   app-info.js   APP_VERSION/APP_BUILD, versionLabel(), isIOS/isStandalone
 assets/icons/           app icons + splash screens (generated by scripts/make-icons.py)
@@ -156,16 +163,19 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`); pages read it through `state.t`.
-- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, and `sound`), `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t}`),
-  `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`, `sessions[]`, `records[lang] = {match: best secs, combo}`), `evocab.lastVersion`.
-  Badges are computed, not stored. A device with neither settings nor progress saved gets the welcome screen.
+- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `sound`, `accent`, `cardStyle`, `soundPack`),
+  `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t}`), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`,
+  `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
+  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`), `evocab.lastVersion`.
+  Badges, XP/level, streak freezes, milestones and unlocks are computed, not stored (only finished quest days are, since sessions are trimmed). A device with neither settings nor progress saved gets the welcome screen.
   Changing a format needs a migration and a major version bump.
 - Distractors must differ from the answer in both term and translation (homonyms like 눈 eye/snow).
 - iOS: touch targets ≥ 44px, inputs ≥ 16px font (no zoom), respect `env(safe-area-inset-*)`,
   `100dvh`; test portrait and landscape. iPad landscape (≥1024px) shows the Home tab in 2 columns.
   The Start button rises `--fab-rise` above the tab bar on phones (a pill inside the bar from 744px); the toast sits above it.
 - Sounds come from `sfx()` in sound.js (oscillator notes, no files); `ensureAudio()` unlocks speech and audio on the first tap.
-- Theme: `data-theme="light|dark"` on `<html>` forces a theme; no attribute = follow system.
+- Theme: `data-theme="light|dark"` on `<html>` forces a theme; no attribute = follow system. `data-accent` (green/pink/orange) and
+  `data-card` (dots/stripes) apply unlocked looks; accent tokens exist for light and both dark blocks at the end of style.css.
   New colors need light tokens on `:root` and dark tokens in **both** dark blocks.
 - Comments explain why, not what. Match the existing style.
 

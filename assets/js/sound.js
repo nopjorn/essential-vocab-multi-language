@@ -24,20 +24,30 @@ const SOUNDS = {
   tap: [[520, 0, 0.05]],
 };
 
-export function sfx(name) {
+// Unlockable sound packs (settings.soundPack): same notes, different voice.
+// soft = mellow and an octave lower, retro = square wave like old game consoles.
+const PACKS = {
+  classic: { wave: 'sine', bad: 'triangle', pitch: 1, vol: 0.18 },
+  soft: { wave: 'triangle', bad: 'triangle', pitch: 0.5, vol: 0.22 },
+  retro: { wave: 'square', bad: 'square', pitch: 1, vol: 0.07 },
+};
+
+export function sfx(name, pack = settings.soundPack) {
   if (!settings.sound || !SOUNDS[name]) return;
   unlockSound();
   if (!ctx || ctx.state !== 'running') return;
   const now = ctx.currentTime;
-  const wave = name === 'bad' ? 'triangle' : 'sine';
-  for (const [freq, at, len] of SOUNDS[name]) {
+  const voice = PACKS[pack] || PACKS.classic;
+  const wave = name === 'bad' ? voice.bad : voice.wave;
+  for (const [f, at, len] of SOUNDS[name]) {
+    const freq = f * voice.pitch;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = wave;
     osc.frequency.value = freq;
     // quick attack and exponential release so notes don't click
     gain.gain.setValueAtTime(0.0001, now + at);
-    gain.gain.exponentialRampToValueAtTime(0.18, now + at + 0.015);
+    gain.gain.exponentialRampToValueAtTime(voice.vol, now + at + 0.015);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + at + len);
     osc.connect(gain).connect(ctx.destination);
     osc.start(now + at);

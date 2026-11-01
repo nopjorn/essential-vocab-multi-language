@@ -1,13 +1,15 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, logSession, getStats, todayAnswers, MAX_BOX, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle } from './core.js';
+import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, MAX_BOX, MASTERED_BOX } from './store.js';
+import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
 import { sfx, buzz } from './sound.js';
 import { dayTotals, streak } from './progress.js';
 import { badgeList, earnedIds } from './badges.js';
+import { totalXP, playerLevel, syncQuests, dailyQuests, milestones, unlockedIds } from './engage.js';
 
-export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'match'];
+export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'match', 'survival'];
+const HEARTS = 3; // survival: wrong answers allowed before the run ends
 const MATCH_PAIRS = 6;
 const SWIPE_RATIO = 0.28; // fraction of the card width that counts as a decision
 
@@ -74,12 +76,14 @@ function distractors(item, pool, n = 3) {
 
 // ---------- shell ----------
 
-export function startGame(items, pool) {
+// `mode` overrides the chosen mode for one round (e.g. review rounds that must not be survival).
+export function startGame(items, pool, { mode = settings.mode } = {}) {
   // The game replaces whatever page is showing: stop that page's pending async render.
   state.navId++;
   document.body.classList.add('in-game');
+  const survival = mode === 'survival';
   const session = {
-    mode: settings.mode,
+    mode,
     lang: settings.lang,
     items,
     pool,
@@ -94,8 +98,16 @@ export function startGame(items, pool) {
     matchRecord: null, // seconds, when a match round set a new personal best
     badgesBefore: earnedIds(settings.lang),
     before: todayAnswers(settings.lang),
+    xpBefore: totalXP(),
+    milestonesBefore: new Set(milestones(settings.lang).keys()),
+    unlocksBefore: unlockedIds(),
+    questsBefore: dailyQuests(settings.lang).filter((q) => q.done).length,
     startedAt: Date.now(),
+    // survival: items grows as questions are asked; queue holds the words still to come
+    hearts: survival ? HEARTS : null,
+    queue: [],
   };
+  if (survival) session.items = [];
   if (session.mode === 'match') playMatch(session);
   else playNext(session);
 }
@@ -105,10 +117,28 @@ function exitGame() {
   onExit();
 }
 
+// Survival shows hearts where the other modes show the progress bar.
+function heartsEl(session) {
+  const t = state.t;
+  return h('div', { class: 'hearts', role: 'img', 'aria-label': `${t.heartsLeft} ${session.hearts}/${HEARTS}` },
+    Array.from({ length: HEARTS }, (_, i) =>
+      h('span', { class: `heart${i < session.hearts ? ' on' : ''}` }, icon('heart', { size: 22, fill: i < session.hearts }))));
+}
+
 function topBar(session, label, extra = null) {
   const t = state.t;
   const total = session.items.length;
   const pct = Math.round((session.i / total) * 100);
+  if (session.hearts !== null) {
+    session.heartsEl = heartsEl(session);
+    return h('div', { class: 'game-top' },
+      h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
+      session.heartsEl,
+      session.comboEl,
+      h('span', { class: 'counter survival-score', title: t.score }, icon('check', { size: 16 }), String(session.correct)),
+      extra,
+    );
+  }
   return h('div', { class: 'game-top' },
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
     h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(session.i) },
@@ -159,6 +189,13 @@ function grade(session, item, ok) {
   session.combo = ok ? session.combo + 1 : 0;
   session.bestCombo = Math.max(session.bestCombo, session.combo);
   updateCombo(session, ok);
+  if (!ok && session.hearts !== null) {
+    session.hearts = Math.max(0, session.hearts - 1);
+    const el = heartsEl(session);
+    el.classList.add('lose');
+    session.heartsEl?.replaceWith(el);
+    session.heartsEl = el;
+  }
 }
 
 // Takes back the last graded answer (progress, daily stats and this round's tallies).
@@ -193,11 +230,41 @@ function mixMode(item) {
 }
 
 function modePill(session, mode) {
-  if (session.mode !== 'mix') return null;
+  if (session.mode !== 'mix' && session.mode !== 'survival') return null;
   return h('div', { class: 'mode-pill' }, icon(MODE_ICON[mode], { size: 16 }), state.t.modes[mode][0]);
 }
 
+// Survival gets harder as the score grows: more question types, typing last.
+function survivalMode(session, item) {
+  const n = session.correct;
+  const modes = ['quiz'];
+  if (n >= 5) modes.push('reverse');
+  if (n >= 12 && speechSupported) modes.push('listen');
+  if (n >= 20 && getProgress(item.key).b >= 1) modes.push('type');
+  return modes[Math.floor(Math.random() * modes.length)];
+}
+
+// Next survival word: work through the pool in weighted order, refilling it when it runs out,
+// and never the same word twice in a row.
+function nextSurvivalItem(session) {
+  if (!session.queue.length) session.queue = pickItems(session.pool, session.pool.length);
+  const last = session.items.at(-1);
+  if (session.queue[0] === last && session.queue.length > 1) session.queue.push(session.queue.shift());
+  return session.queue.shift();
+}
+
 function playNext(session) {
+  if (session.hearts !== null) {
+    if (session.hearts <= 0) return showResults(session);
+    if (session.i >= session.items.length) session.items.push(nextSurvivalItem(session));
+    const item = session.items[session.i];
+    const mode = survivalMode(session, item);
+    const view = mode === 'type' ? typeView : choiceView;
+    return view(session, item, () => {
+      session.i++;
+      playNext(session);
+    }, mode);
+  }
   if (session.i >= session.items.length) return showResults(session);
   const item = session.items[session.i];
   const advance = () => {
@@ -679,33 +746,146 @@ function confetti() {
     })));
 }
 
+// 3 stars for a perfect round, 2 from 80%, 1 from 50%.
+export function starsFor(correct, total) {
+  if (!total) return 0;
+  const p = correct / total;
+  return p >= 1 ? 3 : p >= 0.8 ? 2 : p >= 0.5 ? 1 : 0;
+}
+
+export function starRow(n, { size = 16, cls = '' } = {}) {
+  return h('span', { class: `stars ${cls}`.trim(), role: 'img', 'aria-label': `${n}/3 ${state.t.starsUnit}` },
+    [0, 1, 2].map((i) => h('span', { class: `star${i < n ? ' on' : ''}`, style: `--i:${i}` }, icon('star', { size, fill: i < n }))));
+}
+
+// Best stars per word set from this round: sets with at least 4 questions in it count.
+function roundStars(session) {
+  if (session.mode === 'survival') return [];
+  const bySet = new Map();
+  for (const e of session.history) {
+    const x = bySet.get(e.item.setId) || { n: 0, c: 0 };
+    x.n++;
+    if (e.ok) x.c++;
+    bySet.set(e.item.setId, x);
+  }
+  const vocab = cachedLang(session.lang);
+  const improved = [];
+  for (const [setId, { n, c }] of bySet) {
+    const stars = n >= 4 ? starsFor(c, n) : 0;
+    if (stars && saveStars(session.lang, setId, stars)) {
+      const set = vocab?.sets.find((x) => x.id === setId);
+      if (set) improved.push({ set, stars });
+    }
+  }
+  return improved;
+}
+
+// Player level bar: grows from where it was before the round; on a level up it refills.
+function xpBar(before, after) {
+  const t = state.t;
+  const a = playerLevel(before);
+  const b = playerLevel(after);
+  const up = b.level > a.level;
+  const fillEl = h('span', { class: 'xp-fill', style: `width:${up ? 0 : a.pct}%` });
+  requestAnimationFrame(() => requestAnimationFrame(() => (fillEl.style.width = `${b.pct}%`)));
+  return h('div', { class: `xp-box${up ? ' up' : ''}` },
+    h('div', { class: 'xp-head' },
+      h('span', { class: 'xp-level' }, icon('trophy', { size: 16 }), t.levelShort.replace('{n}', b.level)),
+      h('b', {}, `+${after - before} XP`),
+      h('span', { class: 'muted' }, `${after - b.from}/${b.to - b.from}`)),
+    h('span', { class: 'xp-bar' }, fillEl),
+    up ? h('p', { class: 'xp-up' }, icon('sparkles', { size: 16 }), t.levelUp.replace('{n}', b.level)) : null);
+}
+
+function questBox(lang, justDone) {
+  const t = state.t;
+  const quests = dailyQuests(lang);
+  return h('div', { class: `quest-box${justDone ? ' done' : ''}` },
+    h('strong', {}, icon(justDone ? 'gift' : 'target', { size: 18 }), justDone ? t.questsDone : t.questsTitle),
+    h('ul', { class: 'quest-mini' }, quests.map((q) =>
+      h('li', { class: q.done ? 'done' : '' },
+        h('span', { class: 'quest-check', 'aria-hidden': 'true' }, q.done ? icon('check', { size: 14 }) : null),
+        h('span', { class: 'quest-text' }, q.text),
+        h('span', { class: 'quest-count' }, `${q.have}/${q.need}`)))));
+}
+
+// Full-screen celebration for milestones crossed in this round (shown once: next round
+// starts from the new total). Tap the button or the backdrop to close it.
+function milestoneOverlay(list) {
+  const t = state.t;
+  const ICON = { mastered: 'sparkles', answers: 'quiz', level: 'layers' };
+  const close = () => {
+    overlay.remove();
+    onKeys(null);
+  };
+  const overlay = h('div', { class: 'milestone', role: 'dialog', 'aria-modal': 'true', 'aria-label': t.milestoneTitle, onclick: (e) => e.target === overlay && close() },
+    h('div', { class: 'milestone-card' },
+      confetti(),
+      h('span', { class: 'milestone-ic' }, icon(ICON[list[0].kind], { size: 40 })),
+      h('p', { class: 'milestone-kicker' }, t.milestoneTitle),
+      list.map((m) => h('h2', {}, t.milestoneNames[m.kind].replace('{n}', m.kind === 'level' ? levelName(m.n) : m.n.toLocaleString()))),
+      h('p', { class: 'milestone-sub' }, t.milestoneSub),
+      h('button', { class: 'btn primary big', type: 'button', onclick: close }, t.milestoneOk)));
+  document.body.append(overlay);
+  sfx('done');
+  overlay.querySelector('button').focus({ preventScroll: true });
+  onKeys((e) => {
+    if (e.key === 'Escape' || e.key === 'Enter') {
+      e.preventDefault();
+      close();
+    }
+  });
+}
+
+function levelName(lv) {
+  const t = state.t;
+  return lv === 0 ? t.levelLetters : t.levelN.replace('{n}', lv);
+}
+
 function showResults(session) {
   const t = state.t;
   onKeys(null);
+  const survival = session.mode === 'survival';
+  const lang = session.lang;
   const total = session.items.length;
   const pct = total ? Math.round((session.correct / total) * 100) : 0;
   const secs = Math.round((Date.now() - session.startedAt) / 1000);
-  const prev = getStats().sessions.filter((x) => x.lang === session.lang && x.n).at(-1);
-  const prevPct = prev ? Math.round((prev.c / prev.n) * 100) : null;
-  logSession({ lang: session.lang, mode: session.mode, n: total, c: session.correct, s: secs, t: Date.now() });
+  const prev = getStats().sessions.filter((x) => x.lang === lang && x.n && x.mode !== 'survival').at(-1);
+  const prevPct = prev && !survival ? Math.round((prev.c / prev.n) * 100) : null;
+  const mastered = [...session.mastered.values()];
+  logSession({ lang, mode: session.mode, n: total, c: session.correct, s: secs, t: Date.now(), b: session.bestCombo, m: mastered.length });
+  noteRound(lang, { mode: session.mode, n: total, c: session.correct });
   // Only call it a record when there was one to beat, not on the very first game.
-  const prevCombo = getRecords(session.lang).combo || 0;
-  const comboRecord = session.bestCombo >= 2 && saveRecord(session.lang, 'combo', session.bestCombo) && prevCombo > 0;
-  const newBadges = badgeList(session.lang).filter((b) => b.earned && !session.badgesBefore.has(b.id));
-  const message = pct >= 90 ? t.resultGreat : pct >= 60 ? t.resultGood : t.resultKeep;
+  const records = getRecords(lang);
+  const prevCombo = records.combo || 0;
+  const prevSurvival = records.survival || 0;
+  const comboRecord = session.bestCombo >= 2 && saveRecord(lang, 'combo', session.bestCombo) && prevCombo > 0;
+  const survivalRecord = survival && session.correct > 0 && saveRecord(lang, 'survival', session.correct) && prevSurvival > 0;
+  const starsImproved = roundStars(session);
+  const questJustDone = syncQuests(lang);
+  const newBadges = badgeList(lang).filter((b) => b.earned && !session.badgesBefore.has(b.id));
+  const newMilestones = [...milestones(lang)].filter(([id]) => !session.milestonesBefore.has(id)).map(([, m]) => m);
+  const xpAfter = totalXP();
+  const levelUp = playerLevel(xpAfter).level > playerLevel(session.xpBefore).level;
+  const newUnlocks = [...unlockedIds()].filter((id) => !session.unlocksBefore.has(id));
+  const message = survival
+    ? t.survivalOver.replace('{n}', session.correct)
+    : pct >= 90 ? t.resultGreat : pct >= 60 ? t.resultGood : t.resultKeep;
 
   const goal = settings.dailyGoal;
-  const today = todayAnswers(session.lang);
+  const today = todayAnswers(lang);
   const goalJustMet = goal > 0 && session.before < goal && today >= goal;
-  const days = streak(dayTotals(session.lang));
+  const days = streak(dayTotals(lang));
   const diff = prevPct === null ? null : pct - prevPct;
+  const stars = survival || total < 4 ? null : starsFor(session.correct, total);
 
-  const pctNum = h('b', {}, `${pct}%`);
-  const mastered = [...session.mastered.values()];
+  const pctNum = h('b', {}, survival ? String(session.correct) : `${pct}%`);
   const badges = h('div', { class: 'result-badges' },
     diff ? h('span', { class: `chip ${diff > 0 ? 'up' : 'down'}` }, `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)}% ${t.vsLast}`) : null,
     days ? h('span', { class: 'chip' }, icon('flame', { size: 14 }), `${days} ${t.days}`) : null,
     goal > 0 ? h('span', { class: `chip${today >= goal ? ' up' : ''}` }, icon('target', { size: 14 }), t.goalToday.replace('{n}', today).replace('{goal}', goal)) : null,
+    survivalRecord ? h('span', { class: 'chip gold' }, icon('heart', { size: 14 }), t.survivalRecord.replace('{n}', session.correct)) : null,
+    survival && !survivalRecord && prevSurvival ? h('span', { class: 'chip' }, icon('trophy', { size: 14 }), `${t.best} ${getRecords(lang).survival}`) : null,
     comboRecord ? h('span', { class: 'chip gold' }, icon('bolt', { size: 14 }), t.comboRecord.replace('{n}', session.bestCombo)) : null,
     session.matchRecord ? h('span', { class: 'chip gold' }, icon('trophy', { size: 14 }), `${t.newRecord} ${session.matchRecord.toFixed(1)} ${t.sec}`) : null,
   );
@@ -715,8 +895,20 @@ function showResults(session) {
         h('div', { class: 'badge-chips' }, newBadges.map((b) =>
           h('span', { class: 'badge-chip' }, h('span', { class: `row-icon ${b.color}` }, icon(b.icon, { size: 16 })), b.name))))
     : null;
-  const celebrate = goalJustMet || pct === 100 || newBadges.length > 0 || comboRecord || !!session.matchRecord;
-  if (celebrate) sfx('done');
+  const starsBox = starsImproved.length
+    ? h('div', { class: 'stars-box' },
+        h('strong', {}, icon('star', { size: 18, fill: true }), t.newStars),
+        h('ul', {}, starsImproved.map(({ set, stars: n }) =>
+          h('li', {}, h('span', { 'aria-hidden': 'true' }, set.icon), h('span', { class: 'stars-set' }, nameOf(set.name)), starRow(n)))))
+    : null;
+  const unlockBox = newUnlocks.length
+    ? h('div', { class: 'badge-box unlock-box' },
+        h('strong', {}, icon('gift', { size: 18 }), t.newUnlocks),
+        h('div', { class: 'badge-chips' }, newUnlocks.map((id) =>
+          h('a', { class: 'badge-chip', href: '#/settings' }, h('span', { class: 'row-icon indigo' }, icon('palette', { size: 16 })), t.lookNames[id]))))
+    : null;
+  const celebrate = goalJustMet || pct === 100 || newBadges.length > 0 || comboRecord || survivalRecord || !!session.matchRecord || questJustDone || levelUp;
+  if (celebrate && !newMilestones.length) sfx('done');
   const masteredBox = mastered.length
     ? h('div', { class: 'mastered-box' },
         h('strong', {}, icon('sparkles', { size: 18 }), t.newMastered.replace('{n}', mastered.length)),
@@ -740,7 +932,9 @@ function showResults(session) {
     ),
     h('section', { class: 'result-hero' },
       celebrate ? confetti() : null,
-      h('div', { class: 'ring-wrap' }, scoreRing(pct), h('div', { class: 'ring-label' }, pctNum, h('span', {}, t.accuracy))),
+      h('div', { class: 'ring-wrap' }, scoreRing(survival ? Math.min(100, (session.correct / Math.max(1, getRecords(lang).survival || 1)) * 100) : pct),
+        h('div', { class: 'ring-label' }, pctNum, h('span', {}, survival ? t.survivalScore : t.accuracy))),
+      stars !== null ? starRow(stars, { size: 30, cls: 'big' }) : null,
       h('p', { class: 'result-msg' }, goalJustMet ? t.goalReached : message),
       badges,
       h('div', { class: 'stats' },
@@ -749,17 +943,26 @@ function showResults(session) {
         h('div', { class: 'stat' }, h('b', {}, `×${session.bestCombo}`), h('span', {}, t.bestCombo)),
       ),
     ),
+    xpBar(session.xpBefore, xpAfter),
+    questBox(lang, questJustDone),
+    unlockBox,
     badgeBox,
+    starsBox,
     masteredBox,
     groupTitle(t.reviewWrong),
     reviewList,
     h('div', { class: 'actions stack' },
       session.wrong.length
-        ? h('button', { class: 'btn primary big', type: 'button', onclick: () => startGame(shuffle(session.wrong), session.pool) }, icon('repeat', { size: 20 }), t.practiceWrong)
+        ? h('button', { class: 'btn primary big', type: 'button', onclick: () => startGame(shuffle(session.wrong), session.pool, { mode: survival ? 'mix' : session.mode }) }, icon('repeat', { size: 20 }), t.practiceWrong)
         : null,
-      h('button', { class: `btn big${session.wrong.length ? '' : ' primary'}`, type: 'button', onclick: () => startGame(pickItems(session.pool, settings.count), session.pool) }, icon('play', { size: 18, fill: true }), t.playAgain),
+      h('button', {
+        class: `btn big${session.wrong.length ? '' : ' primary'}`,
+        type: 'button',
+        onclick: () => startGame(survival ? [] : pickItems(session.pool, settings.count), session.pool, { mode: session.mode }),
+      }, icon('play', { size: 18, fill: true }), t.playAgain),
       h('button', { class: 'btn ghost', type: 'button', onclick: exitGame }, t.done),
     ),
   ));
-  countUp(pctNum, pct, '%');
+  countUp(pctNum, survival ? session.correct : pct, survival ? '' : '%');
+  if (newMilestones.length) milestoneOverlay(newMilestones);
 }

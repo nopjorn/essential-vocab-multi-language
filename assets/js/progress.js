@@ -4,6 +4,7 @@ import { state, h, render, nameOf, levelOf, levelLabel, loadAllLangs, loadLang, 
 import { itemsFor, startGame } from './game.js';
 import { icon, MODE_ICON } from './icons.js';
 import { badgeList } from './badges.js';
+import { playerLevel, questDays } from './engage.js';
 
 const CHART_DAYS = 14;
 
@@ -48,15 +49,46 @@ export function dayTotals(lang) {
   return out;
 }
 
-export function streak(totals) {
-  const d = new Date();
-  if (!totals[dayKey(d)]) d.setDate(d.getDate() - 1); // today not played yet: count up to yesterday
-  let n = 0;
-  while (totals[dayKey(d)]) {
-    n++;
-    d.setDate(d.getDate() - 1);
+// Streak freezes: every FREEZE_EVERY days played in a row earn one (kept up to FREEZE_MAX).
+// A missed day while on a streak uses one up instead of breaking the streak. Everything is
+// worked out from the daily stats, so nothing extra is stored and backups carry it along.
+export const FREEZE_EVERY = 7;
+export const FREEZE_MAX = 2;
+
+// { days: current streak, best: longest ever, freezes: held now, frozen: Set of days saved by
+// a freeze, today: played today }. Today not played yet doesn't break the streak.
+export function streakInfo(totals) {
+  const today = dayKey();
+  const first = Object.keys(totals).sort()[0];
+  const info = { days: 0, best: 0, freezes: 0, frozen: new Set(), today: !!totals[today] };
+  if (!first) return info;
+  let toward = 0;
+  const [y, m, dd] = first.split('-').map(Number);
+  for (const d = new Date(y, m - 1, dd); ; d.setDate(d.getDate() + 1)) {
+    const key = dayKey(d);
+    if (key > today) break;
+    if (totals[key]) {
+      info.days++;
+      info.best = Math.max(info.best, info.days);
+      if (++toward >= FREEZE_EVERY) {
+        toward = 0;
+        info.freezes = Math.min(FREEZE_MAX, info.freezes + 1);
+      }
+    } else if (key !== today) {
+      if (info.days > 0 && info.freezes > 0) {
+        info.freezes--;
+        info.frozen.add(key);
+      } else {
+        info.days = 0;
+        toward = 0;
+      }
+    }
   }
-  return n;
+  return info;
+}
+
+export function streak(totals) {
+  return streakInfo(totals).days;
 }
 
 function locale() {
@@ -168,10 +200,18 @@ export async function renderProgress(lang) {
   }), { total: 0, mastered: 0, seen: 0, c: 0, w: 0 });
   const totals = dayTotals();
   const sessions = getStats().sessions;
+  const lv = playerLevel();
+  const st = streakInfo(totals);
 
   render(
     pageHead(t.progressTitle),
     tabs(null),
+    h('section', { class: 'card level-card' },
+      h('span', { class: 'level-badge' }, h('small', {}, 'Lv'), h('b', {}, lv.level)),
+      h('span', { class: 'row-text' },
+        h('span', { class: 'row-label' }, t.playerLevel.replace('{n}', lv.level)),
+        h('span', { class: 'xp-bar' }, h('span', { class: 'xp-fill', style: `width:${lv.pct}%` })),
+        h('span', { class: 'row-sub' }, t.xpToNext.replace('{xp}', lv.xp.toLocaleString()).replace('{n}', (lv.to - lv.xp).toLocaleString())))),
     h('div', { class: 'tiles' },
       tile('check', `${all.mastered}`, t.wordsMastered, `/ ${all.total} · ${pct(all.mastered, all.total)}%`),
       tile('eye', `${all.seen}`, t.wordsSeen),
@@ -179,6 +219,8 @@ export async function renderProgress(lang) {
       tile('flame', `${streak(totals)}`, t.streak, t.days),
       tile('quiz', `${all.c + all.w}`, t.totalAnswers),
       tile('repeat', `${sessions.length}`, t.sessions),
+      tile('trophy', `${st.best}`, t.bestStreak, t.days),
+      tile('gift', `${questDays()}`, t.questDays),
     ),
     groupTitle(t.last14),
     h('section', { class: 'card' }, activityChart(totals)),
@@ -263,7 +305,8 @@ function renderLang(s) {
     const keys = new Set(top.map((x) => wordKey(code, x.set.id, x.word.term)));
     const items = pool.filter((it) => keys.has(it.key));
     if (settings.mode === 'match' && items.length < 2) settings.mode = 'quiz';
-    startGame(items, pool);
+    // survival never ends on its own word list, so weak words get the mixed mode instead
+    startGame(items, pool, { mode: settings.mode === 'survival' ? 'mix' : settings.mode });
   };
 
   render(
