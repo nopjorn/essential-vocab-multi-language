@@ -1,7 +1,7 @@
 // Home tab: language switch, progress summary, game mode and word sets, plus
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
-import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
 import { MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
@@ -13,6 +13,8 @@ import { isIOS, isStandalone } from './app-info.js';
 const QUICK_COUNT = 5;
 const AWAY_DAYS = 3; // gone this long: Home greets you back with a short review
 const REVIEW_COUNT = 10;
+const DUE_COUNT = 20; // words in one "due for review" round
+const DUE_MIN = 4; // below this the card stays hidden (choice modes need four words)
 
 // Sets chosen for a language; new users start with its first two sets.
 function chosenIds(vocab) {
@@ -56,7 +58,10 @@ export function playSet(vocab, setId) {
 
 // Next set on the learning path: the first unfinished set already started, else the first
 // unfinished one, looking at the shown level first.
-function nextSet(info, level) {
+function nextSet(info, level, dueBySet) {
+  // a set with plenty of words due for review comes first (the most due)
+  const duest = info.filter((x) => (dueBySet.get(x.set.id) || 0) >= 3).sort((a, b) => dueBySet.get(b.set.id) - dueBySet.get(a.set.id))[0];
+  if (duest) return duest;
   const open = info.filter((x) => x.mastered < x.total);
   const order = [...open.filter((x) => levelOf(x.set) === level), ...open.filter((x) => levelOf(x.set) !== level)];
   return order.find((x) => x.seen > 0) || order[0] || null;
@@ -197,6 +202,21 @@ export async function renderPractice() {
             icon('repeat', { size: 16 }), t.awayBtn.replace('{n}', seen.length))
         : null);
   }
+
+  // ---- words due for review (Leitner intervals): a one-tap review round ----
+  const allItems = itemsFor(vocab, vocab.sets.map((x) => x.id));
+  const dueItems = allItems.filter((it) => isDue(getProgress(it.key))).sort((a, b) => dueAt(getProgress(a.key)) - dueAt(getProgress(b.key)));
+  const dueBySet = new Map();
+  for (const it of dueItems) dueBySet.set(it.setId, (dueBySet.get(it.setId) || 0) + 1);
+  const dueCard = dueItems.length >= DUE_MIN && !awayCard
+    ? h('section', { class: 'away-card due-card' },
+        h('span', { class: 'away-ic', 'aria-hidden': 'true' }, icon('clock', { size: 22 })),
+        h('span', { class: 'row-text' },
+          h('strong', {}, t.dueTitle.replace('{n}', dueItems.length)),
+          h('span', { class: 'row-sub' }, t.dueSub)),
+        h('button', { class: 'btn primary', type: 'button', onclick: () => { ensureAudio(); startGame(shuffle(dueItems.slice(0, DUE_COUNT)), allItems, { mode: 'mix' }); } },
+          icon('repeat', { size: 16 }), t.dueBtn.replace('{n}', Math.min(DUE_COUNT, dueItems.length))))
+    : null;
 
   // ---- what Start will play (the button itself is in the tab bar) ----
   const setsFoot = h('p', { class: 'group-foot sets-foot' });
@@ -368,14 +388,15 @@ export async function renderPractice() {
   setsTitle.classList.add('sets-title');
 
   // ---- recommended next set ----
-  const rec = nextSet(info, level);
+  const rec = nextSet(info, level, dueBySet);
   const recCard = rec
     ? h('button', { class: 'next-card', type: 'button', onclick: () => playSet(vocab, rec.set.id) },
         h('span', { class: 'set-ic', 'aria-hidden': 'true' }, rec.set.icon),
         h('span', { class: 'row-text' },
           h('span', { class: 'next-label' }, icon('sparkles', { size: 14 }), t.nextUp),
           h('span', { class: 'row-label' }, nameOf(rec.set.name)),
-          h('span', { class: 'row-sub' }, `${levelLabel(t, levelOf(rec.set))} · ${t.mastered} ${rec.mastered}/${rec.total}`),
+          h('span', { class: 'row-sub' }, `${levelLabel(t, levelOf(rec.set))} · ${t.mastered} ${rec.mastered}/${rec.total}`,
+            dueBySet.get(rec.set.id) ? ` · ${t.dueN.replace('{n}', dueBySet.get(rec.set.id))}` : ''),
           h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${(rec.mastered / rec.total) * 100}%` }))),
         h('span', { class: 'next-play', 'aria-hidden': 'true' }, icon('play', { size: 18, fill: true })),
         h('span', { class: 'sr-only' }, t.practiceThisSet))
@@ -388,6 +409,7 @@ export async function renderPractice() {
     pageHead(t.practiceTitle, { sub: t.practiceSub }),
     langSwitch,
     awayCard,
+    dueCard,
     todayCard,
     questCard,
     recCard,

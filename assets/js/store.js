@@ -8,6 +8,9 @@ const STATS_KEY = 'evocab.stats.v1';
 const MAX_SESSIONS = 200;
 export const MAX_BOX = 5;
 export const MASTERED_BOX = 3;
+// Days until a word is due again, by the box it just reached. A wrong answer (box 0) is due at once.
+export const INTERVAL_DAYS = [0, 1, 3, 7, 14, 30];
+const DAY_MS = 864e5;
 
 function load(key, fallback) {
   try {
@@ -85,7 +88,8 @@ export function saveSettings() {
 }
 
 // ---------- per-word progress ----------
-// { [wordKey]: { b: box 0..MAX_BOX, c: correct, w: wrong, t: lastSeen } }
+// { [wordKey]: { b: box 0..MAX_BOX, c: correct, w: wrong, t: lastSeen, d?: due time } }
+// d (added in 1.16) is optional: older words fall back to t + the interval of their box.
 const progress = load(PROGRESS_KEY, {});
 
 export function wordKey(lang, setId, term) {
@@ -94,6 +98,16 @@ export function wordKey(lang, setId, term) {
 
 export function getProgress(key) {
   return progress[key] || { b: 0, c: 0, w: 0, t: 0 };
+}
+
+// When a word that has been answered before is due for review (0 = never answered, so "new", not due).
+export function dueAt(p) {
+  if (!p.t) return 0;
+  return p.d ?? p.t + INTERVAL_DAYS[Math.min(MAX_BOX, p.b)] * DAY_MS;
+}
+
+export function isDue(p, now = Date.now()) {
+  return p.t > 0 && dueAt(p) <= now;
 }
 
 // ---------- activity stats ----------
@@ -124,6 +138,7 @@ export function record(key, isCorrect) {
     p.w += 1;
   }
   p.t = Date.now();
+  p.d = p.t + INTERVAL_DAYS[p.b] * DAY_MS;
   progress[key] = p;
   save(PROGRESS_KEY, progress);
 
@@ -204,6 +219,7 @@ export function setKnown(key, known) {
   if (known) p.b = Math.max(p.b, MASTERED_BOX);
   else p.b = 0;
   p.t = Date.now();
+  p.d = p.t + INTERVAL_DAYS[p.b] * DAY_MS;
   progress[key] = p;
   save(PROGRESS_KEY, progress);
 }
@@ -264,6 +280,7 @@ export function importData(data) {
   for (const [key, p] of Object.entries(data.progress)) {
     if (key.split('|').length !== 3 || !p || typeof p !== 'object') continue;
     const inc = { b: Math.min(MAX_BOX, Math.floor(num(p.b))), c: num(p.c), w: num(p.w), t: num(p.t) };
+    if (num(p.d) > 0) inc.d = num(p.d);
     if (!progress[key] || inc.t > progress[key].t) {
       progress[key] = inc;
       words++;

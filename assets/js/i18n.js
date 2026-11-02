@@ -115,6 +115,10 @@ export const UI = {
     awayTitle: 'คิดถึงนะ! ยินดีต้อนรับกลับมา',
     awaySub: 'ห่างไป {n} วัน มาทบทวนคำที่เคยเรียนกันสั้น ๆ',
     awayBtn: 'ทบทวน {n} คำ',
+    dueTitle: 'ถึงเวลาทบทวน {n} คำ',
+    dueSub: 'ทบทวนตอนนี้ช่วยให้จำได้นานขึ้น',
+    dueBtn: 'ทบทวน {n} คำ',
+    dueN: 'ถึงกำหนดทบทวน {n} คำ',
 
     // results
     resultTitle: 'สรุปผล',
@@ -379,6 +383,10 @@ export const UI = {
     awayTitle: 'We missed you! Welcome back',
     awaySub: '{n} days away. A short review of words you know',
     awayBtn: 'Review {n} words',
+    dueTitle: '{n} words due for review',
+    dueSub: 'Reviewing now helps you remember them longer',
+    dueBtn: 'Review {n} words',
+    dueN: '{n} due for review',
 
     resultTitle: 'Results',
     resultGreat: 'Excellent! Nearly everything right',
