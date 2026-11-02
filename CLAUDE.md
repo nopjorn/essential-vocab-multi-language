@@ -9,8 +9,9 @@ PWA with **no build step**, hosted on GitHub Pages and tuned for iPhone (Pro Max
 Safari or as a Home Screen app.
 
 - Learn: English 🇬🇧 (85 sets, 3,291 words), Korean 🇰🇷 (93 sets, 3,283), Japanese 🇯🇵 (95 sets, 3,399),
-  each in 3 levels (≈1,000 words per level); Chinese 🇨🇳 (simplified + pinyin, 24 sets, 593 words: 21 level-1 sets incl. `trip_phrases`, 3 level-2 travel sets `trips`, `theme_park`, `shanghai`; rest of levels 2–3 to come)
-- Translate into: Thai (all languages); English (Korean and Japanese)
+  Chinese 🇨🇳 (simplified + pinyin, 88 sets, 3,001; same topic plan plus zh-only `trip_phrases` (L1), `theme_park`, `shanghai` (L2)),
+  each in 3 levels (≈1,000 words per level)
+- Translate into: Thai (all languages); English (Korean, Japanese and Chinese)
 - 8 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, match, survival (3 hearts); Leitner boxes 0–5 (box ≥ 3 = mastered) with due dates (`d`: 1/3/7/14/30 days by box; Home "due for review" card)
 - Game feel: combo counter, Web Audio sound effects (Settings toggle, unlockable sound packs), pop/shake feedback, match timer with best time, badges,
   stars per set, daily quests, XP/player level, streak freezes, milestones, unlockable looks (accent colour, flashcard pattern)
@@ -44,7 +45,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 
 ## What the app can do
 
-- **Learn** English, Korean, Japanese (3 levels each, ≈3,000 words per language), Chinese (simplified + pinyin; level 1 + travel sets for Shanghai/Disneyland in level 2); translations in Thai, and English for Korean/Japanese. Korean (7 Hangul sets) and Japanese (10 kana sets) have a separate "Letters" tab for absolute beginners
+- **Learn** English, Korean, Japanese, Chinese (3 levels each, ≈3,000 words per language; Chinese in simplified characters + pinyin, with extra Shanghai/Disneyland travel sets); translations in Thai, and English for Korean/Japanese/Chinese. Korean (7 Hangul sets) and Japanese (10 kana sets) have a separate "Letters" tab for absolute beginners
 - **Welcome** (first run only): 3 steps to pick language, level and daily goal (Skip keeps defaults)
 - **Home**: language switch, "We missed you" card after ≥ 3 days away (review of known words), Today card (daily-goal ring, streak
   or "play today to keep your streak", level chip, streak freezes, Mon–Sun week strip, Continue / Quick 5, mastered + accuracy footer),
@@ -134,7 +135,7 @@ scripts/
 - Within a set: unique `term`s, at least 4 words, avoid duplicate translations (validator warns)
 - Across a language a term appears once; a homonym in a second set needs a different meaning **and** a `note`
   (e.g. Korean 이 two / tooth) — the validator enforces this
-- Keep set ids consistent across languages where the topic matches. All three languages share the same
+- Keep set ids consistent across languages where the topic matches. All four languages share the same
   topic plan: level 1 = the original sets (greetings, numbers, people, food, colors, time, body, places, home,
   shopping, nature, verbs, adjectives, questions) + fruits_veg, meals, animals, clothes, city, travel, school,
   jobs, hobbies, feelings, daily, verbs_2, adjectives_2, position, countries, phone_net, health, weather, rooms,

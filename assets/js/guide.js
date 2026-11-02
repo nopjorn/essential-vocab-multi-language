@@ -7,7 +7,7 @@ export const GUIDE = {
       items: [
         'เปิดแอปครั้งแรกจะมีหน้าต้อนรับ 3 ขั้น ให้เลือกภาษาที่จะเรียน ระดับเริ่มต้น และเป้าหมายรายวัน (แตะ "ข้าม" เพื่อใช้ค่าเริ่มต้น)',
         'แถบเมนูด้านล่างมี: หน้าหลัก · ความคืบหน้า · ปุ่มเริ่มฝึก (วงกลมตรงกลาง) · คู่มือ · ตั้งค่า',
-        'ในหน้าหลัก เลือกภาษาที่จะเรียน (อังกฤษ เกาหลี ญี่ปุ่น จีน) จากแถบด้านบน ภาษาจีน (ตัวย่อ พร้อมพินอิน) มีระดับ 1 และระดับ 2 บางส่วน (ชุดสำหรับเที่ยว เช่น เซี่ยงไฮ้และดิสนีย์แลนด์) และจะเพิ่มเติมในภายหลัง',
+        'ในหน้าหลัก เลือกภาษาที่จะเรียน (อังกฤษ เกาหลี ญี่ปุ่น จีน) จากแถบด้านบน ภาษาจีนใช้ตัวย่อพร้อมพินอิน มีครบ 3 ระดับเหมือนภาษาอื่น และมีชุดสำหรับเที่ยวเซี่ยงไฮ้และดิสนีย์แลนด์ด้วย',
         'ภาษาเกาหลีสำหรับมือใหม่ที่ยังอ่านฮันกึลไม่ได้: แท็บ "ตัวอักษร" (ก่อนระดับ 1) มี 7 ชุด (สระ พยัญชนะ พยัญชนะเสียงตึง สระประสม คำง่ายๆ และตัวสะกด 받침) แตะลำโพงเพื่อฟังเสียงของแต่ละตัว',
         'ภาษาญี่ปุ่นสำหรับมือใหม่ที่ยังอ่านคานะไม่ได้: แท็บ "ตัวอักษร" (ก่อนระดับ 1) มี 10 ชุด (ฮิรางานะ คาตาคานะ เสียงก้อง เสียงควบ และเครื่องหมายพิเศษ) แนะนำให้เรียนฮิรางานะก่อน แล้วค่อยไปคาตาคานะ',
         'การ์ด "วันนี้" ในหน้าหลักแสดงวงแหวนเป้าหมายรายวัน และวันเรียนต่อเนื่อง แตะ "เล่นต่อ" เพื่อเริ่มรอบปกติ หรือ "เล่นด่วน 5 คำ" สำหรับรอบสั้น ๆ ไม่กี่นาที แถบล่างของการ์ดบอกจำนวนคำที่จำได้และความแม่นยำ แตะเพื่อดูรายละเอียด',
@@ -127,7 +127,7 @@ export const GUIDE = {
       items: [
         'The first time you open the app, a 3-step welcome asks for the language to learn, a starting level and a daily goal (tap "Skip" to use the defaults)',
         'The tab bar at the bottom has: Home · Progress · the Start button (round, in the middle) · Guide · Settings',
-        'On Home, choose the language to learn (English, Korean, Japanese, Chinese) at the top. Chinese (simplified characters with pinyin) has level 1 and part of level 2 (travel sets such as Shanghai and Disneyland); more will come later',
+        'On Home, choose the language to learn (English, Korean, Japanese, Chinese) at the top. Chinese uses simplified characters with pinyin and has all 3 levels like the other languages, plus travel sets for Shanghai and Disneyland',
         'Korean for complete beginners who cannot read Hangul yet: the "Letters" tab (before level 1) has 7 sets that teach the letters (vowels, consonants, tense consonants, compound vowels, easy words and final consonants). Tap the speaker to hear each letter',
         'Japanese for complete beginners who cannot read kana yet: the "Letters" tab (before level 1) has 10 sets that teach the letters (hiragana, katakana, voiced sounds, combined sounds and special marks). Learn hiragana first, then katakana',
         'The "Today" card on Home shows your daily goal ring and day streak. Tap "Continue" for a normal round, or "Quick 5" for a short round of a few minutes. Its bottom row shows words mastered and accuracy; tap it for details',

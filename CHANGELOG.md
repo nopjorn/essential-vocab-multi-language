@@ -2,6 +2,20 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.18.0] - 2026-11-02
+
+- ภาษาจีนครบ 3 ระดับแล้ว เหมือนภาษาอื่น: 88 ชุด รวม 3,001 คำ (ระดับ 1: 1,031 · ระดับ 2: 990 · ระดับ 3: 980)
+- ระดับ 1 เพิ่มผลไม้และผัก สัตว์ เสื้อผ้า โรงเรียน อาชีพ งานอดิเรก ความรู้สึก กิจวัตร ทิศทาง ประเทศ ห้องในบ้าน คำวิเศษณ์ และลักษณนาม/หน่วย
+- ระดับ 2 และ 3 ใช้หัวข้อเดียวกับภาษาอื่น เช่น ไปหาหมอ ร้านอาหาร ที่ทำงาน เทศกาลจีน (ตรุษจีน ไหว้พระจันทร์) สังคม เศรษฐกิจ วิทยาศาสตร์ เทคโนโลยี และภูมิศาสตร์
+
+<details><summary>English</summary>
+
+- Chinese now has all 3 levels like the other languages: 88 sets, 3,001 words (level 1: 1,031 · level 2: 990 · level 3: 980)
+- Level 1 adds fruits & vegetables, animals, clothes, school, jobs, hobbies, feelings, daily routine, directions, countries, rooms, adverbs and measure words
+- Levels 2 and 3 follow the same topics as the other languages, e.g. at the doctor, restaurants, the office, Chinese festivals (Spring Festival, Mid-Autumn), society, economy, science, technology and geography
+
+</details>
+
 ## [1.17.0] - 2026-11-02
 
 - ภาษาจีนเพิ่ม 10 ชุดใหม่ 271 คำ สำหรับเที่ยวเซี่ยงไฮ้และดิสนีย์แลนด์: วลีจำเป็นตอนเที่ยว การเดินทาง ในเมือง มื้ออาหารและร้านอาหาร โทรศัพท์และอินเทอร์เน็ต สุขภาพ อากาศ
