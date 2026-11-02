@@ -79,7 +79,8 @@ export const GUIDE = {
         'ธีม: ตามระบบ (ค่าเริ่มต้น) สว่าง หรือ มืด',
         'ของสะสม: เลเวลผู้เล่น สีหลักของแอป ลายแฟลชการ์ด และชุดเสียงประกอบ (ปลดล็อกด้วยเลเวล ภารกิจ และสตรีค)',
         'ส่งออกความคืบหน้าเป็นไฟล์สำรอง .json และนำเข้ากลับ (รวมกับข้อมูลในเครื่อง ไม่ทับคำตอบที่ใหม่กว่า) ใช้ย้ายเครื่องได้',
-        'ล้างความคืบหน้าแยกตามภาษา และดูเวอร์ชันกับรายการ "มีอะไรใหม่"',
+        'ล้างความคืบหน้าแยกตามภาษา (แอปเสนอให้สำรองก่อน) ตรวจหาเวอร์ชันใหม่ และดูเวอร์ชันกับรายการ "มีอะไรใหม่"',
+        'ถ้าไม่ได้สำรองข้อมูลเกิน 14 วัน หน้าหลักจะเตือนให้ส่งออกไฟล์สำรอง (กด "ไว้ทีหลัง" เพื่อเลื่อน 7 วัน)',
       ],
     },
     {
@@ -196,7 +197,8 @@ export const GUIDE = {
         'Theme: System (default), Light or Dark',
         'Collection: your player level, accent colour, flashcard pattern and sound pack (unlocked by level, quests and streak)',
         'Export your progress to a .json backup and import it back (merged with this device, never overwriting newer answers), handy for switching devices',
-        'Reset progress per language, and see the version and "What\'s new"',
+        'Reset progress per language (the app offers a backup first), check for updates, and see the version and "What\'s new"',
+        'If you have not backed up for over 14 days, Home reminds you to export a file (tap "Later" to snooze for 7 days)',
       ],
     },
     {

@@ -106,6 +106,8 @@ async function boot() {
     settings.lang = state.index.learn[0].code;
     saveSettings();
   }
+  // Ask the browser not to evict our data under storage pressure (granted silently where supported).
+  navigator.storage?.persist?.().catch(() => {});
   // Leaving a game redraws the page it was started from (games don't change the hash).
   setExitHandler(route);
   window.addEventListener('hashchange', route);

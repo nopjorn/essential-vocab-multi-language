@@ -18,12 +18,34 @@ function load(key, fallback) {
   }
 }
 
-function save(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    /* ignore */
+// Writes are batched: record() would otherwise stringify the whole progress map on every answer.
+// The latest value per key is flushed shortly after, and at once when the page is hidden or closed.
+const pending = new Map();
+let timer = 0;
+
+export function flush() {
+  clearTimeout(timer);
+  timer = 0;
+  for (const [key, value] of pending) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* ignore */
+    }
   }
+  pending.clear();
+}
+
+function save(key, value) {
+  pending.set(key, value);
+  if (!timer) timer = setTimeout(flush, 500);
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flush();
+  });
+  addEventListener('pagehide', flush);
 }
 
 const DEFAULT_SETTINGS = {
@@ -42,6 +64,8 @@ const DEFAULT_SETTINGS = {
   accent: 'indigo', // 'indigo' | 'green' | 'pink' | 'orange'
   cardStyle: 'plain', // flashcard pattern: 'plain' | 'dots' | 'stripes'
   soundPack: 'classic', // 'classic' | 'soft' | 'retro'
+  backupSnooze: 0, // ms timestamp when the backup reminder was last dismissed
+  lastExportedAt: 0, // ms timestamp of the last backup file; drives the backup reminder on Home
 };
 
 // Nothing saved yet on this device: show the welcome screen instead of Home.

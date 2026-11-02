@@ -1,7 +1,8 @@
-// Offline support: precache the app shell and vocabulary, then serve
-// stale-while-revalidate. The cache name comes from version.js, so every
-// deploy (new version or build number) installs a fresh cache and the app
-// shows an "update ready" prompt.
+// Offline support: precache the app shell and vocabulary, then serve cache-first.
+// The cache name comes from version.js, so every deploy (new version or build number)
+// installs a fresh cache and the app shows an "update ready" prompt. Files in CORE never
+// hit the network after install (they are exactly the version this cache was built for);
+// anything else is fetched and kept.
 importScripts('version.js');
 const CACHE = `evocab-${self.APP_VERSION}-${self.APP_BUILD}`;
 // Keep in sync with the files the app loads (scripts/validate.mjs checks this).
@@ -67,13 +68,10 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.open(CACHE).then(async (cache) => {
       const cached = await cache.match(req, { ignoreSearch: true });
-      const network = fetch(req)
-        .then((res) => {
-          if (res.ok) cache.put(req, res.clone());
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
+      if (cached) return cached;
+      const res = await fetch(req);
+      if (res.ok) cache.put(req, res.clone());
+      return res;
     }),
   );
 });
