@@ -1,5 +1,5 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, MAX_BOX, MASTERED_BOX } from './store.js';
+import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, isDue, MAX_BOX, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
@@ -40,13 +40,15 @@ export function itemsFor(vocab, setIds) {
   return items;
 }
 
-// Weighted sampling without replacement: words in low boxes and unseen words come up more often.
+// Weighted sampling without replacement: words in low boxes and unseen words come up more often,
+// words due for review get a boost, and mastered words that are not due yet are left alone for now.
 export function pickItems(items, count) {
   const n = count > 0 ? Math.min(count, items.length) : items.length;
   return items
     .map((it) => {
       const p = getProgress(it.key);
-      const w = (MAX_BOX - p.b + 1) * (p.t ? 1 : 1.5);
+      let w = (MAX_BOX - p.b + 1) * (p.t ? 1 : 1.5);
+      if (p.t) w *= isDue(p) ? 3 : p.b >= MASTERED_BOX ? 0.4 : 1;
       return { it, k: Math.pow(Math.random(), 1 / w) };
     })
     .sort((a, b) => b.k - a.k)

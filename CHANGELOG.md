@@ -2,6 +2,18 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.16.0] - 2026-11-02
+
+- ระบบทบทวนตามกำหนดวัน: ทุกคำมีวันถึงกำหนดทบทวนตามระดับความจำ (1/3/7/14/30 วัน) คำที่ถึงกำหนดจะถูกสุ่มมามากขึ้น ส่วนคำที่จำได้แล้วจะพักไว้จนกว่าจะถึงเวลา
+- หน้าหลักมีการ์ด "ถึงเวลาทบทวน N คำ" แตะเพื่อทบทวนทันที และ "แนะนำต่อไป" ชี้ชุดที่มีคำถึงกำหนดมากที่สุด
+
+<details><summary>English</summary>
+
+- Review by due date: every word now has a review date based on its memory level (1/3/7/14/30 days). Due words come up more often, while mastered words rest until their time
+- Home shows a "N words due for review" card for a one-tap review, and "Up next" points to the set with the most due words
+
+</details>
+
 ## [1.15.0] - 2026-11-02
 
 - กันข้อมูลหาย: ขอให้เบราว์เซอร์เก็บข้อมูลถาวร และหน้าหลักเตือนให้ส่งออกไฟล์สำรองเมื่อไม่ได้สำรองเกิน 14 วัน

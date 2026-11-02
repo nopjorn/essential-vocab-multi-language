@@ -11,7 +11,7 @@ Safari or as a Home Screen app.
 - Learn: English 🇬🇧 (85 sets, 3,291 words), Korean 🇰🇷 (93 sets, 3,283), Japanese 🇯🇵 (95 sets, 3,399),
   each in 3 levels (≈1,000 words per level); Chinese 🇨🇳 (simplified + pinyin, starter: 14 level-1 sets, 322 words, levels 2–3 to come)
 - Translate into: Thai (all languages); English (Korean and Japanese)
-- 8 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, match, survival (3 hearts); Leitner boxes 0–5 (box ≥ 3 = mastered)
+- 8 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, match, survival (3 hearts); Leitner boxes 0–5 (box ≥ 3 = mastered) with due dates (`d`: 1/3/7/14/30 days by box; Home "due for review" card)
 - Game feel: combo counter, Web Audio sound effects (Settings toggle, unlockable sound packs), pop/shake feedback, match timer with best time, badges,
   stars per set, daily quests, XP/player level, streak freezes, milestones, unlockable looks (accent colour, flashcard pattern)
 - Native-app style UI: bottom tab bar (Home · Progress · **Start** · Guide · Settings; Start is a raised round
@@ -164,7 +164,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`); pages read it through `state.t`.
 - Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
-  `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t}`), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`,
+  `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t,d?}`; `d` = due time, optional, falls back to `t` + box interval), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`,
   `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
   stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`), `evocab.lastVersion`.
   Badges, XP/level, streak freezes, milestones and unlocks are computed, not stored (only finished quest days are, since sessions are trimmed). A device with neither settings nor progress saved gets the welcome screen.
