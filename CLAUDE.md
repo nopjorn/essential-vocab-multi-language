@@ -60,7 +60,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **Results screen**: animated ring, stars, newly mastered words, comparison with the last game, goal progress, best combo,
   new records, XP bar + level up, daily quests, newly earned badges and unlocks, set stars, full-screen milestone celebration
 - **Progress**: overview (player level card, best streak, quest days) and per-language detail (tiles, 23 badges, per-level set bars, 14-day chart, weak words with one-tap practice, history)
-- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, sound effects, theme, Collection (player level, accent colour, flashcard pattern, sound pack; locked ones show what unlocks them), export/import progress backup (.json, merged on import), per-language reset, what's new
+- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, sound effects, theme, Collection (player level, accent colour, flashcard pattern, sound pack; locked ones show what unlocks them), export/import progress backup (.json, merged on import; Home reminds after 14 days without one), per-language reset (offers a backup first), check for updates, what's new
 - **PWA**: installable on iPhone/iPad, works offline, update toast, in-app guide
 
 ## Layout
@@ -69,7 +69,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 index.html              shell: iOS meta, icons, launch screens, early theme script, loads version.js + app.js
 TODO.md                 idea backlog grouped by type of work (docs only: not deployed, no version bump)
 version.js              APP_VERSION (semver) + APP_BUILD ('dev'; CI stamps "<run>.<sha>")
-sw.js                   offline cache; cache name = version + build; CORE file list
+sw.js                   offline cache (cache-first); cache name = version + build; CORE file list
 manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts)
 assets/css/style.css    all styles; tokens on :root, dark tokens for data-theme / prefers-color-scheme
 assets/js/
@@ -100,7 +100,7 @@ assets/js/
   guide.js      guide content {th, en}
   i18n.js       UI strings {th, en}; uiFor(code) falls back to Thai
   store.js      localStorage: settings, per-word progress, daily stats, sessions, records, last seen version; firstRun;
-                record() returns an undo token for undoRecord(); exportData()/importData() backup (merge)
+                writes are batched (flush() on hidden/pagehide, ~0.5 s otherwise); record() returns an undo token for undoRecord(); exportData()/importData() backup (merge)
   theme.js      applyTheme() (theme + data-accent + data-card), theme segmented control (used in Settings)
   speech.js     Web Speech API wrapper (iOS needs a user tap before first speech)
   app-info.js   APP_VERSION/APP_BUILD, versionLabel(), isIOS/isStandalone
@@ -163,7 +163,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`); pages read it through `state.t`.
-- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `sound`, `accent`, `cardStyle`, `soundPack`),
+- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
   `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t}`), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`,
   `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
   stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`), `evocab.lastVersion`.

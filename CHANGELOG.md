@@ -2,6 +2,22 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.15.0] - 2026-11-02
+
+- กันข้อมูลหาย: ขอให้เบราว์เซอร์เก็บข้อมูลถาวร และหน้าหลักเตือนให้ส่งออกไฟล์สำรองเมื่อไม่ได้สำรองเกิน 14 วัน
+- ก่อนล้างความคืบหน้า แอปเสนอให้ส่งออกไฟล์สำรองก่อน
+- เพิ่มปุ่ม "ตรวจหาเวอร์ชันใหม่" ในหน้าตั้งค่า
+- ตอบเร็วขึ้นและลื่นขึ้นบนเครื่องเก่า: บันทึกข้อมูลเป็นชุดแทนการเขียนทุกคำตอบ และเปิดแอปออฟไลน์เร็วขึ้นเพราะไม่ต้องรอเครือข่าย
+
+<details><summary>English</summary>
+
+- Safer data: the app asks the browser to keep its storage, and Home reminds you to export a backup after 14 days without one
+- Before resetting progress the app offers to export a backup first
+- New "Check for updates" button in Settings
+- Smoother on older devices: progress is saved in batches instead of on every answer, and the app opens faster because cached files no longer wait for the network
+
+</details>
+
 ## [1.14.0] - 2026-11-02
 
 - เพิ่มภาษาจีน 🇨🇳 (ตัวย่อ พร้อมพินอิน) ชุดเริ่มต้นระดับ 1 จำนวน 14 ชุด 322 คำ แปลเป็นไทยและอังกฤษ มีเสียงอ่านและเล่นได้ครบทุกโหมด

@@ -1,7 +1,7 @@
 // Home tab: language switch, progress summary, game mode and word sets, plus
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
-import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
 import { MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
@@ -60,6 +60,16 @@ function nextSet(info, level) {
   const open = info.filter((x) => x.mastered < x.total);
   const order = [...open.filter((x) => levelOf(x.set) === level), ...open.filter((x) => levelOf(x.set) !== level)];
   return order.find((x) => x.seen > 0) || order[0] || null;
+}
+
+// A backup reminder once there is something worth losing: 50+ answers and no export for 14 days
+// (snoozed for a week). Safari can erase site data of web pages that are not opened for 7 days.
+function backupDue() {
+  const now = Date.now();
+  if (now - (settings.lastExportedAt || 0) < 14 * 864e5 || now - (settings.backupSnooze || 0) < 7 * 864e5) return false;
+  let answers = 0;
+  for (const day of Object.values(getStats().days)) for (const a of Object.values(day)) answers += a[0];
+  return answers >= 50;
 }
 
 export async function renderPractice() {
@@ -381,6 +391,13 @@ export async function renderPractice() {
     todayCard,
     questCard,
     recCard,
+    backupDue()
+      ? h('div', { class: 'install-card' },
+          h('a', { class: 'install-link', href: '#/settings' },
+            h('span', { class: 'row-icon green' }, icon('upload', { size: 18 })),
+            h('span', { class: 'row-text' }, h('span', { class: 'row-label' }, t.backupTitle), h('span', { class: 'row-sub' }, t.backupSub))),
+          h('button', { class: 'btn small', type: 'button', onclick: (e) => { settings.backupSnooze = Date.now(); saveSettings(); e.currentTarget.closest('.install-card').remove(); } }, t.backupLater))
+      : null,
     isIOS() && !isStandalone()
       ? h('a', { class: 'install-card', href: '#/help/install' },
           h('span', { class: 'row-icon blue' }, icon('share', { size: 18 })),

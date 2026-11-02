@@ -46,6 +46,11 @@ function linkRow(href, ic, color, label, value) {
   );
 }
 
+function markExported() {
+  settings.lastExportedAt = Date.now();
+  saveSettings();
+}
+
 // Hands the backup to the share sheet when the browser can share files (iOS), otherwise downloads it.
 async function exportProgress(t) {
   const name = `essential-vocab-${dayKey()}.json`;
@@ -53,6 +58,7 @@ async function exportProgress(t) {
   try {
     if (navigator.canShare?.({ files: [file] })) {
       await navigator.share({ files: [file], title: name });
+      markExported();
       return;
     }
     const url = URL.createObjectURL(file);
@@ -61,9 +67,24 @@ async function exportProgress(t) {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+    markExported();
     toast(t.exportDone);
   } catch {
     /* share sheet dismissed: nothing to report */
+  }
+}
+
+// Asks the service worker for a newer version; the update prompt appears by itself when one installs.
+async function checkUpdate() {
+  const t = state.t;
+  toast(t.updateChecking);
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    await reg?.update();
+    if (reg?.installing || reg?.waiting) toast(t.updateFound);
+    else toast(t.updateNone);
+  } catch {
+    toast(t.loadError);
   }
 }
 
@@ -188,6 +209,11 @@ export async function renderSettings() {
       onclick: () => {
         const name = nameOf(l.name);
         if (!confirm(t.resetConfirm.replace('{lang}', name))) return;
+        // nothing saved in the last day: offer a backup first, since a reset cannot be undone
+        if (Date.now() - settings.lastExportedAt > 864e5 && confirm(t.resetExportFirst)) {
+          exportProgress(t);
+          return;
+        }
         resetLanguage(l.code);
         toast(t.resetDone);
       },
@@ -269,6 +295,10 @@ export async function renderSettings() {
       linkRow('#/changelog', 'sparkles', 'indigo', t.whatsNew, versionLabel()),
       linkRow('#/help', 'guide', 'blue', t.guideTitle),
       linkRow('#/help/install', 'share', 'teal', t.installTitle),
+      'serviceWorker' in navigator
+        ? h('button', { class: 'row', type: 'button', onclick: checkUpdate },
+            rowIcon('repeat', 'green'), rowText(t.checkUpdate, t.checkUpdateSub))
+        : null,
     ),
     h('p', { class: 'group-foot' }, t.licenseNote),
   );
