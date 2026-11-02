@@ -1,5 +1,19 @@
 [
   {
+    "version": "1.17.0",
+    "date": "2026-11-02",
+    "changes": {
+      "th": [
+        "ภาษาจีนเพิ่ม 10 ชุดใหม่ 271 คำ สำหรับเที่ยวเซี่ยงไฮ้และดิสนีย์แลนด์: วลีจำเป็นตอนเที่ยว การเดินทาง ในเมือง มื้ออาหารและร้านอาหาร โทรศัพท์และอินเทอร์เน็ต สุขภาพ อากาศ",
+        "ภาษาจีนมีระดับ 2 แล้ว: ท่องเที่ยวและที่พัก, สวนสนุกและดิสนีย์แลนด์, เที่ยวเซี่ยงไฮ้ (พร้อมหมายเหตุ เช่น สายรถไฟใต้ดินไปดิสนีย์ และคำทักทายภาษาเซี่ยงไฮ้)"
+      ],
+      "en": [
+        "Chinese gets 10 new sets (271 words) for a trip to Shanghai and Disneyland: handy travel phrases, travel, around town, meals & eating out, phone & internet, health, weather",
+        "Chinese now has level 2: trips & hotels, theme park & Disneyland, Shanghai sights (with notes such as the metro line to Disney and a Shanghainese greeting)"
+      ]
+    }
+  },
+  {
     "version": "1.16.0",
     "date": "2026-11-02",
     "changes": {
