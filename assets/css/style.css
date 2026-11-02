@@ -1345,6 +1345,17 @@ input:checked + .switch::after { transform: translateX(20px); }
   .game, .results { max-width: 860px; }
 }
 
+/* wide screens (desktop browser, big iPad landscape): the Home tab uses more of the width */
+@media (min-width: 1200px) {
+  .screen[data-page="practice"] { max-width: min(1360px, 100%); --gutter: 40px; }
+  body:not(.in-game) .screen[data-page="practice"] { column-gap: 40px; }
+  body:not(.in-game) .screen[data-page="practice"] .mode-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1680px) {
+  .screen[data-page="practice"] { max-width: min(1560px, 100%); }
+}
+
 /* phones in landscape: keep things compact */
 @media (max-height: 500px) and (orientation: landscape) {
   .prompt { min-height: 120px; padding: 14px; }

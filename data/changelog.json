@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.13.1",
+    "date": "2026-11-02",
+    "changes": {
+      "th": [
+        "หน้าหลักบนจอกว้าง (เว็บบนคอมพิวเตอร์ และ iPad แนวนอนขนาดใหญ่) ขยายใช้พื้นที่ด้านข้างมากขึ้น ไม่กองอยู่กลางจออีกต่อไป"
+      ],
+      "en": [
+        "On wide screens (desktop browsers and large iPads in landscape) the Home tab now uses more of the width instead of sitting in the middle"
+      ]
+    }
+  },
+  {
     "version": "1.13.0",
     "date": "2026-11-01",
     "changes": {

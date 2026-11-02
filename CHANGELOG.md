@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.13.1] - 2026-11-02
+
+- หน้าหลักบนจอกว้าง (เว็บบนคอมพิวเตอร์ และ iPad แนวนอนขนาดใหญ่) ขยายใช้พื้นที่ด้านข้างมากขึ้น ไม่กองอยู่กลางจออีกต่อไป
+
+<details><summary>English</summary>
+
+- On wide screens (desktop browsers and large iPads in landscape) the Home tab now uses more of the width instead of sitting in the middle
+
+</details>
+
 ## [1.13.0] - 2026-11-01
 
 - เกราะกันสตรีค 🛡️: เล่นติดกันครบ 7 วันได้เกราะ 1 อัน (เก็บได้ 2 อัน) วันที่ไม่ได้เล่นจะใช้เกราะแทนการเสียสตรีค
