@@ -39,6 +39,7 @@ const CORE = [
   'data/vocab/en.json',
   'data/vocab/ko.json',
   'data/vocab/ja.json',
+  'data/vocab/zh.json',
 ];
 
 self.addEventListener('install', (e) => {

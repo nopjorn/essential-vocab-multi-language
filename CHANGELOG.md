@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.14.0] - 2026-11-02
+
+- เพิ่มภาษาจีน 🇨🇳 (ตัวย่อ พร้อมพินอิน) ชุดเริ่มต้นระดับ 1 จำนวน 14 ชุด 322 คำ แปลเป็นไทยและอังกฤษ มีเสียงอ่านและเล่นได้ครบทุกโหมด
+
+<details><summary>English</summary>
+
+- Added Chinese 🇨🇳 (simplified characters with pinyin): a starter of 14 level-1 sets and 322 words, translated into Thai and English, with speech and every game mode
+
+</details>
+
 ## [1.13.1] - 2026-11-02
 
 - หน้าหลักบนจอกว้าง (เว็บบนคอมพิวเตอร์ และ iPad แนวนอนขนาดใหญ่) ขยายใช้พื้นที่ด้านข้างมากขึ้น ไม่กองอยู่กลางจออีกต่อไป
