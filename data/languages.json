@@ -1,9 +1,9 @@
 {
   "learn": [
-    {"code": "en", "file": "vocab/en.json", "flag": "🇬🇧", "name": {"th": "อังกฤษ", "en": "English"}, "nativeName": "English"},
-    {"code": "ko", "letters": true, "file": "vocab/ko.json", "flag": "🇰🇷", "name": {"th": "เกาหลี", "en": "Korean"}, "nativeName": "한국어"},
-    {"code": "ja", "letters": true, "file": "vocab/ja.json", "flag": "🇯🇵", "name": {"th": "ญี่ปุ่น", "en": "Japanese"}, "nativeName": "日本語"},
-    {"code": "zh", "file": "vocab/zh.json", "flag": "🇨🇳", "name": {"th": "จีน", "en": "Chinese"}, "nativeName": "中文"}
+    {"code": "en", "file": "vocab/en.json", "flag": "🇬🇧", "name": {"th": "อังกฤษ", "en": "English"}, "nativeName": "English", "rev": "19375ef629"},
+    {"code": "ko", "letters": true, "file": "vocab/ko.json", "flag": "🇰🇷", "name": {"th": "เกาหลี", "en": "Korean"}, "nativeName": "한국어", "rev": "97c2c95c30"},
+    {"code": "ja", "letters": true, "file": "vocab/ja.json", "flag": "🇯🇵", "name": {"th": "ญี่ปุ่น", "en": "Japanese"}, "nativeName": "日本語", "rev": "882b0a5073"},
+    {"code": "zh", "file": "vocab/zh.json", "flag": "🇨🇳", "name": {"th": "จีน", "en": "Chinese"}, "nativeName": "中文", "rev": "dae138d54d"}
   ],
   "translate": [
     {"code": "th", "name": {"th": "ไทย", "en": "Thai"}, "nativeName": "ไทย"},

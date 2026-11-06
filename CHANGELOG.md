@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.20.0] - 2026-11-06
+
+- อัปเดตเร็วขึ้นและเปลืองเน็ตน้อยลง: คำศัพท์เก็บแยกตามเนื้อหาไฟล์ อัปเดตแอปครั้งต่อไปจะดาวน์โหลดใหม่เฉพาะภาษาที่คำศัพท์เปลี่ยน (เดิมโหลดใหม่ทั้งหมดราว 1.6 MB)
+
+<details><summary>English</summary>
+
+- Faster, lighter updates: vocabulary is cached by content, so an app update only downloads the languages whose words changed (instead of all ~1.6 MB)
+
+</details>
+
 ## [1.19.0] - 2026-11-06
 
 - ประโยคตัวอย่าง: คำในชุดอาหาร สถานที่ และของในบ้าน (ระดับ 1) ของทั้ง 4 ภาษามีประโยคตัวอย่างพร้อมคำแปลและปุ่มฟังเสียง แสดงในรายการคำศัพท์ ด้านหลังแฟลชการ์ด หลังพิมพ์คำตอบ และเมื่อตอบผิด

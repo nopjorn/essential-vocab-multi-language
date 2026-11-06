@@ -69,7 +69,8 @@ export async function loadIndex() {
 export async function loadLang(code) {
   if (vocabCache.has(code)) return vocabCache.get(code);
   const meta = state.index.learn.find((l) => l.code === code);
-  const data = await fetchJSON(`data/${meta.file}`);
+  // rev = content hash (languages.json): a new rev is a new URL, so caches never serve old words
+  const data = await fetchJSON(`data/${meta.file}${meta.rev ? `?rev=${meta.rev}` : ''}`);
   vocabCache.set(code, data);
   return data;
 }

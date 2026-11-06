@@ -1,7 +1,7 @@
 // Checks vocabulary data, versioning and offline cache list.
 // Run with `node scripts/validate.mjs` (CI runs it before every deploy).
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { path, readJSON, readVersion, renderChangelogMd } from './lib.mjs';
+import { path, readJSON, readVersion, renderChangelogMd, vocabRev } from './lib.mjs';
 
 const errors = [];
 const warnings = [];
@@ -118,8 +118,11 @@ const mustCache = [
   'index.html', 'version.js', 'manifest.webmanifest', 'assets/css/style.css',
   ...readdirSync(path('assets/js')).filter((f) => f.endsWith('.js')).map((f) => `assets/js/${f}`),
   'data/languages.json', 'data/changelog.json',
-  ...index.learn.map((l) => `data/${l.file}`),
 ];
+// vocabulary is cached per content hash instead (see sw.js), so its rev must match the file
+for (const l of index.learn) {
+  if (l.rev !== vocabRev(l.file)) errors.push(`languages.json: rev of ${l.code} is out of date: run \`node scripts/stamp-vocab.mjs\``);
+}
 for (const f of mustCache) {
   if (!sw.includes(`'${f}'`)) errors.push(`sw.js: CORE is missing '${f}'`);
 }
