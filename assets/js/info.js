@@ -8,7 +8,7 @@ import { APP_VERSION, versionLabel } from './app-info.js';
 export function renderHelp(anchor) {
   const t = state.t;
   const sections = GUIDE[settings.target] || GUIDE.th;
-  render(
+  const shown = render(
     pageHead(t.guideTitle),
     h('nav', { class: 'toc' }, sections.map((s) => h('a', { href: `#/help/${s.id}` }, s.title))),
     sections.map((s) =>
@@ -19,7 +19,7 @@ export function renderHelp(anchor) {
       )),
     h('p', { class: 'group-foot center' }, h('a', { href: '#/changelog' }, `${t.whatsNew} · ${versionLabel()}`)),
   );
-  if (anchor) document.getElementById(`guide-${anchor}`)?.scrollIntoView({ block: 'start' });
+  if (anchor) shown.then(() => document.getElementById(`guide-${anchor}`)?.scrollIntoView({ block: 'start' }));
 }
 
 export async function renderChangelog() {

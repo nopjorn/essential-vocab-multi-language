@@ -1,6 +1,6 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
 import { settings, saveSettings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, screen, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn } from './core.js';
+import { state, h, fill, render, screen, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn, fadeNextRender } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
 import { sfx, buzz } from './sound.js';
@@ -95,8 +95,9 @@ function distractors(item, pool, n = 3) {
 
 // `mode` overrides the chosen mode for one round (e.g. review rounds that must not be survival).
 export function startGame(items, pool, { mode = settings.mode } = {}) {
-  // The game replaces whatever page is showing: stop that page's pending async render.
+  // The game replaces whatever page is showing: stop that page's pending async render (and its fade).
   state.navId++;
+  fadeNextRender(false);
   document.body.classList.add('in-game');
   const survival = mode === 'survival';
   const session = {

@@ -37,9 +37,31 @@ export function fill(el, ...nodes) {
   el.replaceChildren(...nodes.flat(Infinity).filter((n) => n != null && n !== false));
 }
 
+// Page changes cross-fade (View Transitions, where supported and motion is welcome). Only the render
+// right after a navigation fades: the swap then runs a frame later, which games can't have, since
+// they focus inputs and add tips right after render(). startGame() cancels a pending fade.
+let fadeNext = false;
+export function fadeNextRender(on = true) {
+  fadeNext = on;
+}
+
 export function render(...nodes) {
-  fill(screen, ...nodes);
-  window.scrollTo(0, 0);
+  const swap = () => {
+    fill(screen, ...nodes);
+    window.scrollTo(0, 0);
+  };
+  const fade = fadeNext && document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  fadeNext = false;
+  // resolves once the new page is in the DOM, for code that scrolls to something on it
+  if (fade) {
+    const vt = document.startViewTransition(swap);
+    // a quick next navigation skips this fade; that is fine, not an error
+    vt.ready.catch(() => {});
+    vt.finished.catch(() => {});
+    return vt.updateCallbackDone.catch(() => {});
+  }
+  swap();
+  return Promise.resolve();
 }
 
 export function shuffle(arr) {

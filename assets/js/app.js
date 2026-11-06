@@ -1,7 +1,7 @@
 // App shell: routing, bottom tab bar, theme, version and update prompts.
 // Routes: #/ home (practice setup) · #/progress[/<lang>] · #/help[/<section>] · #/settings · #/changelog · #/words/<lang>/<set>
 import { settings, saveSettings, getLastVersion, setLastVersion } from './store.js';
-import { state, h, fill, render, loadIndex, setUiLang, toast } from './core.js';
+import { state, h, fill, render, loadIndex, setUiLang, toast, fadeNextRender } from './core.js';
 import { uiFor } from './i18n.js';
 import { renderPractice, startPractice } from './practice.js';
 import { renderProgress } from './progress.js';
@@ -39,6 +39,7 @@ function renderTabBar(active) {
 
 function route() {
   state.navId++;
+  fadeNextRender();
   onKeys(null);
   document.body.classList.remove('in-game');
   setUiLang();

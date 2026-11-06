@@ -1771,3 +1771,8 @@ input:checked + .switch::after { transform: translateX(20px); }
    scrolled near. "auto" remembers each row's real height once it has been drawn. */
 .sets-list > .set-row { content-visibility: auto; contain-intrinsic-size: auto 72px; }
 .word-row { content-visibility: auto; contain-intrinsic-size: auto 120px; }
+
+/* Page changes: a short cross-fade (core.js render after navigation). The tab bar keeps still. */
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 0.18s; }
+#tabbar { view-transition-name: tabbar; }

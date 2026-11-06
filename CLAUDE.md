@@ -182,6 +182,9 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
   flags and word-set icons. Keep the look formal but friendly: indigo primary, neutral surfaces.
 - Games add `body.in-game` (hides the tab bar); `route()` removes it. `startGame()` bumps `state.navId` so a
   pending async page render can't draw over the game.
+- Page changes cross-fade: `route()` calls `fadeNextRender()`, so the next `render()` swaps inside a View Transition
+  (a frame later). Code that needs the new page in the DOM awaits `render()`'s promise; games and placement call
+  `fadeNextRender(false)` because they focus inputs and add tips right after rendering.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`, same keys and `{placeholders}`: validate.mjs checks); pages read it through `state.t`.
