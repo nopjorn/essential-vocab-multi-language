@@ -37,6 +37,8 @@ jobs:
         run: |
           mkdir _site
           cp -r index.html manifest.webmanifest sw.js version.js .nojekyll assets data LICENSE CHANGELOG.md _site/
+          # the repo keeps one word per line for readable diffs; visitors get compact JSON
+          node scripts/minify-site.mjs _site
           # Stamp the build: "<run number>.<short commit>". This changes version.js on
           # every deploy, so the service worker refreshes its cache and the app shows the update prompt.
           sed -i "s/APP_BUILD = 'dev'/APP_BUILD = '${{ github.run_number }}.${GITHUB_SHA::7}'/" _site/version.js

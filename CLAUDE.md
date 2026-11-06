@@ -124,6 +124,7 @@ data/changelog.json     version log, newest first: {version, date, changes: {th[
 data/LICENSE            CC0 dedication for vocabulary
 scripts/
   validate.mjs      data (incl. examples) + version/changelog + guide + i18n th/en keys and {placeholders} + sw CORE + index.html asset checks
+  minify-site.mjs   minify the JSON of the built site (pages.yml, before upload; ≈13% smaller)
   stamp-vocab.mjs   write each vocab file's speech tag, word count and content hash into languages.json
   bump-version.mjs  bump version.js, add changelog entry, regenerate CHANGELOG.md (--sync)
   lib.mjs           helpers shared by the scripts
@@ -222,6 +223,6 @@ decides, a short drag snaps back, a tap flips.
 
 ## Deploy
 
-Push/merge to `main` → `pages.yml` validates, stamps `APP_BUILD`, deploys to GitHub Pages
+Push/merge to `main` → `pages.yml` validates, copies the site, minifies its JSON, stamps `APP_BUILD`, deploys to GitHub Pages
 (Settings › Pages › Source = GitHub Actions). The service worker sees the new version.js, re-caches,
 and the app shows "new version ready"; after reload it shows "updated to vX".
