@@ -167,6 +167,84 @@ function activityChart(totals) {
   );
 }
 
+// This week so far (Monday to today) against the same days of last week.
+function weekCompare(totals) {
+  const t = state.t;
+  const sum = (from, n) => {
+    const out = { a: 0, c: 0, days: 0 };
+    const d = new Date(from);
+    for (let i = 0; i < n; i++) {
+      const [a, c] = totals[dayKey(d)] || [0, 0];
+      out.a += a;
+      out.c += c;
+      if (a) out.days++;
+      d.setDate(d.getDate() + 1);
+    }
+    return out;
+  };
+  const today = new Date();
+  const n = ((today.getDay() + 6) % 7) + 1; // days of this week so far, Monday first
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - n + 1);
+  const lastMonday = new Date(monday);
+  lastMonday.setDate(monday.getDate() - 7);
+  const now = sum(monday, n);
+  const before = sum(lastMonday, n);
+  const change = before.a ? Math.round(((now.a - before.a) / before.a) * 100) : null;
+  const trend = change === null ? (now.a ? 'up' : 'flat') : change > 0 ? 'up' : change < 0 ? 'down' : 'flat';
+  const stat = (label, value, prev) => h('span', { class: 'wk-stat' },
+    h('b', {}, value), h('span', { class: 'muted' }, label), h('small', { class: 'muted' }, `${t.lastWeekShort} ${prev}`));
+  return h('section', { class: 'card week-card' },
+    h('div', { class: 'wk-head' },
+      h('strong', {}, t.thisWeekTitle),
+      h('span', { class: `wk-trend ${trend}` },
+        icon(trend === 'down' ? 'chevronLeft' : 'chevronRight', { size: 14, cls: 'wk-arrow' }),
+        change === null ? (now.a ? t.weekNew : '–') : `${change > 0 ? '+' : ''}${change}%`)),
+    h('div', { class: 'wk-stats' },
+      stat(t.answersUnit, now.a.toLocaleString(), before.a.toLocaleString()),
+      stat(t.accuracy, now.a ? `${pct(now.c, now.a)}%` : '–', before.a ? `${pct(before.c, before.a)}%` : '–'),
+      stat(t.daysPlayed, `${now.days}/${n}`, `${before.days}/${n}`)));
+}
+
+// A year of activity, one square per day (weeks as columns, Monday on top), coloured by answers
+// against the daily goal. It scrolls sideways on phones and starts at today (right to left box).
+const HEAT_WEEKS = 53;
+function yearHeatmap(totals) {
+  const t = state.t;
+  const goal = settings.dailyGoal || 20;
+  const level = (a) => (!a ? 0 : a < goal / 2 ? 1 : a < goal ? 2 : a < goal * 2 ? 3 : 4);
+  const end = new Date();
+  const start = new Date(end);
+  start.setDate(end.getDate() - ((end.getDay() + 6) % 7) - (HEAT_WEEKS - 1) * 7);
+  const caption = h('p', { class: 'chart-caption', 'aria-live': 'polite' }, t.tapDay);
+  const cells = [];
+  let active = 0;
+  for (const d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const key = dayKey(d);
+    const [a, c] = totals[key] || [0, 0];
+    if (a) active++;
+    const label = `${d.toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' })} · ${a} ${t.answersUnit}${a ? ` · ${t.accuracy} ${pct(c, a)}%` : ''}`;
+    cells.push(h('span', { class: `heat l${level(a)}${key === dayKey() ? ' today' : ''}`, 'data-label': label }));
+  }
+  const grid = h('div', {
+    class: 'heat-grid',
+    role: 'img',
+    'aria-label': t.yearActive.replace('{n}', active),
+    onclick: (e) => {
+      const cell = e.target.closest('.heat');
+      if (!cell) return;
+      grid.querySelectorAll('.heat.sel').forEach((x) => x.classList.remove('sel'));
+      cell.classList.add('sel');
+      caption.textContent = cell.dataset.label;
+    },
+  }, cells);
+  return h('div', { class: 'chart' },
+    h('div', { class: 'chart-head' }, h('span', {}, t.yearActive.replace('{n}', active)),
+      h('span', { class: 'heat-legend', 'aria-hidden': 'true' }, t.less, [0, 1, 2, 3, 4].map((l) => h('span', { class: `heat l${l}` })), t.more)),
+    h('div', { class: 'heat-scroll' }, grid),
+    caption);
+}
+
 function tabs(active) {
   const t = state.t;
   return h('nav', { class: 'tabs', 'aria-label': t.progressTitle },
@@ -230,8 +308,11 @@ export async function renderProgress(lang) {
       tile('trophy', `${st.best}`, t.bestStreak, t.days),
       tile('gift', `${questDays()}`, t.questDays),
     ),
+    weekCompare(totals),
     groupTitle(t.last14),
     h('section', { class: 'card' }, activityChart(totals)),
+    groupTitle(t.lastYear),
+    h('section', { class: 'card' }, yearHeatmap(totals)),
     groupTitle(t.byLanguage),
     h('div', { class: 'group list' }, sums.map((s) => {
       const m = langMeta(s.vocab.code);
@@ -328,8 +409,11 @@ function renderLang(s) {
     ),
     h('section', { class: 'card' }, distribution(s)),
     badgeGrid(code),
+    weekCompare(totals),
     groupTitle(t.last14),
     h('section', { class: 'card' }, activityChart(totals)),
+    groupTitle(t.lastYear),
+    h('section', { class: 'card' }, yearHeatmap(totals)),
     bySet(s),
     groupTitle(t.weakWords,
       top.length ? h('button', { class: 'text-btn', type: 'button', onclick: practiceWeak }, icon('repeat', { size: 16 }), t.practiceWeak) : null),

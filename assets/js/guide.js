@@ -61,6 +61,7 @@ export const GUIDE = {
       id: 'progress', icon: 'progress', color: 'orange', title: 'ดูความคืบหน้า',
       items: [
         'แถบล่างของการ์ด "วันนี้" ในหน้าหลักบอกจำนวนคำที่จำได้และความแม่นยำของภาษาที่เลือก แตะเพื่อดูรายละเอียด',
+        'หน้าความคืบหน้ามีการ์ด "สัปดาห์นี้" เทียบคำตอบ ความแม่นยำ และวันที่เล่นกับช่วงเดียวกันของสัปดาห์ก่อน และ "กิจกรรมทั้งปี" ช่องละหนึ่งวัน สีเข้มขึ้นตามจำนวนคำตอบเทียบกับเป้าหมายรายวัน แตะช่องเพื่อดูวันนั้น (บนมือถือเลื่อนซ้ายเพื่อดูย้อนหลัง)',
         'แท็บ "ความคืบหน้า" แสดงภาพรวมทุกภาษา และกราฟจำนวนคำตอบ 14 วันล่าสุด (แตะแท่งกราฟเพื่อดูตัวเลข)',
         'เลือกภาษาด้านบนเพื่อดูความคืบหน้าแยกชุด (จัดกลุ่มตามระดับ) คำที่ผิดบ่อย (แตะ "ฝึกคำเหล่านี้" ได้ทันที) และประวัติการเล่น',
         'ตราสะสม 23 แบบ: เรียนต่อเนื่อง 3/7/30/100/365 วัน จำได้ 50/200/500/1000 คำ จำครบ 1/10 ชุด จบระดับ 1/2/3 คอมโบ ×10/×25 รอบเพอร์เฟกต์ 1/10 ครั้ง (อย่างน้อย 10 ข้อ) เอาตัวรอด 25 ข้อ เล่นครบทุกโหมด นกฮูกกลางคืน (22:00–04:00) นกตื่นเช้า (04:00–07:00) และเรียนครบทุกภาษา ตราที่ยังไม่ได้จะเป็นสีเทาพร้อมบอกความคืบหน้า',
@@ -194,6 +195,7 @@ export const GUIDE = {
       id: 'progress', icon: 'progress', color: 'orange', title: 'Tracking progress',
       items: [
         'The bottom row of the "Today" card on Home shows words mastered and accuracy for the chosen language; tap it for details',
+        'Progress has a "This week" card comparing answers, accuracy and days played with the same days of last week, and "Past year": one square per day, darker the more you answered against your daily goal. Tap a square to see that day (swipe left on a phone for earlier weeks)',
         'The Progress tab shows all languages and answers over the last 14 days (tap a bar for its numbers)',
         'Pick a language at the top for per-set progress (grouped by level), most-missed words ("Practice these" in one tap) and recent games',
         '23 badges: 3/7/30/100/365-day streaks, 50/200/500/1000 words mastered, 1/10 sets completed, levels 1/2/3 complete, ×10/×25 combos, 1/10 perfect rounds (at least 10 questions), survive 25 questions, every mode played, night owl (22:00–04:00), early bird (04:00–07:00) and every language learned. Badges not yet earned are grey and show how far along you are',

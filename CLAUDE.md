@@ -67,7 +67,8 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
   options at the bottom of the screen on phones
 - **Results screen**: animated ring, stars, newly mastered words, comparison with the last game, goal progress, best combo,
   new records, XP bar + level up, daily quests, newly earned badges and unlocks, set stars, full-screen milestone celebration
-- **Progress**: overview (player level card, best streak, quest days) and per-language detail (tiles, 23 badges, per-level set bars, 14-day chart, weak words with one-tap practice, history)
+- **Progress**: overview (player level card, best streak, quest days) and per-language detail (tiles, 23 badges, per-level set bars, 14-day chart, weak words with one-tap practice, history); both have
+  this week vs the same days of last week and a year heatmap (53 weeks, colour by answers vs the daily goal)
 - **Settings**: translation/app language, questions per round, daily goal, new words per day, reading, auto speak, speech speed (slow/normal/fast; a second tap on a speaker within 4 s plays it extra slowly), new-word cards, sound effects, theme, text size (normal/large/xlarge: `data-text` on `<html>` scales words, answers and options via `--ts`), Collection (player level, accent colour, flashcard pattern, sound pack; locked ones show what unlocks them), export/import progress backup (.json, merged on import; Home reminds after 14 days without one), per-language reset (offers a backup first), check for updates, what's new
 - **PWA**: installable on iPhone/iPad, works offline, update toast, in-app guide
 
