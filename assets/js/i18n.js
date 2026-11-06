@@ -72,6 +72,7 @@ export const UI = {
 
     // game
     quit: 'ออกจากเกม',
+    roundProgress: 'ความคืบหน้าของรอบนี้',
     tapToFlip: 'แตะเพื่อดูความหมาย',
     tapAgainSlow: 'แตะอีกครั้งเพื่อฟังช้า',
     dictateHint: 'ฟังแล้วพิมพ์คำที่ได้ยิน (แตะเพื่อฟังซ้ำ)',
@@ -382,6 +383,7 @@ export const UI = {
     },
 
     quit: 'Quit game',
+    roundProgress: 'Progress of this round',
     tapToFlip: 'Tap to see the meaning',
     tapAgainSlow: 'Tap again to hear it slowly',
     dictateHint: 'Type what you hear (tap to listen again)',

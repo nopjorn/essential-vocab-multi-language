@@ -200,6 +200,9 @@ python3 -m http.server 8000      # open http://localhost:8000
 Browser check with Playwright (Chromium at /opt/pw-browsers in Claude Code cloud): use viewports
 440×956 (iPhone Pro Max, isMobile, hasTouch), 820×1180 and 1180×820 (iPad Air 11"), play each mode,
 open every tab and the changelog, toggle themes, check for page errors and horizontal overflow.
+Accessibility: inject axe-core (`npm i axe-core` in a scratch folder, `page.addScriptTag`) on every tab and game screen in
+light and dark; it must report no violations. Text colours need 4.5:1 (dark mode buttons use dark `--primary-ink` on a
+lighter `--primary` for this). Game screens carry a visually hidden `h1` and a labelled progress bar.
 For flashcards, drag with `page.mouse` (down → move in steps → up): past 28% of the card width
 decides, a short drag snaps back, a tap flips.
 

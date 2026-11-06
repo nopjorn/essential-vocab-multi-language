@@ -87,8 +87,9 @@ export function runPlacement(vocab, { hasLetters = false, onDone, onCancel }) {
         h('span', { class: 'opt-key' }, i + 1), h('span', {}, opt)));
     render(h('div', { class: 'game choice placement' },
       h('div', { class: 'game-top' },
+        h('h1', { class: 'sr-only' }, t.placementTitle),
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: () => leave(onCancel) }, icon('close')),
-        h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(asked) },
+        h('div', { class: 'progress', role: 'progressbar', 'aria-label': state.t.roundProgress, 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(asked) },
           h('div', { class: 'progress-fill', style: `width:${(asked / total) * 100}%` })),
         h('span', { class: 'counter' }, levelLabel(t, lv))),
       h('div', { class: 'mode-pill' }, icon('target', { size: 16 }), t.placementTitle),

@@ -157,8 +157,9 @@ function introView(list, begin) {
     };
     render(h('div', { class: 'game intro' },
       h('div', { class: 'game-top' },
+        h('h1', { class: 'sr-only' }, t.introTitle),
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
-        h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(list.length), 'aria-valuenow': String(i + 1) },
+        h('div', { class: 'progress', role: 'progressbar', 'aria-label': state.t.roundProgress, 'aria-valuemin': '0', 'aria-valuemax': String(list.length), 'aria-valuenow': String(i + 1) },
           h('div', { class: 'progress-fill', style: `width:${((i + 1) / list.length) * 100}%` })),
         h('span', { class: 'counter' }, `${i + 1}/${list.length}`)),
       h('div', { class: 'mode-pill' }, icon('sparkles', { size: 16 }), t.introTitle),
@@ -203,6 +204,7 @@ function topBar(session, label, extra = null) {
   if (session.hearts !== null) {
     session.heartsEl = heartsEl(session);
     return h('div', { class: 'game-top' },
+      h('h1', { class: 'sr-only' }, t.modes[session.mode][0]),
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
       session.heartsEl,
       session.comboEl,
@@ -211,8 +213,10 @@ function topBar(session, label, extra = null) {
     );
   }
   return h('div', { class: 'game-top' },
+    // a screen reader lands on the mode name first (the pill under the bar is shown only in mixed modes)
+    h('h1', { class: 'sr-only' }, t.modes[session.mode][0]),
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
-    h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(session.i) },
+    h('div', { class: 'progress', role: 'progressbar', 'aria-label': state.t.roundProgress, 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(session.i) },
       h('div', { class: 'progress-fill', style: `width:${pct}%` })),
     session.comboEl,
     h('span', { class: 'counter' }, label ?? `${Math.min(session.i + 1, total)}/${total}`),
@@ -395,7 +399,8 @@ function flashView(session, item, advance) {
   );
   const stampKnow = h('div', { class: 'stamp stamp-know', 'aria-hidden': 'true' }, icon('check', { size: 20 }), t.swipeKnow);
   const stampAgain = h('div', { class: 'stamp stamp-again', 'aria-hidden': 'true' }, icon('close', { size: 20 }), t.swipeAgain);
-  const card = h('div', { class: 'flashcard', role: 'button', tabindex: '0', 'aria-label': t.flip },
+  // a group, not a button: it holds the speaker and star buttons (the Flip button below does the same as a tap)
+  const card = h('div', { class: 'flashcard', role: 'group', tabindex: '0', 'aria-label': t.tapToFlip },
     h('div', { class: 'flash-inner' }, front, back),
     stampKnow,
     stampAgain,
@@ -1022,7 +1027,7 @@ function showResults(session) {
   render(h('div', { class: 'results' },
     h('div', { class: 'game-top' },
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.done, onclick: exitGame }, icon('close')),
-      h('span', { class: 'top-title' }, t.resultTitle),
+      h('h1', { class: 'top-title' }, t.resultTitle),
       h('span', { class: 'icon-btn-spacer' }),
     ),
     h('section', { class: 'result-hero' },

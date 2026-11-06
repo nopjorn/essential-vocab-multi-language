@@ -10,7 +10,7 @@
   --seg-on: #ffffff;
   --text: #14161f;
   --text-2: #3c4150;
-  --muted: #6b7183;
+  --muted: #5f6577;
   --line: #dfe2ea;
   --sep: rgba(60, 60, 67, 0.16);
   --primary: #3451d1;
@@ -18,13 +18,13 @@
   --primary-soft: #e8ecfc;
   --hero-a: #3451d1;
   --hero-b: #4a3bc4;
-  --good: #15803d;
+  --good: #137a39;
   --good-soft: #e3f5e9;
   --good-strong: #1f9d55;
-  --bad: #d92d3a;
+  --bad: #c92433;
   --bad-soft: #fde8ea;
   --warn: #a15c07;
-  --gold: #b7791f;
+  --gold: #94600f;
   --gold-soft: #fdf3dc;
   --toggle-on: #34c759;
   --seg-learning: #a9b6f0;
@@ -57,12 +57,12 @@
     --seg-on: #3b3f4a;
     --text: #f2f3f7;
     --text-2: #c9ccd6;
-    --muted: #8d92a3;
+    --muted: #969bac;
     --line: #2f323c;
     --sep: rgba(255, 255, 255, 0.1);
-    --primary: #5b75f6;
-    --primary-ink: #ffffff;
-    --primary-soft: #222a4d;
+    --primary: #7189f8;
+    --primary-ink: #0e0f13;
+    --primary-soft: #1f2747;
     --hero-a: #2d47c4;
     --hero-b: #4334b0;
     --good: #3ccf73;
@@ -89,12 +89,12 @@
   --seg-on: #3b3f4a;
   --text: #f2f3f7;
   --text-2: #c9ccd6;
-  --muted: #8d92a3;
+  --muted: #969bac;
   --line: #2f323c;
   --sep: rgba(255, 255, 255, 0.1);
-  --primary: #5b75f6;
-  --primary-ink: #ffffff;
-  --primary-soft: #222a4d;
+  --primary: #7189f8;
+  --primary-ink: #0e0f13;
+  --primary-soft: #1f2747;
   --hero-a: #2d47c4;
   --hero-b: #4334b0;
   --good: #3ccf73;
@@ -635,7 +635,7 @@ input:checked + .switch::after { transform: translateX(20px); }
   flex: none;
   transition: background 0.15s, border-color 0.15s;
 }
-.set-row:has(input:checked) .check-circle { background: var(--primary); border-color: var(--primary); color: #fff; }
+.set-row:has(input:checked) .check-circle { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
 
 .meter { display: block; height: 6px; border-radius: 3px; background: var(--fill); overflow: hidden; }
 .meter.thin { height: 4px; margin-top: 6px; }
@@ -646,7 +646,7 @@ input:checked + .switch::after { transform: translateX(20px); }
 
 .game { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 .game-top { display: flex; align-items: center; gap: 12px; min-height: 48px; }
-.top-title { flex: 1; text-align: center; font-size: 17px; font-weight: 700; }
+.top-title { flex: 1; margin: 0; text-align: center; font-size: 17px; font-weight: 700; }
 .progress { flex: 1; height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 4px; background: var(--primary); transition: width 0.3s ease; }
 .counter { font-size: 15px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
@@ -1337,7 +1337,7 @@ input:checked + .switch::after { transform: translateX(20px); }
 }
 .choice-card .row-text { flex: 1; }
 .choice-card.on { border-color: var(--primary); background: var(--primary-soft); }
-.choice-card.on .check-circle { background: var(--primary); border-color: var(--primary); color: #fff; }
+.choice-card.on .check-circle { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
 .level-num {
   display: grid;
   place-items: center;
