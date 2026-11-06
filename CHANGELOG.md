@@ -9,6 +9,7 @@
 - จำกัดคำใหม่ต่อวัน: ตั้งค่า › คำใหม่ต่อวัน (ไม่จำกัด / 10 / 20 / 30) เมื่อครบแล้วรอบถัดไปจะเน้นคำที่เคยเจอ ไม่ให้คำทบทวนท่วม
 - คำที่ผิดบ่อย: มีป้าย "ผิดบ่อย" ในรายการคำและหน้าความคืบหน้า ตอบผิดอีกจะมีคำแนะนำวิธีจำ และหน้าหลักมีการ์ดทบทวนคำเหล่านี้ด้วยแฟลชการ์ด
 - ความเร็วเสียงอ่าน: ตั้งค่า › ความเร็วเสียงอ่าน (ช้า / ปกติ / เร็ว) และแตะลำโพงเดิมซ้ำภายใน 4 วินาทีเพื่อฟังแบบช้าพิเศษ
+- โหมดใหม่ "ฟังแล้วพิมพ์": ฟังเสียงแล้วพิมพ์คำที่ได้ยิน ในโหมดผสมจะเจอเมื่อคำนั้นจำได้ดีแล้ว (หน้าหลักจัดปุ่มโหมดใหม่ จับคู่และเอาตัวรอดอยู่แถวเดียวกัน)
 
 <details><summary>English</summary>
 
@@ -17,6 +18,7 @@
 - Daily new-word limit: Settings › New words per day (no limit / 10 / 20 / 30); once reached, rounds focus on words you have met so reviews do not pile up
 - Often-missed words: an "Often missed" tag in the word list and on Progress, a tip on how to remember them after another miss, and a Home card to go over them with flashcards
 - Speech speed: Settings › Speech speed (slow / normal / fast), and tap the same speaker again within 4 seconds to hear it extra slowly
+- New "Dictation" mode: listen and type the word you hear; mixed mode uses it once a word is well known (Home rearranges the mode tiles, with match and survival side by side)
 
 </details>
 

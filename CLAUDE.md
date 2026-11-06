@@ -12,7 +12,7 @@ Safari or as a Home Screen app.
   Chinese 🇨🇳 (simplified + pinyin, 88 sets, 3,001; same topic plan plus zh-only `trip_phrases` (L1), `theme_park`, `shanghai` (L2)),
   each in 3 levels (≈1,000 words per level)
 - Translate into: Thai (all languages); English (Korean, Japanese and Chinese)
-- 8 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, match, survival (3 hearts); Leitner boxes 0–5 (box ≥ 3 = mastered) with due dates (`d`: 1/3/7/14/30 days by box; Home "due for review" card)
+- 9 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, dictate (listen + type), match, survival (3 hearts); Leitner boxes 0–5 (box ≥ 3 = mastered) with due dates (`d`: 1/3/7/14/30 days by box; Home "due for review" card)
 - Game feel: combo counter, Web Audio sound effects (Settings toggle, unlockable sound packs), pop/shake feedback, match timer with best time, badges,
   stars per set, daily quests, XP/player level, streak freezes, milestones, unlockable looks (accent colour, flashcard pattern)
 - Native-app style UI: bottom tab bar (Home · Progress · **Start** · Guide · Settings; Start is a raised round
@@ -58,7 +58,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
   "Practice this set" plays only that set
 - **Daily new-word limit** (Settings; soft: new words only fill a round that would come up short) and **leeches** (`isLeech`: wrong ≥ 4 and ≥ right; tag, tip after a miss, Home flashcard card)
 - **New word cards** before a round (up to 5 never-seen words; not flashcards/survival; Settings toggle)
-- **8 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint),
+- **9 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint), dictation (listen and type),
   match (timed, best-time record), survival (3 hearts, harder as the score grows, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
   options at the bottom of the screen on phones
 - **Results screen**: animated ring, stars, newly mastered words, comparison with the last game, goal progress, best combo,
@@ -87,7 +87,7 @@ assets/js/
                 playSet() (one set on its own; Up next card and word list)
   settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, sound effects, theme,
                 daily goal, progress export/import, per-language reset, about (version, what's new, guide, install)
-  game.js       item building, weighted picking, distractors, all 8 modes (survival: endless queue, hearts, harder by score) (mix picks quiz/reverse/listen, type once box ≥ 2),
+  game.js       item building, weighted picking, distractors, all 9 modes (survival: endless queue, hearts, harder by score) (mix picks quiz/reverse/listen, type once box ≥ 2, dictate once box ≥ 3; SPEECH_MODES need speech; the all-modes badge stays at 8),
                 combo + bursts, flashcard undo (store.undoRecord), type hint, match timer/record, results screen
                 (animated ring, stars, newly mastered words, vs last game, goal progress, best combo, records, XP bar, quests,
                 new badges/unlocks/set stars, confetti, milestone overlay); startGame(items, pool, { mode }) can override the mode

@@ -4,13 +4,15 @@
 import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, isLeech, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
-import { MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
+import { MODES, SPEECH_MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
 import { langSummary, dayTotals, streakInfo, FREEZE_MAX } from './progress.js';
 import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway } from './engage.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
 
 const QUICK_COUNT = 5;
+// mode tiles drawn as a row with a description (mixed: full width; match and survival: half)
+const WIDE = ['mix', 'match', 'survival'];
 const AWAY_DAYS = 3; // gone this long: Home greets you back with a short review
 const REVIEW_COUNT = 10;
 const DUE_COUNT = 20; // words in one "due for review" round
@@ -38,7 +40,7 @@ export async function startPractice({ count = settings.count } = {}) {
     return toast(t.loadError);
   }
   if (nav !== state.navId) return;
-  if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
+  if (SPEECH_MODES.includes(settings.mode) && !speechSupported) settings.mode = 'quiz';
   const items = itemsFor(vocab, chosenIds(vocab));
   const problem = !items.length ? t.pickSet : settings.mode !== 'flash' && items.length < 4 ? t.notEnough : null;
   if (problem) {
@@ -52,7 +54,7 @@ export async function startPractice({ count = settings.count } = {}) {
 export function playSet(vocab, setId) {
   ensureAudio(); // iOS only allows speech after a tap
   settings.lang = vocab.code;
-  if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
+  if (SPEECH_MODES.includes(settings.mode) && !speechSupported) settings.mode = 'quiz';
   saveSettings();
   const items = itemsFor(vocab, [setId]);
   startGame(pickItems(items, settings.count), items);
@@ -94,7 +96,7 @@ export async function renderPractice() {
     return;
   }
   const code = vocab.code;
-  if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
+  if (SPEECH_MODES.includes(settings.mode) && !speechSupported) settings.mode = 'quiz';
 
   const chosen = new Set(chosenIds(vocab));
   const persistSets = () => {
@@ -250,7 +252,7 @@ export async function renderPractice() {
       role: 'radio',
       class: `mode-tile${settings.mode === m ? ' active' : ''}`,
       'aria-checked': String(settings.mode === m),
-      disabled: m === 'listen' && !speechSupported,
+      disabled: SPEECH_MODES.includes(m) && !speechSupported,
       onclick: () => {
         settings.mode = m;
         saveSettings();
@@ -263,7 +265,7 @@ export async function renderPractice() {
       },
     },
     h('span', { class: 'mode-ic' }, icon(MODE_ICON[m], { size: 26 })),
-    m === 'mix' || m === 'survival'
+    WIDE.includes(m)
       ? h('span', { class: 'mode-text' },
           h('span', { class: 'mode-name' }, t.modes[m][0],
             m === 'mix' ? h('span', { class: 'mini-badge' }, t.recommended)
@@ -272,7 +274,8 @@ export async function renderPractice() {
       : h('span', { class: 'mode-name' }, t.modes[m][0])),
   );
   modeTiles[0].classList.add('mode-mix');
-  modeTiles[MODES.indexOf('survival')].classList.add('mode-mix', 'mode-survival');
+  modeTiles[MODES.indexOf('match')].classList.add('mode-half');
+  modeTiles[MODES.indexOf('survival')].classList.add('mode-half', 'mode-survival');
 
   // ---- word sets, one level at a time ----
   const levels = [...new Set(vocab.sets.map(levelOf))].sort((a, b) => a - b);

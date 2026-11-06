@@ -567,8 +567,10 @@ input:checked + .switch::after { transform: translateX(20px); }
 .install-link { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; color: inherit; text-decoration: none; }
 .install-card .btn.small { min-height: 44px; padding: 0 12px; font-size: 14px; }
 
-.mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+/* 6 columns: small tiles take 2 (3 a row), match and survival 3 (half), mixed the whole row */
+.mode-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
 .mode-tile {
+  grid-column: span 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1088,6 +1090,17 @@ input:checked + .switch::after { transform: translateX(20px); }
   padding: 12px 16px;
   text-align: left;
 }
+.mode-tile.mode-half {
+  grid-column: span 3;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 74px;
+  padding: 10px 12px;
+  text-align: left;
+}
+.mode-half .mode-ic { flex: none; width: 40px; height: 40px; }
+.mode-half .mode-sub { font-size: 12px; }
 .mode-mix .mode-ic { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: #fff; }
 .mode-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .mode-text .mode-name { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; color: var(--text); }
@@ -1351,7 +1364,7 @@ input:checked + .switch::after { transform: translateX(20px); }
   .start-fab .icon { width: 18px; height: 18px; margin-left: 0; }
   .tab-start:active { transform: scale(0.97); }
   .tab-start:active .start-fab { transform: none; }
-  .mode-grid { grid-template-columns: repeat(6, 1fr); }
+  .mode-tile { grid-column: span 1; }
   .options { grid-template-columns: 1fr 1fr; }
   .option { min-height: 76px; font-size: 20px; }
   .prompt { min-height: 230px; }
@@ -1378,7 +1391,7 @@ input:checked + .switch::after { transform: translateX(20px); }
   body:not(.in-game) .screen[data-page="practice"] > .page-head { grid-column: 1 / -1; }
   body:not(.in-game) .screen[data-page="practice"] > .sets-col { grid-column: 2; grid-row: 2 / -1; align-self: start; }
   body:not(.in-game) .screen[data-page="practice"] .sets-title { margin-top: 0; }
-  body:not(.in-game) .screen[data-page="practice"] .mode-grid { grid-template-columns: repeat(3, 1fr); }
+  body:not(.in-game) .screen[data-page="practice"] .mode-tile:not(.mode-mix, .mode-half) { grid-column: span 2; }
   .game, .results { max-width: 860px; }
 }
 
@@ -1386,7 +1399,6 @@ input:checked + .switch::after { transform: translateX(20px); }
 @media (min-width: 1200px) {
   .screen[data-page="practice"] { max-width: min(1360px, 100%); --gutter: 40px; }
   body:not(.in-game) .screen[data-page="practice"] { column-gap: 40px; }
-  body:not(.in-game) .screen[data-page="practice"] .mode-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (min-width: 1680px) {

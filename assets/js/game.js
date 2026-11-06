@@ -8,7 +8,9 @@ import { dayTotals, streak } from './progress.js';
 import { badgeList, earnedIds } from './badges.js';
 import { totalXP, playerLevel, syncQuests, dailyQuests, milestones, unlockedIds } from './engage.js';
 
-export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'match', 'survival'];
+export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'dictate', 'match', 'survival'];
+// modes that need speech synthesis
+export const SPEECH_MODES = ['listen', 'dictate'];
 const HEARTS = 3; // survival: wrong answers allowed before the run ends
 const MATCH_PAIRS = 6;
 const SWIPE_RATIO = 0.28; // fraction of the card width that counts as a decision
@@ -294,7 +296,9 @@ function cheer(session, ok) {
 function mixMode(item) {
   const modes = ['quiz', 'reverse'];
   if (speechSupported) modes.push('listen');
-  if (getProgress(item.key).b >= 2) modes.push('type', 'type');
+  const box = getProgress(item.key).b;
+  if (box >= 2) modes.push('type', 'type');
+  if (box >= 3 && speechSupported) modes.push('dictate');
   return modes[Math.floor(Math.random() * modes.length)];
 }
 
@@ -310,6 +314,7 @@ function survivalMode(session, item) {
   if (n >= 5) modes.push('reverse');
   if (n >= 12 && speechSupported) modes.push('listen');
   if (n >= 20 && getProgress(item.key).b >= 1) modes.push('type');
+  if (n >= 30 && speechSupported && getProgress(item.key).b >= 2) modes.push('dictate');
   return modes[Math.floor(Math.random() * modes.length)];
 }
 
@@ -328,7 +333,7 @@ function playNext(session) {
     if (session.i >= session.items.length) session.items.push(nextSurvivalItem(session));
     const item = session.items[session.i];
     const mode = survivalMode(session, item);
-    const view = mode === 'type' ? typeView : choiceView;
+    const view = mode === 'type' || mode === 'dictate' ? typeView : choiceView;
     return view(session, item, () => {
       session.i++;
       playNext(session);
@@ -341,7 +346,7 @@ function playNext(session) {
     playNext(session);
   };
   const mode = session.mode === 'mix' ? mixMode(item) : session.mode;
-  const view = { flash: flashView, quiz: choiceView, reverse: choiceView, listen: choiceView, type: typeView }[mode];
+  const view = { flash: flashView, quiz: choiceView, reverse: choiceView, listen: choiceView, type: typeView, dictate: typeView }[mode];
   view(session, item, advance, mode);
 }
 
@@ -578,8 +583,10 @@ function clueOf(item) {
   return item.roman ? `${blanks(item.term)} · ${blanks(item.roman)}` : blanks(item.term);
 }
 
+// Typing: see the meaning and type the word. Dictation (mode 'dictate'): hear the word and type it.
 function typeView(session, item, advance, mode) {
   const t = state.t;
+  const dictate = mode === 'dictate';
   let answered = false;
   const input = h('input', {
     class: 'type-input',
@@ -619,12 +626,13 @@ function typeView(session, item, advance, mode) {
     input.classList.add(ok ? 'right' : 'wrong', ok ? 'pop' : 'shake');
     fill(feedback,
       verdict(ok),
-      h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term)),
+      h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term),
+        dictate ? [h('span', { class: 'eq' }, '='), h('span', {}, item.answer)] : null),
       noteEl(item),
       exampleBlock(item.example),
       leechTip(item, ok),
     );
-    say(item.term);
+    if (!dictate) say(item.term);
     checkBtn.textContent = t.next;
     skipBtn.classList.add('hidden');
     hintBtn.classList.add('hidden');
@@ -642,12 +650,15 @@ function typeView(session, item, advance, mode) {
   render(h('div', { class: 'game' },
     topBar(session),
     modePill(session, mode),
-    h('div', { class: 'prompt' }, h('div', { class: 'answer-big' }, item.answer)),
+    dictate
+      ? h('div', { class: 'prompt listen' }, speakerBtn(item.term, { big: true }), h('span', { class: 'flip-hint' }, t.dictateHint))
+      : h('div', { class: 'prompt' }, h('div', { class: 'answer-big' }, item.answer)),
     form,
     h('p', { class: 'hint center' }, t.typeHint),
     feedback,
   ));
   onKeys(null);
+  if (dictate) say(item.term);
   // iOS only opens the keyboard on focus during a user gesture; this still
   // focuses the field on iPad with a hardware keyboard.
   input.focus({ preventScroll: true });
