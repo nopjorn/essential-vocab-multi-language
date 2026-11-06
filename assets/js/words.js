@@ -78,12 +78,26 @@ export async function renderWords(code, setId) {
     return btn;
   };
 
+  // Whole set at once, for people who already know a topic: every word to mastered, or all back to new.
+  const allKnown = () => entries.every(isKnown);
+  const setAllBtn = mine ? null : h('button', {
+    class: 'btn',
+    type: 'button',
+    onclick: () => {
+      const on = !allKnown();
+      if (!confirm((on ? t.knowAllConfirm : t.unknowAllConfirm).replace('{n}', entries.length))) return;
+      for (const e of entries) if (isKnown(e) !== on) setKnown(keyOf(e), on);
+      renderWords(code, setId);
+    },
+  }, icon(allKnown() ? 'undo' : 'check', { size: 16 }), allKnown() ? t.unknowAll : t.knowAll);
+
   render(
     pageHead(mine ? t.myWords : `${set.icon} ${nameOf(set.name)}`, { back }),
     sub,
     entries.length
       ? h('div', { class: 'words-actions' },
-          h('button', { class: 'btn primary', type: 'button', onclick: practice }, icon('play', { size: 16, fill: true }), mine ? t.practiceSaved : t.practiceThisSet))
+          h('button', { class: 'btn primary', type: 'button', onclick: practice }, icon('play', { size: 16, fill: true }), mine ? t.practiceSaved : t.practiceThisSet),
+          setAllBtn)
       : null,
     groupTitle(t.wordList),
     entries.length

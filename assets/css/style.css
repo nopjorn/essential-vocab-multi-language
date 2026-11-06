@@ -618,7 +618,7 @@ input:checked + .switch::after { transform: translateX(20px); }
 }
 .set-words:active { background: var(--fill); }
 .words-sub { margin: -6px 4px 12px; }
-.words-actions { margin: 0 0 6px; }
+.words-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 6px; }
 .word-row { gap: 10px; flex-wrap: wrap; }
 .rv-example { flex: 1 1 100%; order: 5; }
 .rv-example .example { margin: 0; max-width: none; }

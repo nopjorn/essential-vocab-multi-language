@@ -55,7 +55,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **Example sentences** for some words (level 1 food/places/home so far), with translation and speaker
 - **My words**: star (☆) words in word lists and games; a row above the sets opens `#/words/<lang>/saved` and plays them
 - **Word list of a set** (list icon on a set row): every word with reading, translation, note, example sentence and speaker;
-  tap the circle to mark a word as already known (mastered, undoable; not counted as an answer);
+  tap the circle to mark a word as already known (mastered, undoable; not counted as an answer), or the whole set at once;
   "Practice this set" plays only that set
 - **Daily new-word limit** (Settings; soft: new words only fill a round that would come up short) and **leeches** (`isLeech`: wrong ≥ 4 and ≥ right; tag, tip after a miss, Home flashcard card)
 - **New word cards** before a round (up to 5 never-seen words; not flashcards/survival; Settings toggle)
