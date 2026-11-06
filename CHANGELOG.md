@@ -8,6 +8,7 @@
 - การ์ด "คำใหม่": ก่อนเริ่มรอบ คำที่ยังไม่เคยเจอ (สูงสุด 5 คำ) จะขึ้นให้ดูพร้อมคำอ่าน คำแปล ตัวอย่าง และเสียง ก่อนถูกถาม ปิดได้ที่ ตั้งค่า › แนะนำคำใหม่ก่อนเล่น
 - จำกัดคำใหม่ต่อวัน: ตั้งค่า › คำใหม่ต่อวัน (ไม่จำกัด / 10 / 20 / 30) เมื่อครบแล้วรอบถัดไปจะเน้นคำที่เคยเจอ ไม่ให้คำทบทวนท่วม
 - คำที่ผิดบ่อย: มีป้าย "ผิดบ่อย" ในรายการคำและหน้าความคืบหน้า ตอบผิดอีกจะมีคำแนะนำวิธีจำ และหน้าหลักมีการ์ดทบทวนคำเหล่านี้ด้วยแฟลชการ์ด
+- ความเร็วเสียงอ่าน: ตั้งค่า › ความเร็วเสียงอ่าน (ช้า / ปกติ / เร็ว) และแตะลำโพงเดิมซ้ำภายใน 4 วินาทีเพื่อฟังแบบช้าพิเศษ
 
 <details><summary>English</summary>
 
@@ -15,6 +16,7 @@
 - "New word" cards: before a round, up to 5 words you have never met are shown with reading, meaning, example and sound before you are asked; turn it off in Settings › Introduce new words
 - Daily new-word limit: Settings › New words per day (no limit / 10 / 20 / 30); once reached, rounds focus on words you have met so reviews do not pile up
 - Often-missed words: an "Often missed" tag in the word list and on Progress, a tip on how to remember them after another miss, and a Home card to go over them with flashcards
+- Speech speed: Settings › Speech speed (slow / normal / fast), and tap the same speaker again within 4 seconds to hear it extra slowly
 
 </details>
 

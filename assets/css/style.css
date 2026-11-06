@@ -496,6 +496,7 @@ input:checked + .switch::after { transform: translateX(20px); }
 .icon-btn:disabled { opacity: 0.35; cursor: default; }
 .icon-btn-spacer { width: 40px; flex: none; }
 
+.speaker.slow { box-shadow: 0 0 0 2px var(--primary); }
 .speaker {
   display: inline-grid;
   place-items: center;

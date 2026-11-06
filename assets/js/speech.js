@@ -33,14 +33,14 @@ export function hasVoice(langTag) {
   return !!findVoice(langTag);
 }
 
-export function speak(text, langTag) {
+export function speak(text, langTag, rate = 0.9) {
   if (!synth || !text) return;
   synth.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = langTag;
   const v = findVoice(langTag);
   if (v) u.voice = v;
-  u.rate = 0.9;
+  u.rate = rate;
   synth.speak(u);
 }
 

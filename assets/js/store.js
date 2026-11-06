@@ -61,6 +61,7 @@ const DEFAULT_SETTINGS = {
   dailyGoal: 20, // answers per day; the Home ring fills toward it
   showRoman: true,
   autoSpeak: true,
+  speechRate: 'normal', // 'slow' | 'normal' | 'fast'
   introNew: true, // show words never seen before at the start of a round
   newPerDay: 0, // most new words per day and language; 0 = no limit
   sound: true, // short sound effects for right/wrong answers and combos

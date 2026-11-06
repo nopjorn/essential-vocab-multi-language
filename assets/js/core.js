@@ -126,8 +126,14 @@ function spokenForm(text) {
   return String.fromCharCode(0xac00 + (lead >= 0 ? lead * 588 : 11 * 588 + vowel * 28));
 }
 
-export function say(text, code = settings.lang) {
-  speak(code === 'ko' ? spokenForm(text) : text, speechTag(code));
+export const SPEECH_RATES = { slow: 0.7, normal: 0.9, fast: 1.05 };
+const SLOW_RATE = 0.55;
+const REPEAT_MS = 4000; // a second tap on the same speaker within this time plays it slowly
+let lastTap = { text: '', at: 0 };
+
+export function say(text, code = settings.lang, { slow = false } = {}) {
+  const rate = slow ? SLOW_RATE : SPEECH_RATES[settings.speechRate] || SPEECH_RATES.normal;
+  speak(code === 'ko' ? spokenForm(text) : text, speechTag(code), rate);
 }
 
 export function speakerBtn(text, { big = false, lang = settings.lang } = {}) {
@@ -136,10 +142,16 @@ export function speakerBtn(text, { big = false, lang = settings.lang } = {}) {
     class: big ? 'speaker big' : 'speaker',
     type: 'button',
     'aria-label': state.t.tapToListen,
+    title: state.t.tapAgainSlow,
     onclick: (e) => {
       e.stopPropagation();
       ensureAudio();
-      say(text, lang);
+      const now = Date.now();
+      const again = lastTap.text === text && now - lastTap.at < REPEAT_MS;
+      // a third tap goes back to normal speed, so the taps alternate
+      lastTap = { text, at: again ? 0 : now };
+      say(text, lang, { slow: again });
+      e.currentTarget.classList.toggle('slow', again);
     },
   }, icon('speaker', { size: big ? 44 : 22 }));
 }

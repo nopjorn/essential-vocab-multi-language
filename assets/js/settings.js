@@ -1,6 +1,6 @@
 // Settings tab: learning options, display, learning data and about (iOS-style grouped list).
 import { settings, saveSettings, resetLanguage, exportData, importData, dayKey, BACKUP_FORMAT } from './store.js';
-import { state, h, render, nameOf, pageHead, groupTitle, setUiLang, loadLang, speechTag, toast } from './core.js';
+import { state, h, render, nameOf, pageHead, groupTitle, setUiLang, loadLang, speechTag, toast, say, ensureAudio } from './core.js';
 import { speechSupported, hasVoice } from './speech.js';
 import { themeControl, applyTheme } from './theme.js';
 import { playerLevel, LOOKS, isUnlocked, unlockNeed } from './engage.js';
@@ -11,6 +11,7 @@ import { versionLabel, APP_VERSION } from './app-info.js';
 const COUNTS = [10, 20, 30, 0]; // 0 = all
 const GOALS = [10, 20, 50, 100];
 const NEW_LIMITS = [0, 10, 20, 30]; // 0 = no limit
+const RATES = ['slow', 'normal', 'fast'];
 
 function rowIcon(name, color) {
   return h('span', { class: `row-icon ${color}` }, icon(name, { size: 18 }));
@@ -200,6 +201,24 @@ export async function renderSettings() {
         }),
         h('span', {}, n ? String(n) : t.noLimit))));
 
+  // Speech speed; choosing one plays a sample word in the current language.
+  const rateSeg = h('div', { class: 'segmented', role: 'radiogroup', 'aria-label': t.speechRate },
+    RATES.map((r) =>
+      h('label', {},
+        h('input', {
+          type: 'radio',
+          name: 'speechRate',
+          value: r,
+          checked: settings.speechRate === r,
+          onchange: () => {
+            settings.speechRate = r;
+            saveSettings();
+            ensureAudio();
+            say(t.rateSample[settings.lang] || t.rateSample.en, settings.lang);
+          },
+        }),
+        h('span', {}, t.rateNames[r]))));
+
   // Voice availability for each language (needs its speech tag, so load the vocab files).
   let voiceNote = null;
   if (!speechSupported) voiceNote = t.noSpeech;
@@ -259,6 +278,11 @@ export async function renderSettings() {
         newSeg),
       toggleRow('showRoman', 'eye', 'teal', t.showReading, t.showReadingSub),
       speechSupported ? toggleRow('autoSpeak', 'speaker', 'orange', t.autoSpeak, t.autoSpeakSub) : null,
+      speechSupported
+        ? h('div', { class: 'row stacked' },
+            h('div', { class: 'row-head' }, rowIcon('speaker', 'teal'), rowText(t.speechRate, t.speechRateSub)),
+            rateSeg)
+        : null,
       toggleRow('introNew', 'sparkles', 'blue', t.introNew, t.introNewSub),
       toggleRow('sound', 'music', 'indigo', t.soundFx, t.soundFxSub),
     ),
