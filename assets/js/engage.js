@@ -199,3 +199,14 @@ export function daysAway(lang) {
   const now = new Date();
   return Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(y, m - 1, d)) / 86400000);
 }
+
+// Word of the day for Home: the same word all day for a language, from the level being shown
+// (letters fall back to level 1). Words with an example sentence come first, since the card shows it.
+export function wordOfDay(vocab, level, day = dayKey()) {
+  const lv = level || 1;
+  const words = vocab.sets.filter((s) => (s.level ?? 1) === lv).flatMap((set) => set.words.map((word) => ({ set, word })));
+  if (!words.length) return null;
+  const rich = words.filter((x) => x.word.example);
+  const pool = rich.length ? rich : words;
+  return pool[Math.floor(seeded(`${day}|${vocab.code}|word`)() * pool.length)];
+}

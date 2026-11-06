@@ -2,11 +2,11 @@
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
 import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, isLeech, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
+import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast, termBlock, speakerBtn, saveBtn, exampleOf, exampleBlock, answerOf } from './core.js';
 import { speechSupported } from './speech.js';
 import { MODES, SPEECH_MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
 import { langSummary, dayTotals, streakInfo, FREEZE_MAX } from './progress.js';
-import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway } from './engage.js';
+import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway, wordOfDay } from './engage.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
 import { savedEntries, playSaved, SAVED_ID } from './words.js';
@@ -236,6 +236,20 @@ export async function renderPractice() {
           icon('flash', { size: 16 }), t.leechBtn))
     : null;
 
+  // ---- word of the day: something to look at and hear the moment Home opens ----
+  const wod = wordOfDay(vocab, settings.level[code]);
+  const wodCard = wod
+    ? h('section', { class: 'wod-card' },
+        h('div', { class: 'wod-head' },
+          h('span', { class: 'next-label' }, icon('sparkles', { size: 14 }), t.wordOfDay),
+          h('a', { class: 'wod-set', href: `#/words/${code}/${wod.set.id}` }, `${wod.set.icon} ${nameOf(wod.set.name)}`)),
+        h('div', { class: 'wod-main' },
+          termBlock({ term: wod.word.term, reading: wod.word.reading || '', roman: wod.word.roman || '' }, { size: 'md', reading: true, lang: code }),
+          h('span', { class: 'wod-actions' }, saveBtn(wordKey(code, wod.set.id, wod.word.term)), speakerBtn(wod.word.term, { lang: code }))),
+        h('p', { class: 'wod-answer' }, answerOf(wod.word)),
+        exampleBlock(exampleOf(wod.word), { lang: code }))
+    : null;
+
   // ---- what Start will play (the button itself is in the tab bar) ----
   const setsFoot = h('p', { class: 'group-foot sets-foot' });
   const refreshFoot = () => {
@@ -441,6 +455,7 @@ export async function renderPractice() {
     dueCard,
     todayCard,
     questCard,
+    wodCard,
     recCard,
     leechCard,
     backupDue()

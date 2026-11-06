@@ -51,7 +51,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **Placement test** (Home "Find my level" under the level bar, welcome): 6 pick-the-meaning questions per level, stops early, suggests a level (letters when level 1 is mostly missed); not recorded
 - **Home**: language switch, "We missed you" card after ≥ 3 days away (review of known words), Today card (daily-goal ring, streak
   or "play today to keep your streak", level chip, streak freezes, Mon–Sun week strip, Continue / Quick 5, mastered + accuracy footer),
-  3 daily quests,
+  3 daily quests, Word of the day (seeded per day + language from the shown level, words with examples first),
   "Up next" recommended set (plays it alone), mode tiles (Mixed is the wide suggested tile), search for sets and the
   words inside them, level switch, multi-select word sets (fully mastered sets get a gold crown; best 1–3 stars per set)
 - **Example sentences** for some words (level 1 food/places/home so far), with translation and speaker
@@ -101,7 +101,7 @@ assets/js/
   badges.js     badges per language computed from progress/stats/records (streak, words, sets, levels, combo, perfect, survival,
                 modes, owl/early, polyglot); badgeList(), earnedIds()
   engage.js     daily quests (seeded per day+language; stats.quests marks finished days), XP + player level, milestones,
-                unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card
+                unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card, wordOfDay()
   rules.js      pure rules with no DOM/storage (unit-tested): normalize/acceptedAnswers for typing, suggestLevel for placement
   placement.js  placement test runPlacement(vocab, {hasLetters, onDone, onCancel}), suggestLevel(scores)
   welcome.js    first-run welcome (language, level, daily goal); shown while store.firstRun and not finished

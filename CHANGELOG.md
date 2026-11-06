@@ -9,6 +9,7 @@
 - เปิดแอปเร็วขึ้น: โหลดไฟล์ของแอปพร้อมกันทั้งหมดแทนการโหลดต่อกันทีละชั้น (ราว 0.1–0.2 วินาทีบนเน็ตมือถือ)
 - เลื่อนและสลับระดับในรายการชุดคำศัพท์และรายการคำลื่นขึ้นบนเครื่องรุ่นเก่า
 - เปลี่ยนหน้าแบบนุ่มนวล: สลับแท็บหรือเปิดหน้าใหม่จะค่อย ๆ จางเข้า (ปิดอัตโนมัติเมื่อเครื่องตั้งค่าลดการเคลื่อนไหว)
+- การ์ด "คำประจำวัน" ในหน้าหลัก: คำใหม่ทุกวันจากระดับที่เลือก พร้อมคำแปล ประโยคตัวอย่าง เสียง และเก็บเข้าสมุดคำได้
 
 <details><summary>English</summary>
 
@@ -17,6 +18,7 @@
 - Faster start: the app's files now load in parallel instead of one after another (about 0.1–0.2 s on mobile data)
 - Smoother scrolling and level switching in the word-set list and word lists on older devices
 - Smooth page changes: switching tabs or opening a page cross-fades (off when the device asks for reduced motion)
+- "Word of the day" card on Home: a new word every day from your level, with meaning, example, sound and ☆ to keep it
 
 </details>
 
