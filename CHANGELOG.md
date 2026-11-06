@@ -6,11 +6,15 @@
 
 - ประโยคตัวอย่าง: คำในชุดอาหาร สถานที่ และของในบ้าน (ระดับ 1) ของทั้ง 4 ภาษามีประโยคตัวอย่างพร้อมคำแปลและปุ่มฟังเสียง แสดงในรายการคำศัพท์ ด้านหลังแฟลชการ์ด หลังพิมพ์คำตอบ และเมื่อตอบผิด
 - การ์ด "คำใหม่": ก่อนเริ่มรอบ คำที่ยังไม่เคยเจอ (สูงสุด 5 คำ) จะขึ้นให้ดูพร้อมคำอ่าน คำแปล ตัวอย่าง และเสียง ก่อนถูกถาม ปิดได้ที่ ตั้งค่า › แนะนำคำใหม่ก่อนเล่น
+- จำกัดคำใหม่ต่อวัน: ตั้งค่า › คำใหม่ต่อวัน (ไม่จำกัด / 10 / 20 / 30) เมื่อครบแล้วรอบถัดไปจะเน้นคำที่เคยเจอ ไม่ให้คำทบทวนท่วม
+- คำที่ผิดบ่อย: มีป้าย "ผิดบ่อย" ในรายการคำและหน้าความคืบหน้า ตอบผิดอีกจะมีคำแนะนำวิธีจำ และหน้าหลักมีการ์ดทบทวนคำเหล่านี้ด้วยแฟลชการ์ด
 
 <details><summary>English</summary>
 
 - Example sentences: words in the food, places and home sets (level 1) of all 4 languages now have an example sentence with a translation and a speaker button, shown in the word list, on the back of flashcards, after typing and after a wrong answer
 - "New word" cards: before a round, up to 5 words you have never met are shown with reading, meaning, example and sound before you are asked; turn it off in Settings › Introduce new words
+- Daily new-word limit: Settings › New words per day (no limit / 10 / 20 / 30); once reached, rounds focus on words you have met so reviews do not pile up
+- Often-missed words: an "Often missed" tag in the word list and on Progress, a tip on how to remember them after another miss, and a Home card to go over them with flashcards
 
 </details>
 

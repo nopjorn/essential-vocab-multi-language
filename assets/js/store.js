@@ -62,6 +62,7 @@ const DEFAULT_SETTINGS = {
   showRoman: true,
   autoSpeak: true,
   introNew: true, // show words never seen before at the start of a round
+  newPerDay: 0, // most new words per day and language; 0 = no limit
   sound: true, // short sound effects for right/wrong answers and combos
   theme: 'system', // 'system' | 'light' | 'dark'
   // Unlockable looks (engage.js decides what is unlocked; the default is always available)
@@ -111,8 +112,15 @@ export function isDue(p, now = Date.now()) {
   return p.t > 0 && dueAt(p) <= now;
 }
 
+// A "leech" keeps being forgotten: wrong at least LEECH_WRONG times and no more often right than wrong.
+// Drilling it the usual way does not help, so the app points it out and offers flashcards with notes.
+export const LEECH_WRONG = 4;
+export function isLeech(p) {
+  return p.w >= LEECH_WRONG && p.w >= p.c && p.b < MASTERED_BOX;
+}
+
 // ---------- activity stats ----------
-// days: { 'YYYY-MM-DD': { [lang]: [answers, correct] } }
+// days: { 'YYYY-MM-DD': { [lang]: [answers, correct, new?] } } (new = words answered for the first time, added in 1.19)
 // sessions: [{ lang, mode, n, c, s: seconds, t: timestamp, b?: best combo, m?: newly mastered }], newest last
 // records: { [lang]: { match: fastest full match round in seconds, combo: longest answer streak,
 //   survival?: most correct answers in survival, stars?: { [setId]: 1..3 }, perfect?: perfect rounds,
@@ -148,6 +156,8 @@ export function record(key, isCorrect) {
   const d = (day[lang] ||= [0, 0]);
   d[0] += 1;
   if (isCorrect) d[1] += 1;
+  // first answer ever (a word marked as known has t but was never answered: not new any more)
+  if (!undo.prev?.t) d[2] = (d[2] || 0) + 1;
   save(STATS_KEY, stats);
   return undo;
 }
@@ -160,6 +170,7 @@ export function undoRecord({ key, prev, day, ok }) {
   if (d) {
     d[0] = Math.max(0, d[0] - 1);
     if (ok) d[1] = Math.max(0, d[1] - 1);
+    if (!prev?.t && d[2]) d[2] -= 1;
   }
   save(STATS_KEY, stats);
 }
@@ -230,6 +241,11 @@ export function todayAnswers(lang) {
   return stats.days[dayKey()]?.[lang]?.[0] || 0;
 }
 
+// Words met for the first time today in one language (for the daily new-word limit).
+export function todayNew(lang) {
+  return stats.days[dayKey()]?.[lang]?.[2] || 0;
+}
+
 export function logSession(session) {
   stats.sessions.push(session);
   if (stats.sessions.length > MAX_SESSIONS) stats.sessions.splice(0, stats.sessions.length - MAX_SESSIONS);
@@ -295,6 +311,7 @@ export function importData(data) {
       for (const [lang, a] of Object.entries(langs)) {
         if (!Array.isArray(a)) continue;
         const inc = [num(a[0]), num(a[1])];
+        if (num(a[2]) > 0) inc.push(num(a[2]));
         if (!day[lang] || inc[0] > day[lang][0]) day[lang] = inc;
       }
     }

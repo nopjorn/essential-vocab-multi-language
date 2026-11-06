@@ -1,5 +1,5 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, isDue, MAX_BOX, MASTERED_BOX } from './store.js';
+import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
@@ -43,18 +43,29 @@ export function itemsFor(vocab, setIds) {
 
 // Weighted sampling without replacement: words in low boxes and unseen words come up more often,
 // words due for review get a boost, and mastered words that are not due yet are left alone for now.
+// With a daily new-word limit, new words beyond what is left today only fill a round that would
+// otherwise come up short, so a limit never leaves the player with nothing to play.
 export function pickItems(items, count) {
   const n = count > 0 ? Math.min(count, items.length) : items.length;
-  return items
+  const ranked = items
     .map((it) => {
       const p = getProgress(it.key);
       let w = (MAX_BOX - p.b + 1) * (p.t ? 1 : 1.5);
       if (p.t) w *= isDue(p) ? 3 : p.b >= MASTERED_BOX ? 0.4 : 1;
-      return { it, k: Math.pow(Math.random(), 1 / w) };
+      return { it, fresh: !p.t, k: Math.pow(Math.random(), 1 / w) };
     })
-    .sort((a, b) => b.k - a.k)
-    .slice(0, n)
-    .map((x) => x.it);
+    .sort((a, b) => b.k - a.k);
+  let room = settings.newPerDay > 0 && items.length ? Math.max(0, settings.newPerDay - todayNew(items[0].lang)) : Infinity;
+  const picked = [];
+  const extra = [];
+  for (const x of ranked) {
+    if (x.fresh && room <= 0) extra.push(x);
+    else {
+      if (x.fresh) room--;
+      picked.push(x);
+    }
+  }
+  return [...picked, ...extra].slice(0, n).map((x) => x.it);
 }
 
 // Distractors must differ from the correct item in both the term and the answer,
@@ -345,6 +356,12 @@ function noteEl(item) {
   return item.note ? h('p', { class: 'note' }, icon('info', { size: 16 }), h('span', {}, item.note)) : null;
 }
 
+// After a wrong answer to a word that keeps being forgotten: a nudge to learn it another way.
+function leechTip(item, ok) {
+  if (ok || !isLeech(getProgress(item.key))) return null;
+  return h('p', { class: 'leech-tip' }, icon('bulb', { size: 16 }), h('span', {}, state.t.leechTip));
+}
+
 function readingSmall(item) {
   const r = settings.showRoman ? readingText(item) : '';
   return r ? h('small', {}, r) : null;
@@ -506,6 +523,7 @@ function choiceView(session, item, advance, mode) {
       noteEl(item),
       // a right answer moves on by itself, too fast to read a sentence
       ok ? null : exampleBlock(item.example),
+      leechTip(item, ok),
     );
     if (mode !== 'quiz' || settings.autoSpeak) say(item.term);
     if (ok) setTimeout(() => advance(), item.note ? 1600 : 900);
@@ -604,6 +622,7 @@ function typeView(session, item, advance, mode) {
       h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term)),
       noteEl(item),
       exampleBlock(item.example),
+      leechTip(item, ok),
     );
     say(item.term);
     checkBtn.textContent = t.next;

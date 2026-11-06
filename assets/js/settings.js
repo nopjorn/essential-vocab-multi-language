@@ -10,6 +10,7 @@ import { versionLabel, APP_VERSION } from './app-info.js';
 
 const COUNTS = [10, 20, 30, 0]; // 0 = all
 const GOALS = [10, 20, 50, 100];
+const NEW_LIMITS = [0, 10, 20, 30]; // 0 = no limit
 
 function rowIcon(name, color) {
   return h('span', { class: `row-icon ${color}` }, icon(name, { size: 18 }));
@@ -184,6 +185,21 @@ export async function renderSettings() {
         }),
         h('span', {}, String(g)))));
 
+  const newSeg = h('div', { class: 'segmented', role: 'radiogroup', 'aria-label': t.newPerDay },
+    NEW_LIMITS.map((n) =>
+      h('label', {},
+        h('input', {
+          type: 'radio',
+          name: 'newPerDay',
+          value: n,
+          checked: settings.newPerDay === n,
+          onchange: () => {
+            settings.newPerDay = n;
+            saveSettings();
+          },
+        }),
+        h('span', {}, n ? String(n) : t.noLimit))));
+
   // Voice availability for each language (needs its speech tag, so load the vocab files).
   let voiceNote = null;
   if (!speechSupported) voiceNote = t.noSpeech;
@@ -238,6 +254,9 @@ export async function renderSettings() {
       h('div', { class: 'row stacked' },
         h('div', { class: 'row-head' }, rowIcon('target', 'green'), rowText(t.dailyGoal, t.dailyGoalSub)),
         goalSeg),
+      h('div', { class: 'row stacked' },
+        h('div', { class: 'row-head' }, rowIcon('sparkles', 'orange'), rowText(t.newPerDay, t.newPerDaySub)),
+        newSeg),
       toggleRow('showRoman', 'eye', 'teal', t.showReading, t.showReadingSub),
       speechSupported ? toggleRow('autoSpeak', 'speaker', 'orange', t.autoSpeak, t.autoSpeakSub) : null,
       toggleRow('introNew', 'sparkles', 'blue', t.introNew, t.introNewSub),

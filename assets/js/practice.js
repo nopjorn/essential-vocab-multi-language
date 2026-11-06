@@ -1,7 +1,7 @@
 // Home tab: language switch, progress summary, game mode and word sets, plus
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
-import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, isLeech, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
 import { MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
@@ -15,6 +15,8 @@ const AWAY_DAYS = 3; // gone this long: Home greets you back with a short review
 const REVIEW_COUNT = 10;
 const DUE_COUNT = 20; // words in one "due for review" round
 const DUE_MIN = 4; // below this the card stays hidden (choice modes need four words)
+const LEECH_MIN = 3; // words often missed before Home offers to go over them
+const LEECH_COUNT = 10;
 
 // Sets chosen for a language; new users start with its first two sets.
 function chosenIds(vocab) {
@@ -218,6 +220,18 @@ export async function renderPractice() {
           icon('repeat', { size: 16 }), t.dueBtn.replace('{n}', Math.min(DUE_COUNT, dueItems.length))))
     : null;
 
+  // ---- words often missed: flashcards show meaning, note and example instead of another quiz ----
+  const leeches = allItems.filter((it) => isLeech(getProgress(it.key)));
+  const leechCard = leeches.length >= LEECH_MIN && !awayCard
+    ? h('section', { class: 'away-card leech-card' },
+        h('span', { class: 'away-ic', 'aria-hidden': 'true' }, icon('bulb', { size: 22 })),
+        h('span', { class: 'row-text' },
+          h('strong', {}, t.leechTitle.replace('{n}', leeches.length)),
+          h('span', { class: 'row-sub' }, t.leechSub)),
+        h('button', { class: 'btn', type: 'button', onclick: () => { ensureAudio(); startGame(shuffle(leeches).slice(0, LEECH_COUNT), allItems, { mode: 'flash' }); } },
+          icon('flash', { size: 16 }), t.leechBtn))
+    : null;
+
   // ---- what Start will play (the button itself is in the tab bar) ----
   const setsFoot = h('p', { class: 'group-foot sets-foot' });
   const refreshFoot = () => {
@@ -413,6 +427,7 @@ export async function renderPractice() {
     todayCard,
     questCard,
     recCard,
+    leechCard,
     backupDue()
       ? h('div', { class: 'install-card' },
           h('a', { class: 'install-link', href: '#/settings' },
