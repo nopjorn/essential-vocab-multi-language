@@ -5,6 +5,7 @@
 const SETTINGS_KEY = 'evocab.settings.v1';
 const PROGRESS_KEY = 'evocab.progress.v1';
 const STATS_KEY = 'evocab.stats.v1';
+const SAVED_KEY = 'evocab.saved.v1';
 const MAX_SESSIONS = 200;
 export const MAX_BOX = 5;
 export const MASTERED_BOX = 3;
@@ -61,12 +62,17 @@ const DEFAULT_SETTINGS = {
   dailyGoal: 20, // answers per day; the Home ring fills toward it
   showRoman: true,
   autoSpeak: true,
+  speechRate: 'normal', // 'slow' | 'normal' | 'fast'
+  introNew: true, // show words never seen before at the start of a round
+  newPerDay: 0, // most new words per day and language; 0 = no limit
   sound: true, // short sound effects for right/wrong answers and combos
   theme: 'system', // 'system' | 'light' | 'dark'
+  textSize: 'normal', // 'normal' | 'large' | 'xlarge': size of words, answers and options
   // Unlockable looks (engage.js decides what is unlocked; the default is always available)
   accent: 'indigo', // 'indigo' | 'green' | 'pink' | 'orange'
   cardStyle: 'plain', // flashcard pattern: 'plain' | 'dots' | 'stripes'
   soundPack: 'classic', // 'classic' | 'soft' | 'retro'
+  seenTips: [], // first-time tips already shown: 'flash' | 'type' | 'dictate' | 'match'
   backupSnooze: 0, // ms timestamp when the backup reminder was last dismissed
   lastExportedAt: 0, // ms timestamp of the last backup file; drives the backup reminder on Home
 };
@@ -110,8 +116,15 @@ export function isDue(p, now = Date.now()) {
   return p.t > 0 && dueAt(p) <= now;
 }
 
+// A "leech" keeps being forgotten: wrong at least LEECH_WRONG times and no more often right than wrong.
+// Drilling it the usual way does not help, so the app points it out and offers flashcards with notes.
+export const LEECH_WRONG = 4;
+export function isLeech(p) {
+  return p.w >= LEECH_WRONG && p.w >= p.c && p.b < MASTERED_BOX;
+}
+
 // ---------- activity stats ----------
-// days: { 'YYYY-MM-DD': { [lang]: [answers, correct] } }
+// days: { 'YYYY-MM-DD': { [lang]: [answers, correct, new?] } } (new = words answered for the first time, added in 1.19)
 // sessions: [{ lang, mode, n, c, s: seconds, t: timestamp, b?: best combo, m?: newly mastered }], newest last
 // records: { [lang]: { match: fastest full match round in seconds, combo: longest answer streak,
 //   survival?: most correct answers in survival, stars?: { [setId]: 1..3 }, perfect?: perfect rounds,
@@ -147,6 +160,8 @@ export function record(key, isCorrect) {
   const d = (day[lang] ||= [0, 0]);
   d[0] += 1;
   if (isCorrect) d[1] += 1;
+  // first answer ever (a word marked as known has t but was never answered: not new any more)
+  if (!undo.prev?.t) d[2] = (d[2] || 0) + 1;
   save(STATS_KEY, stats);
   return undo;
 }
@@ -159,6 +174,7 @@ export function undoRecord({ key, prev, day, ok }) {
   if (d) {
     d[0] = Math.max(0, d[0] - 1);
     if (ok) d[1] = Math.max(0, d[1] - 1);
+    if (!prev?.t && d[2]) d[2] -= 1;
   }
   save(STATS_KEY, stats);
 }
@@ -229,6 +245,11 @@ export function todayAnswers(lang) {
   return stats.days[dayKey()]?.[lang]?.[0] || 0;
 }
 
+// Words met for the first time today in one language (for the daily new-word limit).
+export function todayNew(lang) {
+  return stats.days[dayKey()]?.[lang]?.[2] || 0;
+}
+
 export function logSession(session) {
   stats.sessions.push(session);
   if (stats.sessions.length > MAX_SESSIONS) stats.sessions.splice(0, stats.sessions.length - MAX_SESSIONS);
@@ -254,6 +275,29 @@ export function resetLanguage(lang) {
   save(STATS_KEY, stats);
 }
 
+// ---------- my words (notebook) ----------
+// { [lang]: [wordKey, ...] } words starred by the player, newest last. Not progress: a reset keeps them.
+const saved = load(SAVED_KEY, {});
+
+export function isSaved(key) {
+  return (saved[key.split('|')[0]] || []).includes(key);
+}
+
+// Stars or unstars a word; returns whether it is saved now.
+export function toggleSaved(key) {
+  const lang = key.split('|')[0];
+  const list = (saved[lang] ||= []);
+  const i = list.indexOf(key);
+  if (i >= 0) list.splice(i, 1);
+  else list.push(key);
+  save(SAVED_KEY, saved);
+  return i < 0;
+}
+
+export function savedKeys(lang) {
+  return saved[lang] || [];
+}
+
 // ---------- backup (export / import) ----------
 export const BACKUP_FORMAT = 'evocab-backup';
 
@@ -265,6 +309,7 @@ export function exportData(version) {
     exportedAt: new Date().toISOString(),
     progress,
     stats,
+    saved,
   };
 }
 
@@ -294,6 +339,7 @@ export function importData(data) {
       for (const [lang, a] of Object.entries(langs)) {
         if (!Array.isArray(a)) continue;
         const inc = [num(a[0]), num(a[1])];
+        if (num(a[2]) > 0) inc.push(num(a[2]));
         if (!day[lang] || inc[0] > day[lang][0]) day[lang] = inc;
       }
     }
@@ -332,6 +378,14 @@ export function importData(data) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Array.isArray(langs)) continue;
       stats.quests[date] = [...new Set([...(stats.quests[date] || []), ...langs.filter((l) => typeof l === 'string')])];
     }
+  }
+  if (data.saved && typeof data.saved === 'object') {
+    for (const [lang, keys] of Object.entries(data.saved)) {
+      if (!Array.isArray(keys)) continue;
+      const ok = keys.filter((k) => typeof k === 'string' && k.split('|').length === 3 && k.startsWith(`${lang}|`));
+      saved[lang] = [...new Set([...(saved[lang] || []), ...ok])];
+    }
+    save(SAVED_KEY, saved);
   }
   save(PROGRESS_KEY, progress);
   save(STATS_KEY, stats);

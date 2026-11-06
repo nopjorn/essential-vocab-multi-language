@@ -1,5 +1,5 @@
 // Progress page: overview across all languages, and a detail view per language.
-import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, isLeech, MASTERED_BOX } from './store.js';
 import { state, h, render, nameOf, levelOf, levelLabel, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
 import { itemsFor, startGame } from './game.js';
 import { icon, MODE_ICON } from './icons.js';
@@ -329,7 +329,8 @@ function renderLang(s) {
       ? h('ul', { class: 'group list' }, top.map(({ word, p }) =>
           h('li', { class: 'row' },
             h('span', { class: 'rv-term' }, h('span', { lang: code }, word.term), readingText(word) ? h('small', {}, readingText(word)) : null),
-            h('span', { class: 'rv-answer' }, answerOf(word), h('small', { class: 'muted block' }, `${t.wrongTimes} ${p.w}`)),
+            h('span', { class: 'rv-answer' }, answerOf(word), h('small', { class: 'muted block' }, `${t.wrongTimes} ${p.w}`,
+              isLeech(p) ? h('span', { class: 'leech-chip' }, t.leechChip) : null)),
             speakerBtn(word.term, { lang: code }),
           )))
       : h('p', { class: 'empty' }, icon('check', { size: 20 }), t.noWeak),

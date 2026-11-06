@@ -68,7 +68,8 @@ export function badgeList(lang) {
     early: r.early ? 1 : 0,
     polyglot: langsPlayed,
   };
-  const goal = { modes: MODES.length, polyglot: state.index.learn.length };
+  // 8 = modes before dictation was added: a new mode must not take away a badge already earned
+  const goal = { modes: 8, polyglot: state.index.learn.length };
   return BADGES.flatMap(([id, icon, color, kind, n]) => {
     let got = have[kind];
     let need = goal[kind] ?? n;

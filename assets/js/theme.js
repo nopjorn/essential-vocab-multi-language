@@ -17,6 +17,9 @@ export function applyTheme() {
   else delete root.dataset.accent;
   if (settings.cardStyle && settings.cardStyle !== 'plain') root.dataset.card = settings.cardStyle;
   else delete root.dataset.card;
+  // Bigger words and answers (Settings › Text size); normal needs no attribute.
+  if (settings.textSize === 'large' || settings.textSize === 'xlarge') root.dataset.text = settings.textSize;
+  else delete root.dataset.text;
 
   // Status bar / browser chrome color follows the effective theme.
   const metas = document.querySelectorAll('meta[name="theme-color"]');

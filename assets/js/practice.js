@@ -1,20 +1,26 @@
 // Home tab: language switch, progress summary, game mode and word sets, plus
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
-import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, isLeech, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
-import { MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
+import { MODES, SPEECH_MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
 import { langSummary, dayTotals, streakInfo, FREEZE_MAX } from './progress.js';
 import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway } from './engage.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
+import { savedEntries, playSaved, SAVED_ID } from './words.js';
+import { runPlacement } from './placement.js';
 
 const QUICK_COUNT = 5;
+// mode tiles drawn as a row with a description (mixed: full width; match and survival: half)
+const WIDE = ['mix', 'match', 'survival'];
 const AWAY_DAYS = 3; // gone this long: Home greets you back with a short review
 const REVIEW_COUNT = 10;
 const DUE_COUNT = 20; // words in one "due for review" round
 const DUE_MIN = 4; // below this the card stays hidden (choice modes need four words)
+const LEECH_MIN = 3; // words often missed before Home offers to go over them
+const LEECH_COUNT = 10;
 
 // Sets chosen for a language; new users start with its first two sets.
 function chosenIds(vocab) {
@@ -36,7 +42,7 @@ export async function startPractice({ count = settings.count } = {}) {
     return toast(t.loadError);
   }
   if (nav !== state.navId) return;
-  if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
+  if (SPEECH_MODES.includes(settings.mode) && !speechSupported) settings.mode = 'quiz';
   const items = itemsFor(vocab, chosenIds(vocab));
   const problem = !items.length ? t.pickSet : settings.mode !== 'flash' && items.length < 4 ? t.notEnough : null;
   if (problem) {
@@ -50,7 +56,7 @@ export async function startPractice({ count = settings.count } = {}) {
 export function playSet(vocab, setId) {
   ensureAudio(); // iOS only allows speech after a tap
   settings.lang = vocab.code;
-  if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
+  if (SPEECH_MODES.includes(settings.mode) && !speechSupported) settings.mode = 'quiz';
   saveSettings();
   const items = itemsFor(vocab, [setId]);
   startGame(pickItems(items, settings.count), items);
@@ -92,7 +98,7 @@ export async function renderPractice() {
     return;
   }
   const code = vocab.code;
-  if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
+  if (SPEECH_MODES.includes(settings.mode) && !speechSupported) settings.mode = 'quiz';
 
   const chosen = new Set(chosenIds(vocab));
   const persistSets = () => {
@@ -218,6 +224,18 @@ export async function renderPractice() {
           icon('repeat', { size: 16 }), t.dueBtn.replace('{n}', Math.min(DUE_COUNT, dueItems.length))))
     : null;
 
+  // ---- words often missed: flashcards show meaning, note and example instead of another quiz ----
+  const leeches = allItems.filter((it) => isLeech(getProgress(it.key)));
+  const leechCard = leeches.length >= LEECH_MIN && !awayCard
+    ? h('section', { class: 'away-card leech-card' },
+        h('span', { class: 'away-ic', 'aria-hidden': 'true' }, icon('bulb', { size: 22 })),
+        h('span', { class: 'row-text' },
+          h('strong', {}, t.leechTitle.replace('{n}', leeches.length)),
+          h('span', { class: 'row-sub' }, t.leechSub)),
+        h('button', { class: 'btn', type: 'button', onclick: () => { ensureAudio(); startGame(shuffle(leeches).slice(0, LEECH_COUNT), allItems, { mode: 'flash' }); } },
+          icon('flash', { size: 16 }), t.leechBtn))
+    : null;
+
   // ---- what Start will play (the button itself is in the tab bar) ----
   const setsFoot = h('p', { class: 'group-foot sets-foot' });
   const refreshFoot = () => {
@@ -236,7 +254,7 @@ export async function renderPractice() {
       role: 'radio',
       class: `mode-tile${settings.mode === m ? ' active' : ''}`,
       'aria-checked': String(settings.mode === m),
-      disabled: m === 'listen' && !speechSupported,
+      disabled: SPEECH_MODES.includes(m) && !speechSupported,
       onclick: () => {
         settings.mode = m;
         saveSettings();
@@ -249,7 +267,7 @@ export async function renderPractice() {
       },
     },
     h('span', { class: 'mode-ic' }, icon(MODE_ICON[m], { size: 26 })),
-    m === 'mix' || m === 'survival'
+    WIDE.includes(m)
       ? h('span', { class: 'mode-text' },
           h('span', { class: 'mode-name' }, t.modes[m][0],
             m === 'mix' ? h('span', { class: 'mini-badge' }, t.recommended)
@@ -258,7 +276,8 @@ export async function renderPractice() {
       : h('span', { class: 'mode-name' }, t.modes[m][0])),
   );
   modeTiles[0].classList.add('mode-mix');
-  modeTiles[MODES.indexOf('survival')].classList.add('mode-mix', 'mode-survival');
+  modeTiles[MODES.indexOf('match')].classList.add('mode-half');
+  modeTiles[MODES.indexOf('survival')].classList.add('mode-half', 'mode-survival');
 
   // ---- word sets, one level at a time ----
   const levels = [...new Set(vocab.sets.map(levelOf))].sort((a, b) => a - b);
@@ -316,6 +335,16 @@ export async function renderPractice() {
     hay.set(row, [set.name.th, set.name.en, ...set.words.flatMap((w) => [w.term, w.reading, w.roman, ...Object.values(w.tr)])]
       .filter(Boolean).join('\n').toLowerCase());
   }
+
+  // "My words": the starred words of this language, above the word sets
+  const savedN = savedEntries(vocab).length;
+  const savedRow = h('div', { class: 'group list saved-group' },
+    h('div', { class: 'row set-row saved-row' },
+      h('span', { class: 'set-ic saved-ic', 'aria-hidden': 'true' }, icon('star', { size: 20, fill: true })),
+      h('a', { class: 'row-text saved-link', href: `#/words/${code}/${SAVED_ID}` },
+        h('span', { class: 'row-label' }, t.myWords),
+        h('span', { class: 'row-sub' }, savedN ? `${savedN} ${t.words}` : t.myWordsHint)),
+      savedN ? h('button', { class: 'next-play', type: 'button', 'aria-label': t.practiceSaved, onclick: () => playSaved(vocab) }, icon('play', { size: 18, fill: true })) : null));
 
   const setsList = h('div', { class: 'group list sets-list' });
   const levelInfo = h('p', { class: 'level-info' });
@@ -413,6 +442,7 @@ export async function renderPractice() {
     todayCard,
     questCard,
     recCard,
+    leechCard,
     backupDue()
       ? h('div', { class: 'install-card' },
           h('a', { class: 'install-link', href: '#/settings' },
@@ -431,9 +461,24 @@ export async function renderPractice() {
     modeDesc,
     h('section', { class: 'sets-col' },
       setsTitle,
+      savedRow,
       h('label', { class: 'search-box' }, icon('search', { size: 18 }), search),
       levelSeg,
-      levelInfo,
+      h('div', { class: 'level-row' },
+        levelInfo,
+        h('button', {
+          class: 'text-btn',
+          type: 'button',
+          onclick: () => runPlacement(vocab, {
+            hasLetters: levels.includes(0),
+            onDone: (lv) => {
+              settings.level[code] = lv;
+              saveSettings();
+              renderPractice();
+            },
+            onCancel: renderPractice,
+          }),
+        }, icon('target', { size: 15 }), t.placementShort)),
       setsList,
       setsFoot),
   );

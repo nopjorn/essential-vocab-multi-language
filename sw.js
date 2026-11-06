@@ -31,6 +31,8 @@ const CORE = [
   'assets/js/theme.js',
   'assets/js/welcome.js',
   'assets/js/words.js',
+  'assets/js/placement.js',
+  'assets/js/rules.js',
   'assets/icons/apple-touch-icon.png',
   'assets/icons/favicon-64.png',
   'assets/icons/icon-192.png',

@@ -4,6 +4,7 @@ import { settings, saveSettings, firstRun } from './store.js';
 import { state, h, render, nameOf, loadLang, levelOf, levelLabel, ensureAudio } from './core.js';
 import { icon } from './icons.js';
 import { sfx } from './sound.js';
+import { runPlacement } from './placement.js';
 
 const GOALS = [10, 20, 50, 100];
 const STEPS = 3;
@@ -41,6 +42,24 @@ export function renderWelcome(onDone) {
     saveSettings();
     pending = false;
     onDone();
+  }
+
+  async function placement() {
+    let vocab;
+    try {
+      vocab = await loadLang(choice.lang);
+    } catch {
+      return;
+    }
+    const hasLetters = !!state.index.learn.find((l) => l.code === choice.lang)?.letters;
+    runPlacement(vocab, {
+      hasLetters,
+      onDone: (lv) => {
+        choice.level = lv;
+        draw();
+      },
+      onCancel: draw,
+    });
   }
 
   // One tappable card per option; `key` names the field in `choice` it sets.
@@ -86,6 +105,7 @@ export function renderWelcome(onDone) {
           label: lv === 0 ? t.levelLetters : `${levelLabel(t, lv)} · ${t.levelNames[lv]}`,
           sub: t.levelDesc[lv],
         }))),
+        h('button', { class: 'btn wide placement-btn', type: 'button', onclick: placement }, icon('target', { size: 18 }), t.placementAsk),
       ];
     }
     return [

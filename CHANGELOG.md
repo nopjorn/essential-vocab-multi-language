@@ -2,6 +2,38 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.19.0] - 2026-11-06
+
+- ประโยคตัวอย่าง: คำในชุดอาหาร สถานที่ และของในบ้าน (ระดับ 1) ของทั้ง 4 ภาษามีประโยคตัวอย่างพร้อมคำแปลและปุ่มฟังเสียง แสดงในรายการคำศัพท์ ด้านหลังแฟลชการ์ด หลังพิมพ์คำตอบ และเมื่อตอบผิด
+- การ์ด "คำใหม่": ก่อนเริ่มรอบ คำที่ยังไม่เคยเจอ (สูงสุด 5 คำ) จะขึ้นให้ดูพร้อมคำอ่าน คำแปล ตัวอย่าง และเสียง ก่อนถูกถาม ปิดได้ที่ ตั้งค่า › แนะนำคำใหม่ก่อนเล่น
+- จำกัดคำใหม่ต่อวัน: ตั้งค่า › คำใหม่ต่อวัน (ไม่จำกัด / 10 / 20 / 30) เมื่อครบแล้วรอบถัดไปจะเน้นคำที่เคยเจอ ไม่ให้คำทบทวนท่วม
+- คำที่ผิดบ่อย: มีป้าย "ผิดบ่อย" ในรายการคำและหน้าความคืบหน้า ตอบผิดอีกจะมีคำแนะนำวิธีจำ และหน้าหลักมีการ์ดทบทวนคำเหล่านี้ด้วยแฟลชการ์ด
+- ความเร็วเสียงอ่าน: ตั้งค่า › ความเร็วเสียงอ่าน (ช้า / ปกติ / เร็ว) และแตะลำโพงเดิมซ้ำภายใน 4 วินาทีเพื่อฟังแบบช้าพิเศษ
+- โหมดใหม่ "ฟังแล้วพิมพ์": ฟังเสียงแล้วพิมพ์คำที่ได้ยิน ในโหมดผสมจะเจอเมื่อคำนั้นจำได้ดีแล้ว (หน้าหลักจัดปุ่มโหมดใหม่ จับคู่และเอาตัวรอดอยู่แถวเดียวกัน)
+- สมุดคำของฉัน: แตะ ☆ เพื่อเก็บคำจากรายการคำหรือระหว่างเล่น แล้วฝึกเฉพาะคำที่เก็บไว้จากแถว "สมุดคำของฉัน" ในหน้าหลัก (รวมอยู่ในไฟล์สำรองข้อมูลด้วย)
+- ปุ่ม "รู้แล้วทั้งชุด" ในหน้ารายการคำ: ทำเครื่องหมายทุกคำในชุดว่าจำได้แล้วในครั้งเดียว (ย้อนได้ด้วย "ยกเลิกทั้งชุด")
+- ทดสอบระดับ: แตะ "ทดสอบระดับ" ใต้แถบระดับในหน้าหลัก (หรือในหน้าต้อนรับ) ตอบระดับละ 6 ข้อ แล้วแอปแนะนำระดับที่ควรเริ่ม
+- ขนาดตัวอักษร: ตั้งค่า › ขนาดตัวอักษร (ปกติ / ใหญ่ / ใหญ่มาก) ขยายคำศัพท์ คำแปล ตัวเลือก และประโยคตัวอย่างให้อ่านง่ายขึ้น
+- อ่านง่ายขึ้นและใช้กับ VoiceOver ได้ดีขึ้น: ปรับสีตัวอักษรรอง สีแดง สีทอง และปุ่มในโหมดมืดให้คอนทราสต์ผ่านเกณฑ์ หน้าเกมมีหัวข้อและแถบความคืบหน้าที่อ่านออกเสียงได้
+- คำแนะนำครั้งแรก: เล่นแฟลชการ์ด พิมพ์คำศัพท์ ฟังแล้วพิมพ์ หรือจับคู่ครั้งแรก จะมีคำอธิบายสั้น ๆ ว่าเล่นอย่างไร (ขึ้นครั้งเดียว)
+
+<details><summary>English</summary>
+
+- Example sentences: words in the food, places and home sets (level 1) of all 4 languages now have an example sentence with a translation and a speaker button, shown in the word list, on the back of flashcards, after typing and after a wrong answer
+- "New word" cards: before a round, up to 5 words you have never met are shown with reading, meaning, example and sound before you are asked; turn it off in Settings › Introduce new words
+- Daily new-word limit: Settings › New words per day (no limit / 10 / 20 / 30); once reached, rounds focus on words you have met so reviews do not pile up
+- Often-missed words: an "Often missed" tag in the word list and on Progress, a tip on how to remember them after another miss, and a Home card to go over them with flashcards
+- Speech speed: Settings › Speech speed (slow / normal / fast), and tap the same speaker again within 4 seconds to hear it extra slowly
+- New "Dictation" mode: listen and type the word you hear; mixed mode uses it once a word is well known (Home rearranges the mode tiles, with match and survival side by side)
+- My words: tap ☆ to keep a word from a word list or during a game, then practice just those from the "My words" row on Home (included in backups)
+- "I know them all" in a set's word list marks every word as known at once ("Undo all" takes it back)
+- Placement test: tap "Find my level" under the level bar on Home (or in the welcome), answer 6 questions per level and the app suggests where to start
+- Text size: Settings › Text size (normal / large / extra large) enlarges words, translations, answer options and examples
+- Easier to read and better with VoiceOver: secondary text, red, gold and dark-mode buttons now meet contrast guidelines, and game screens have a heading and a labelled progress bar
+- First-time tips: the first time you play flashcards, typing, dictation or match, a short tip explains how (shown once)
+
+</details>
+
 ## [1.18.0] - 2026-11-02
 
 - ภาษาจีนครบ 3 ระดับแล้ว เหมือนภาษาอื่น: 88 ชุด รวม 3,001 คำ (ระดับ 1: 1,031 · ระดับ 2: 990 · ระดับ 3: 980)

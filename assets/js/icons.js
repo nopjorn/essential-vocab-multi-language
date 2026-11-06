@@ -53,11 +53,13 @@ const P = {
   gift: '<rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8"/><path d="M12 8v13"/><path d="M12 8C10.5 5 7 4.5 7 6.5S10 8 12 8zM12 8c1.5-3 5-3.5 5-1.5S14 8 12 8z"/>',
   palette: '<path d="M12 3a9 9 0 1 0 0 18c1.2 0 2-.8 2-1.8 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><path d="M7.5 11h.01M10 7h.01M15 7.5h.01"/>',
   owl: '<circle cx="8.5" cy="11" r="2.5"/><circle cx="15.5" cy="11" r="2.5"/><path d="M5 5l3 3M19 5l-3 3"/><path d="M4 9a8 8 0 0 0 16 0V5"/><path d="M4 5v4"/><path d="M11 15l1 1.5 1-1.5"/>',
+  dictate: '<path d="M3 15v-3a7 7 0 0 1 14 0v3"/><path d="M3 15h3v5H4a1 1 0 0 1-1-1z"/><path d="M17 15h-3v5h2a1 1 0 0 0 1-1"/><path d="M20.5 9.5l-5 5"/><path d="M21.5 8.5l-1 1"/>',
+  quote: '<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M8 10h8"/><path d="M8 13h5"/>',
   sunrise: '<path d="M4 18h16"/><path d="M7 18a5 5 0 0 1 10 0"/><path d="M12 4v4M5.6 8.6l1.4 1.4M18.4 8.6L17 10M2 14h2M20 14h2"/><path d="M9 21h6"/>',
 };
 
 // Mode → icon name
-export const MODE_ICON = { mix: 'shuffle', flash: 'flash', quiz: 'quiz', reverse: 'reverse', listen: 'listen', type: 'type', match: 'match', survival: 'heart' };
+export const MODE_ICON = { mix: 'shuffle', flash: 'flash', quiz: 'quiz', reverse: 'reverse', listen: 'listen', type: 'type', dictate: 'dictate', match: 'match', survival: 'heart' };
 
 const NS = 'http://www.w3.org/2000/svg';
 

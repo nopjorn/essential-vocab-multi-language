@@ -1,14 +1,17 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, isDue, MAX_BOX, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf } from './core.js';
+import { settings, saveSettings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
+import { state, h, fill, render, screen, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
 import { sfx, buzz } from './sound.js';
+import { normalize, acceptedAnswers } from './rules.js';
 import { dayTotals, streak } from './progress.js';
 import { badgeList, earnedIds } from './badges.js';
 import { totalXP, playerLevel, syncQuests, dailyQuests, milestones, unlockedIds } from './engage.js';
 
-export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'match', 'survival'];
+export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'dictate', 'match', 'survival'];
+// modes that need speech synthesis
+export const SPEECH_MODES = ['listen', 'dictate'];
 const HEARTS = 3; // survival: wrong answers allowed before the run ends
 const MATCH_PAIRS = 6;
 const SWIPE_RATIO = 0.28; // fraction of the card width that counts as a decision
@@ -33,6 +36,7 @@ export function itemsFor(vocab, setIds) {
         roman: w.roman || '',
         answer: answerOf(w),
         note: w.note ? w.note[settings.target] || w.note.th || '' : '',
+        example: exampleOf(w),
         setId: set.id,
       });
     }
@@ -42,18 +46,29 @@ export function itemsFor(vocab, setIds) {
 
 // Weighted sampling without replacement: words in low boxes and unseen words come up more often,
 // words due for review get a boost, and mastered words that are not due yet are left alone for now.
+// With a daily new-word limit, new words beyond what is left today only fill a round that would
+// otherwise come up short, so a limit never leaves the player with nothing to play.
 export function pickItems(items, count) {
   const n = count > 0 ? Math.min(count, items.length) : items.length;
-  return items
+  const ranked = items
     .map((it) => {
       const p = getProgress(it.key);
       let w = (MAX_BOX - p.b + 1) * (p.t ? 1 : 1.5);
       if (p.t) w *= isDue(p) ? 3 : p.b >= MASTERED_BOX ? 0.4 : 1;
-      return { it, k: Math.pow(Math.random(), 1 / w) };
+      return { it, fresh: !p.t, k: Math.pow(Math.random(), 1 / w) };
     })
-    .sort((a, b) => b.k - a.k)
-    .slice(0, n)
-    .map((x) => x.it);
+    .sort((a, b) => b.k - a.k);
+  let room = settings.newPerDay > 0 && items.length ? Math.max(0, settings.newPerDay - todayNew(items[0].lang)) : Infinity;
+  const picked = [];
+  const extra = [];
+  for (const x of ranked) {
+    if (x.fresh && room <= 0) extra.push(x);
+    else {
+      if (x.fresh) room--;
+      picked.push(x);
+    }
+  }
+  return [...picked, ...extra].slice(0, n).map((x) => x.it);
 }
 
 // Distractors must differ from the correct item in both the term and the answer,
@@ -110,8 +125,64 @@ export function startGame(items, pool, { mode = settings.mode } = {}) {
     queue: [],
   };
   if (survival) session.items = [];
-  if (session.mode === 'match') playMatch(session);
-  else playNext(session);
+  const begin = () => (session.mode === 'match' ? playMatch(session) : playNext(session));
+  const fresh = newWords(session);
+  if (fresh.length) introView(fresh, begin);
+  else begin();
+}
+
+// ---------- new words: a look at each word never seen before the round asks it ----------
+
+const INTRO_MAX = 5;
+
+function newWords(session) {
+  // flashcards already show the meaning, and survival builds its words as it goes
+  if (!settings.introNew || session.mode === 'flash' || session.mode === 'survival') return [];
+  return session.items.filter((it) => !getProgress(it.key).t).slice(0, INTRO_MAX);
+}
+
+function introView(list, begin) {
+  const t = state.t;
+  let i = 0;
+  const start = () => {
+    onKeys(null);
+    begin();
+  };
+  const show = () => {
+    const item = list[i];
+    const last = i === list.length - 1;
+    const go = () => {
+      if (last) return start();
+      i++;
+      show();
+    };
+    render(h('div', { class: 'game intro' },
+      h('div', { class: 'game-top' },
+        h('h1', { class: 'sr-only' }, t.introTitle),
+        h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
+        h('div', { class: 'progress', role: 'progressbar', 'aria-label': state.t.roundProgress, 'aria-valuemin': '0', 'aria-valuemax': String(list.length), 'aria-valuenow': String(i + 1) },
+          h('div', { class: 'progress-fill', style: `width:${((i + 1) / list.length) * 100}%` })),
+        h('span', { class: 'counter' }, `${i + 1}/${list.length}`)),
+      h('div', { class: 'mode-pill' }, icon('sparkles', { size: 16 }), t.introTitle),
+      h('div', { class: 'intro-card' },
+        termBlock(item, { reading: true }),
+        speakerBtn(item.term),
+        h('div', { class: 'answer-big' }, item.answer),
+        noteEl(item),
+        exampleBlock(item.example)),
+      h('p', { class: 'hint center' }, t.introSub),
+      h('div', { class: `actions${last ? '' : ' two'}` },
+        last ? null : h('button', { class: 'btn', type: 'button', onclick: start }, t.introSkip),
+        h('button', { class: 'btn primary', type: 'button', onclick: go }, last ? t.introGo : t.introNext, icon('chevronRight', { size: 20 })))));
+    onKeys((e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        go();
+      }
+    });
+    if (settings.autoSpeak) say(item.term);
+  };
+  show();
 }
 
 function exitGame() {
@@ -134,6 +205,7 @@ function topBar(session, label, extra = null) {
   if (session.hearts !== null) {
     session.heartsEl = heartsEl(session);
     return h('div', { class: 'game-top' },
+      h('h1', { class: 'sr-only' }, t.modes[session.mode][0]),
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
       session.heartsEl,
       session.comboEl,
@@ -142,8 +214,10 @@ function topBar(session, label, extra = null) {
     );
   }
   return h('div', { class: 'game-top' },
+    // a screen reader lands on the mode name first (the pill under the bar is shown only in mixed modes)
+    h('h1', { class: 'sr-only' }, t.modes[session.mode][0]),
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
-    h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(session.i) },
+    h('div', { class: 'progress', role: 'progressbar', 'aria-label': state.t.roundProgress, 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(session.i) },
       h('div', { class: 'progress-fill', style: `width:${pct}%` })),
     session.comboEl,
     h('span', { class: 'counter' }, label ?? `${Math.min(session.i + 1, total)}/${total}`),
@@ -227,7 +301,9 @@ function cheer(session, ok) {
 function mixMode(item) {
   const modes = ['quiz', 'reverse'];
   if (speechSupported) modes.push('listen');
-  if (getProgress(item.key).b >= 2) modes.push('type', 'type');
+  const box = getProgress(item.key).b;
+  if (box >= 2) modes.push('type', 'type');
+  if (box >= 3 && speechSupported) modes.push('dictate');
   return modes[Math.floor(Math.random() * modes.length)];
 }
 
@@ -243,6 +319,7 @@ function survivalMode(session, item) {
   if (n >= 5) modes.push('reverse');
   if (n >= 12 && speechSupported) modes.push('listen');
   if (n >= 20 && getProgress(item.key).b >= 1) modes.push('type');
+  if (n >= 30 && speechSupported && getProgress(item.key).b >= 2) modes.push('dictate');
   return modes[Math.floor(Math.random() * modes.length)];
 }
 
@@ -261,7 +338,7 @@ function playNext(session) {
     if (session.i >= session.items.length) session.items.push(nextSurvivalItem(session));
     const item = session.items[session.i];
     const mode = survivalMode(session, item);
-    const view = mode === 'type' ? typeView : choiceView;
+    const view = mode === 'type' || mode === 'dictate' ? typeView : choiceView;
     return view(session, item, () => {
       session.i++;
       playNext(session);
@@ -274,7 +351,7 @@ function playNext(session) {
     playNext(session);
   };
   const mode = session.mode === 'mix' ? mixMode(item) : session.mode;
-  const view = { flash: flashView, quiz: choiceView, reverse: choiceView, listen: choiceView, type: typeView }[mode];
+  const view = { flash: flashView, quiz: choiceView, reverse: choiceView, listen: choiceView, type: typeView, dictate: typeView }[mode];
   view(session, item, advance, mode);
 }
 
@@ -289,14 +366,51 @@ function noteEl(item) {
   return item.note ? h('p', { class: 'note' }, icon('info', { size: 16 }), h('span', {}, item.note)) : null;
 }
 
+// After a wrong answer to a word that keeps being forgotten: a nudge to learn it another way.
+function leechTip(item, ok) {
+  if (ok || !isLeech(getProgress(item.key))) return null;
+  return h('p', { class: 'leech-tip' }, icon('bulb', { size: 16 }), h('span', {}, state.t.leechTip));
+}
+
+// ---------- first-time tips (coach marks) ----------
+// Each tip shows once per device (settings.seenTips). It lives inside #screen, so the next render
+// removes it, and covers the screen until dismissed.
+function firstTime(id) {
+  const seen = settings.seenTips || [];
+  if (seen.includes(id)) return false;
+  settings.seenTips = [...seen, id];
+  saveSettings();
+  return true;
+}
+
+function coach(id, text) {
+  if (!firstTime(id)) return;
+  const close = () => layer.remove();
+  const bubble = h('div', { class: 'coach-bubble', role: 'dialog', 'aria-label': state.t.tipTitle },
+    h('span', { class: 'coach-ic', 'aria-hidden': 'true' }, icon('bulb', { size: 20 })),
+    h('p', {}, text),
+    h('button', { class: 'btn primary', type: 'button', onclick: close }, state.t.gotIt));
+  const layer = h('div', { class: 'coach', onclick: (e) => { if (e.target === layer) close(); } }, bubble);
+  screen.append(layer);
+}
+
+// The match timer is already running, so its tip is a line in the layout for the first round only
+// (removing it on a tap would move the tiles under the finger).
+function inlineTip(id, text) {
+  if (!firstTime(id)) return null;
+  return h('p', { class: 'coach-inline', role: 'note' }, icon('bulb', { size: 16 }), h('span', {}, text));
+}
+
 function readingSmall(item) {
   const r = settings.showRoman ? readingText(item) : '';
   return r ? h('small', {}, r) : null;
 }
 
-function verdict(ok) {
+// Right / wrong, with the star that keeps the word in "My words".
+function verdict(ok, item) {
   const t = state.t;
-  return h('strong', { class: `verdict ${ok ? 'ok' : 'ng'}` }, icon(ok ? 'check' : 'close', { size: 20 }), ok ? t.correct : t.wrong);
+  const v = h('strong', { class: `verdict ${ok ? 'ok' : 'ng'}` }, icon(ok ? 'check' : 'close', { size: 20 }), ok ? t.correct : t.wrong);
+  return item ? h('div', { class: 'verdict-row' }, v, saveBtn(item.key)) : v;
 }
 
 // ---------- flashcards: tap to flip, swipe right = known, left = not yet ----------
@@ -311,14 +425,17 @@ function flashView(session, item, advance) {
     h('div', { class: 'answer-big' }, item.answer),
     termBlock(item, { size: 'md', reading: true }),
     noteEl(item),
+    exampleBlock(item.example),
   );
   const stampKnow = h('div', { class: 'stamp stamp-know', 'aria-hidden': 'true' }, icon('check', { size: 20 }), t.swipeKnow);
   const stampAgain = h('div', { class: 'stamp stamp-again', 'aria-hidden': 'true' }, icon('close', { size: 20 }), t.swipeAgain);
-  const card = h('div', { class: 'flashcard', role: 'button', tabindex: '0', 'aria-label': t.flip },
+  // a group, not a button: it holds the speaker and star buttons (the Flip button below does the same as a tap)
+  const card = h('div', { class: 'flashcard', role: 'group', tabindex: '0', 'aria-label': t.tapToFlip },
     h('div', { class: 'flash-inner' }, front, back),
     stampKnow,
     stampAgain,
     h('div', { class: 'flash-speaker' }, speakerBtn(item.term)),
+    h('div', { class: 'flash-save' }, saveBtn(item.key)),
   );
   const hasNext = session.i + 1 < session.items.length;
   const deck = h('div', { class: 'deck' }, hasNext ? h('div', { class: 'deck-next', 'aria-hidden': 'true' }) : null, card);
@@ -360,7 +477,7 @@ function flashView(session, item, advance) {
   // Pointer drag (touch, pen and mouse). Small movement = tap = flip.
   let drag = null;
   card.addEventListener('pointerdown', (e) => {
-    if (busy || e.target.closest('.speaker')) return;
+    if (busy || e.target.closest('.speaker, .save-btn')) return;
     drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0, t: performance.now() };
     card.setPointerCapture(e.pointerId);
     card.classList.add('dragging');
@@ -407,6 +524,7 @@ function flashView(session, item, advance) {
     else if (e.key === 'z' || e.key === 'Backspace') undo();
   });
   if (settings.autoSpeak) say(item.term);
+  coach('flash', t.tipFlash);
 }
 
 // ---------- multiple choice (quiz / reverse / listen) ----------
@@ -444,9 +562,12 @@ function choiceView(session, item, advance, mode) {
       else if (i === idx) b.classList.add('wrong');
     });
     fill(feedback,
-      verdict(ok),
+      verdict(ok, item),
       mode !== 'quiz' || !ok ? h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), h('span', { class: 'eq' }, '='), h('span', {}, item.answer)) : null,
       noteEl(item),
+      // a right answer moves on by itself, too fast to read a sentence
+      ok ? null : exampleBlock(item.example),
+      leechTip(item, ok),
     );
     if (mode !== 'quiz' || settings.autoSpeak) say(item.term);
     if (ok) setTimeout(() => advance(), item.note ? 1600 : 900);
@@ -474,35 +595,16 @@ function choiceView(session, item, advance, mode) {
 
 // ---------- typing ----------
 
-export function normalize(s) {
-  return s
-    .normalize('NFC')
-    .toLowerCase()
-    .replace(/\([^)]*\)/g, '')
-    .replace(/[\s?!.,'’"\-–~〜・、。？！「」]/g, '');
-}
-
-// Romanization variants: with macrons, without them, and long vowels doubled (ō → ou / oo).
-function romanVariants(r) {
-  if (!r) return [];
-  const plain = r.normalize('NFD').replace(/[̀-ͯ]/g, '');
-  const long = r.replace(/ō/g, 'ou').replace(/ū/g, 'uu').replace(/ā/g, 'aa').replace(/ē/g, 'ei').replace(/ī/g, 'ii');
-  const longO = r.replace(/ō/g, 'oo');
-  return [r, plain, long, longO];
-}
-
-export function acceptedAnswers(item) {
-  return [...new Set([item.term, item.reading, ...romanVariants(item.roman)].filter(Boolean).map(normalize))];
-}
-
 // "_ _ _" clue: the first character of the word (and of its romanization), one blank per other character.
 function clueOf(item) {
   const blanks = (s) => Array.from(s).map((c, i) => (i === 0 ? c : c === ' ' ? '\u2003' : '_')).join(' ');
   return item.roman ? `${blanks(item.term)} · ${blanks(item.roman)}` : blanks(item.term);
 }
 
+// Typing: see the meaning and type the word. Dictation (mode 'dictate'): hear the word and type it.
 function typeView(session, item, advance, mode) {
   const t = state.t;
+  const dictate = mode === 'dictate';
   let answered = false;
   const input = h('input', {
     class: 'type-input',
@@ -541,11 +643,14 @@ function typeView(session, item, advance, mode) {
     input.readOnly = true;
     input.classList.add(ok ? 'right' : 'wrong', ok ? 'pop' : 'shake');
     fill(feedback,
-      verdict(ok),
-      h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term)),
+      verdict(ok, item),
+      h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term),
+        dictate ? [h('span', { class: 'eq' }, '='), h('span', {}, item.answer)] : null),
       noteEl(item),
+      exampleBlock(item.example),
+      leechTip(item, ok),
     );
-    say(item.term);
+    if (!dictate) say(item.term);
     checkBtn.textContent = t.next;
     skipBtn.classList.add('hidden');
     hintBtn.classList.add('hidden');
@@ -563,12 +668,16 @@ function typeView(session, item, advance, mode) {
   render(h('div', { class: 'game' },
     topBar(session),
     modePill(session, mode),
-    h('div', { class: 'prompt' }, h('div', { class: 'answer-big' }, item.answer)),
+    dictate
+      ? h('div', { class: 'prompt listen' }, speakerBtn(item.term, { big: true }), h('span', { class: 'flip-hint' }, t.dictateHint))
+      : h('div', { class: 'prompt' }, h('div', { class: 'answer-big' }, item.answer)),
     form,
     h('p', { class: 'hint center' }, t.typeHint),
     feedback,
   ));
   onKeys(null);
+  if (dictate) say(item.term);
+  coach(dictate ? 'dictate' : 'type', dictate ? t.tipDictate : t.tipType);
   // iOS only opens the keyboard on focus during a user gesture; this still
   // focuses the field on iPad with a hardware keyboard.
   input.focus({ preventScroll: true });
@@ -691,6 +800,7 @@ function playMatch(session) {
     render(h('div', { class: 'game' },
       bar,
       timer,
+      inlineTip('match', t.tipMatch),
       h('div', { class: 'match-grid' }, h('div', { class: 'match-col' }, lefts), h('div', { class: 'match-col' }, rights)),
     ));
     onKeys(null);
@@ -929,7 +1039,7 @@ function showResults(session) {
   render(h('div', { class: 'results' },
     h('div', { class: 'game-top' },
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.done, onclick: exitGame }, icon('close')),
-      h('span', { class: 'top-title' }, t.resultTitle),
+      h('h1', { class: 'top-title' }, t.resultTitle),
       h('span', { class: 'icon-btn-spacer' }),
     ),
     h('section', { class: 'result-hero' },

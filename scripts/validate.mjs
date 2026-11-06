@@ -47,6 +47,15 @@ for (const lang of index.learn) {
       } else if (!prev) seenTerms.set(w.term, { set: set.id, th: w.tr?.th });
       if (!w.tr?.th) errors.push(`${where(set.id, w.term)}: missing Thai translation`);
       if (w.reading === w.term) warnings.push(`${where(set.id, w.term)}: reading equals term, omit it`);
+      if (w.example) {
+        const ex = w.example;
+        if (!ex.text || !ex.tr?.th) errors.push(`${where(set.id, w.term)}: example needs "text" and "tr.th"`);
+        // English is offered as a translation for every language but English itself
+        else if (lang.code !== 'en' && !ex.tr.en) errors.push(`${where(set.id, w.term)}: example needs "tr.en"`);
+        // inflected verbs may not contain the dictionary form, so this is only a warning
+        else if (!ex.text.toLowerCase().includes(w.term.toLowerCase())) warnings.push(`${where(set.id, w.term)}: example does not contain the word`);
+        if (ex.reading && ex.reading === ex.text) warnings.push(`${where(set.id, w.term)}: example reading equals text, omit it`);
+      }
       for (const c of [...available]) if (!w.tr?.[c]) available.delete(c);
       for (const [c, text] of Object.entries(w.tr || {})) {
         const k = `${c}:${text}`;
@@ -80,6 +89,28 @@ console.log(`version: ${version}, changelog entries: ${log.length}`);
 const { GUIDE } = await import('../assets/js/guide.js');
 const ids = (l) => (GUIDE[l] || []).map((s) => s.id).join(',');
 if (ids('th') !== ids('en')) errors.push('guide: Thai and English sections differ');
+
+// ---------- UI strings ----------
+// Thai and English must have the same keys (nested too) and the same kinds of values, so no screen
+// shows "undefined" in one language. Arrays (e.g. mode name + description) must match in length.
+const { UI } = await import('../assets/js/i18n.js');
+function compareUi(a, b, at) {
+  for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+    const p = at ? `${at}.${k}` : k;
+    if (!(k in a)) errors.push(`i18n: "${p}" is missing in th`);
+    else if (!(k in b)) errors.push(`i18n: "${p}" is missing in en`);
+    else if (Array.isArray(a[k]) !== Array.isArray(b[k]) || typeof a[k] !== typeof b[k]) errors.push(`i18n: "${p}" differs in type`);
+    else if (Array.isArray(a[k]) && a[k].length !== b[k].length) errors.push(`i18n: "${p}" has ${a[k].length} items in th, ${b[k].length} in en`);
+    else if (a[k] && typeof a[k] === 'object' && !Array.isArray(a[k])) compareUi(a[k], b[k], p);
+    else if (typeof a[k] === 'string') {
+      // placeholders like {n} must be in both, or the replace() of one language does nothing
+      const ph = (s) => (s.match(/\{\w+\}/g) || []).sort().join();
+      if (ph(a[k]) !== ph(b[k])) errors.push(`i18n: "${p}" placeholders differ (th ${ph(a[k]) || 'none'}, en ${ph(b[k]) || 'none'})`);
+    }
+  }
+}
+compareUi(UI.th, UI.en, '');
+console.log(`i18n: ${Object.keys(UI.th).length} keys in th and en`);
 
 // ---------- offline cache list ----------
 const sw = readFileSync(path('sw.js'), 'utf8');
