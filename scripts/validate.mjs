@@ -90,6 +90,28 @@ const { GUIDE } = await import('../assets/js/guide.js');
 const ids = (l) => (GUIDE[l] || []).map((s) => s.id).join(',');
 if (ids('th') !== ids('en')) errors.push('guide: Thai and English sections differ');
 
+// ---------- UI strings ----------
+// Thai and English must have the same keys (nested too) and the same kinds of values, so no screen
+// shows "undefined" in one language. Arrays (e.g. mode name + description) must match in length.
+const { UI } = await import('../assets/js/i18n.js');
+function compareUi(a, b, at) {
+  for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+    const p = at ? `${at}.${k}` : k;
+    if (!(k in a)) errors.push(`i18n: "${p}" is missing in th`);
+    else if (!(k in b)) errors.push(`i18n: "${p}" is missing in en`);
+    else if (Array.isArray(a[k]) !== Array.isArray(b[k]) || typeof a[k] !== typeof b[k]) errors.push(`i18n: "${p}" differs in type`);
+    else if (Array.isArray(a[k]) && a[k].length !== b[k].length) errors.push(`i18n: "${p}" has ${a[k].length} items in th, ${b[k].length} in en`);
+    else if (a[k] && typeof a[k] === 'object' && !Array.isArray(a[k])) compareUi(a[k], b[k], p);
+    else if (typeof a[k] === 'string') {
+      // placeholders like {n} must be in both, or the replace() of one language does nothing
+      const ph = (s) => (s.match(/\{\w+\}/g) || []).sort().join();
+      if (ph(a[k]) !== ph(b[k])) errors.push(`i18n: "${p}" placeholders differ (th ${ph(a[k]) || 'none'}, en ${ph(b[k]) || 'none'})`);
+    }
+  }
+}
+compareUi(UI.th, UI.en, '');
+console.log(`i18n: ${Object.keys(UI.th).length} keys in th and en`);
+
 // ---------- offline cache list ----------
 const sw = readFileSync(path('sw.js'), 'utf8');
 const mustCache = [

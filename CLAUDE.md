@@ -120,7 +120,7 @@ data/vocab/<code>.json  vocabulary (CC0)
 data/changelog.json     version log, newest first: {version, date, changes: {th[], en[]}}
 data/LICENSE            CC0 dedication for vocabulary
 scripts/
-  validate.mjs      data + version/changelog + guide + sw CORE + index.html asset checks
+  validate.mjs      data (incl. examples) + version/changelog + guide + i18n th/en keys and {placeholders} + sw CORE + index.html asset checks
   bump-version.mjs  bump version.js, add changelog entry, regenerate CHANGELOG.md (--sync)
   lib.mjs           helpers shared by the scripts
   make-icons.py     regenerate icons/splashes (Pillow; Inter + WenQuanYi Zen Hei fonts)
@@ -178,7 +178,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
   pending async page render can't draw over the game.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
-- UI text goes in `i18n.js` (both `th` and `en`); pages read it through `state.t`.
+- UI text goes in `i18n.js` (both `th` and `en`, same keys and `{placeholders}`: validate.mjs checks); pages read it through `state.t`.
 - Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `introNew`, `newPerDay` (0 = no limit), `speechRate`, `textSize`, `seenTips`, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
   `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t,d?}`; `d` = due time, optional, falls back to `t` + box interval), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct, new?]` (new = first answers, drives `newPerDay`),
   `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
