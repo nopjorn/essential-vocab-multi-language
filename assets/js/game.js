@@ -4,6 +4,7 @@ import { state, h, fill, render, screen, shuffle, say, speakerBtn, termBlock, re
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
 import { sfx, buzz } from './sound.js';
+import { normalize, acceptedAnswers } from './rules.js';
 import { dayTotals, streak } from './progress.js';
 import { badgeList, earnedIds } from './badges.js';
 import { totalXP, playerLevel, syncQuests, dailyQuests, milestones, unlockedIds } from './engage.js';
@@ -593,27 +594,6 @@ function choiceView(session, item, advance, mode) {
 }
 
 // ---------- typing ----------
-
-export function normalize(s) {
-  return s
-    .normalize('NFC')
-    .toLowerCase()
-    .replace(/\([^)]*\)/g, '')
-    .replace(/[\s?!.,'’"\-–~〜・、。？！「」]/g, '');
-}
-
-// Romanization variants: with macrons, without them, and long vowels doubled (ō → ou / oo).
-function romanVariants(r) {
-  if (!r) return [];
-  const plain = r.normalize('NFD').replace(/[̀-ͯ]/g, '');
-  const long = r.replace(/ō/g, 'ou').replace(/ū/g, 'uu').replace(/ā/g, 'aa').replace(/ē/g, 'ei').replace(/ī/g, 'ii');
-  const longO = r.replace(/ō/g, 'oo');
-  return [r, plain, long, longO];
-}
-
-export function acceptedAnswers(item) {
-  return [...new Set([item.term, item.reading, ...romanVariants(item.roman)].filter(Boolean).map(normalize))];
-}
 
 // "_ _ _" clue: the first character of the word (and of its romanization), one blank per other character.
 function clueOf(item) {

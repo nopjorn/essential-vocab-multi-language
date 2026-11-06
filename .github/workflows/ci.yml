@@ -31,3 +31,20 @@ jobs:
             echo "::error::App files changed but APP_VERSION was not bumped. Run: node scripts/bump-version.mjs patch|minor|major"
             exit 1
           fi
+      - name: Unit tests
+        run: node --test 'tests/unit/*.test.mjs'
+
+  smoke:
+    # Every tab and game mode in a real browser (iPhone and iPad sizes, light and dark)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright with Chromium
+        run: |
+          npm i --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Browser smoke test
+        run: node tests/smoke.mjs

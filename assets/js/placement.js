@@ -3,10 +3,7 @@
 import { state, h, render, shuffle, levelOf, levelLabel, termBlock, answerOf, ensureAudio } from './core.js';
 import { icon } from './icons.js';
 import { sfx } from './sound.js';
-
-const PER_LEVEL = 6;
-const PASS = 4; // right answers out of PER_LEVEL that count as knowing a level
-const STOP = 2; // this few or fewer: the next level is skipped
+import { suggestLevel, PER_LEVEL, STOP } from './rules.js';
 
 function questions(vocab, level) {
   const words = vocab.sets.filter((s) => levelOf(s) === level).flatMap((s) => s.words);
@@ -22,17 +19,6 @@ function questions(vocab, level) {
   });
 }
 
-// The level to start at: the one after the highest level passed (3 at most). A language with a
-// letters level suggests it when even level 1 was mostly missed (the script itself is the hurdle).
-export function suggestLevel(scores, hasLetters) {
-  let level = 1;
-  for (const lv of [1, 2, 3]) {
-    if ((scores[lv] ?? 0) >= PASS) level = Math.min(3, lv + 1);
-    else break;
-  }
-  if (hasLetters && (scores[1] ?? 0) <= STOP) return 0;
-  return level;
-}
 
 // Runs the test full screen; onDone(level) when the player takes the suggestion, onCancel() otherwise.
 export function runPlacement(vocab, { hasLetters = false, onDone, onCancel }) {

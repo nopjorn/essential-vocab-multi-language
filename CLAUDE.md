@@ -99,6 +99,7 @@ assets/js/
                 modes, owl/early, polyglot); badgeList(), earnedIds()
   engage.js     daily quests (seeded per day+language; stats.quests marks finished days), XP + player level, milestones,
                 unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card
+  rules.js      pure rules with no DOM/storage (unit-tested): normalize/acceptedAnswers for typing, suggestLevel for placement
   placement.js  placement test runPlacement(vocab, {hasLetters, onDone, onCancel}), suggestLevel(scores)
   welcome.js    first-run welcome (language, level, daily goal); shown while store.firstRun and not finished
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
@@ -123,7 +124,10 @@ scripts/
   bump-version.mjs  bump version.js, add changelog entry, regenerate CHANGELOG.md (--sync)
   lib.mjs           helpers shared by the scripts
   make-icons.py     regenerate icons/splashes (Pillow; Inter + WenQuanYi Zen Hei fonts)
-.github/workflows/  ci.yml (PR checks + version-bump guard), pages.yml (validate, stamp build, deploy main)
+tests/
+  unit/*.test.mjs   node --test, no dependencies: store.js on an in-memory localStorage (setup.mjs) and rules.js
+  smoke.mjs         Playwright: every tab and mode × light/dark on 3 screen sizes; fails on page errors or overflow
+.github/workflows/  ci.yml (PR checks: validate, version-bump guard, unit tests; smoke job), pages.yml (validate, stamp build, deploy main)
 ```
 
 ## Data format
@@ -195,8 +199,13 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 
 ```bash
 node scripts/validate.mjs
+node --test 'tests/unit/*.test.mjs'
+node tests/smoke.mjs             # needs Playwright (preinstalled in Claude Code cloud: PLAYWRIGHT_PATH=$(npm root -g)/playwright)
 python3 -m http.server 8000      # open http://localhost:8000
 ```
+
+CI runs all three on every PR. Keep logic that can be pure in `rules.js` (or store.js) so it gets a unit test; add a
+test when you change Leitner boxes, due dates, daily counts, backup import or answer matching.
 
 Browser check with Playwright (Chromium at /opt/pw-browsers in Claude Code cloud): use viewports
 440×956 (iPhone Pro Max, isMobile, hasTouch), 820×1180 and 1180×820 (iPad Air 11"), play each mode,
