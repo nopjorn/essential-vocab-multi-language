@@ -72,6 +72,7 @@ const DEFAULT_SETTINGS = {
   accent: 'indigo', // 'indigo' | 'green' | 'pink' | 'orange'
   cardStyle: 'plain', // flashcard pattern: 'plain' | 'dots' | 'stripes'
   soundPack: 'classic', // 'classic' | 'soft' | 'retro'
+  seenTips: [], // first-time tips already shown: 'flash' | 'type' | 'dictate' | 'match'
   backupSnooze: 0, // ms timestamp when the backup reminder was last dismissed
   lastExportedAt: 0, // ms timestamp of the last backup file; drives the backup reminder on Home
 };

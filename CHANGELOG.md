@@ -15,6 +15,7 @@
 - ทดสอบระดับ: แตะ "ทดสอบระดับ" ใต้แถบระดับในหน้าหลัก (หรือในหน้าต้อนรับ) ตอบระดับละ 6 ข้อ แล้วแอปแนะนำระดับที่ควรเริ่ม
 - ขนาดตัวอักษร: ตั้งค่า › ขนาดตัวอักษร (ปกติ / ใหญ่ / ใหญ่มาก) ขยายคำศัพท์ คำแปล ตัวเลือก และประโยคตัวอย่างให้อ่านง่ายขึ้น
 - อ่านง่ายขึ้นและใช้กับ VoiceOver ได้ดีขึ้น: ปรับสีตัวอักษรรอง สีแดง สีทอง และปุ่มในโหมดมืดให้คอนทราสต์ผ่านเกณฑ์ หน้าเกมมีหัวข้อและแถบความคืบหน้าที่อ่านออกเสียงได้
+- คำแนะนำครั้งแรก: เล่นแฟลชการ์ด พิมพ์คำศัพท์ ฟังแล้วพิมพ์ หรือจับคู่ครั้งแรก จะมีคำอธิบายสั้น ๆ ว่าเล่นอย่างไร (ขึ้นครั้งเดียว)
 
 <details><summary>English</summary>
 
@@ -29,6 +30,7 @@
 - Placement test: tap "Find my level" under the level bar on Home (or in the welcome), answer 6 questions per level and the app suggests where to start
 - Text size: Settings › Text size (normal / large / extra large) enlarges words, translations, answer options and examples
 - Easier to read and better with VoiceOver: secondary text, red, gold and dark-mode buttons now meet contrast guidelines, and game screens have a heading and a labelled progress bar
+- First-time tips: the first time you play flashcards, typing, dictation or match, a short tip explains how (shown once)
 
 </details>
 

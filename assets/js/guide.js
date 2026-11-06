@@ -23,6 +23,7 @@ export const GUIDE = {
         'แตะปุ่ม "เริ่มฝึก" ตรงกลางแถบเมนูด้านล่าง กดได้จากทุกหน้า แอปจะเริ่มด้วยภาษา โหมด และชุดคำศัพท์ที่เลือกไว้ล่าสุด',
         'เกมเปิดเต็มจอ แตะ ✕ มุมซ้ายบนเพื่อออก เมื่อจบเกมจะกลับไปหน้าที่เปิดอยู่ก่อนเริ่ม',
         'แตะไอคอนลำโพงเพื่อฟังเสียงอ่านได้ทุกที่',
+        'ครั้งแรกที่เล่นแฟลชการ์ด พิมพ์คำศัพท์ ฟังแล้วพิมพ์ และจับคู่ จะมีคำแนะนำสั้น ๆ วิธีเล่นขึ้นมาครั้งเดียว',
       ],
     },
     {
@@ -154,6 +155,7 @@ export const GUIDE = {
         'Tap "Start" in the middle of the tab bar, from any screen. It uses the language, mode and sets you chose last',
         'The game opens full screen; tap ✕ at the top left to leave. When it ends you go back to the screen you started from',
         'Tap the speaker icon anywhere to hear the pronunciation',
+        'The first time you play flashcards, typing, dictation and match, a short tip explains how to play (once)',
       ],
     },
     {

@@ -1,6 +1,6 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn } from './core.js';
+import { settings, saveSettings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
+import { state, h, fill, render, screen, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
 import { sfx, buzz } from './sound.js';
@@ -371,6 +371,35 @@ function leechTip(item, ok) {
   return h('p', { class: 'leech-tip' }, icon('bulb', { size: 16 }), h('span', {}, state.t.leechTip));
 }
 
+// ---------- first-time tips (coach marks) ----------
+// Each tip shows once per device (settings.seenTips). It lives inside #screen, so the next render
+// removes it, and covers the screen until dismissed.
+function firstTime(id) {
+  const seen = settings.seenTips || [];
+  if (seen.includes(id)) return false;
+  settings.seenTips = [...seen, id];
+  saveSettings();
+  return true;
+}
+
+function coach(id, text) {
+  if (!firstTime(id)) return;
+  const close = () => layer.remove();
+  const bubble = h('div', { class: 'coach-bubble', role: 'dialog', 'aria-label': state.t.tipTitle },
+    h('span', { class: 'coach-ic', 'aria-hidden': 'true' }, icon('bulb', { size: 20 })),
+    h('p', {}, text),
+    h('button', { class: 'btn primary', type: 'button', onclick: close }, state.t.gotIt));
+  const layer = h('div', { class: 'coach', onclick: (e) => { if (e.target === layer) close(); } }, bubble);
+  screen.append(layer);
+}
+
+// The match timer is already running, so its tip is a line in the layout for the first round only
+// (removing it on a tap would move the tiles under the finger).
+function inlineTip(id, text) {
+  if (!firstTime(id)) return null;
+  return h('p', { class: 'coach-inline', role: 'note' }, icon('bulb', { size: 16 }), h('span', {}, text));
+}
+
 function readingSmall(item) {
   const r = settings.showRoman ? readingText(item) : '';
   return r ? h('small', {}, r) : null;
@@ -494,6 +523,7 @@ function flashView(session, item, advance) {
     else if (e.key === 'z' || e.key === 'Backspace') undo();
   });
   if (settings.autoSpeak) say(item.term);
+  coach('flash', t.tipFlash);
 }
 
 // ---------- multiple choice (quiz / reverse / listen) ----------
@@ -667,6 +697,7 @@ function typeView(session, item, advance, mode) {
   ));
   onKeys(null);
   if (dictate) say(item.term);
+  coach(dictate ? 'dictate' : 'type', dictate ? t.tipDictate : t.tipType);
   // iOS only opens the keyboard on focus during a user gesture; this still
   // focuses the field on iPad with a hardware keyboard.
   input.focus({ preventScroll: true });
@@ -789,6 +820,7 @@ function playMatch(session) {
     render(h('div', { class: 'game' },
       bar,
       timer,
+      inlineTip('match', t.tipMatch),
       h('div', { class: 'match-grid' }, h('div', { class: 'match-col' }, lefts), h('div', { class: 'match-col' }, rights)),
     ));
     onKeys(null);
