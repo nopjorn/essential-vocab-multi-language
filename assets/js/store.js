@@ -67,6 +67,7 @@ const DEFAULT_SETTINGS = {
   newPerDay: 0, // most new words per day and language; 0 = no limit
   sound: true, // short sound effects for right/wrong answers and combos
   theme: 'system', // 'system' | 'light' | 'dark'
+  textSize: 'normal', // 'normal' | 'large' | 'xlarge': size of words, answers and options
   // Unlockable looks (engage.js decides what is unlocked; the default is always available)
   accent: 'indigo', // 'indigo' | 'green' | 'pink' | 'orange'
   cardStyle: 'plain', // flashcard pattern: 'plain' | 'dots' | 'stripes'

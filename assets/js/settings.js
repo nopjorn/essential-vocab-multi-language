@@ -12,6 +12,7 @@ const COUNTS = [10, 20, 30, 0]; // 0 = all
 const GOALS = [10, 20, 50, 100];
 const NEW_LIMITS = [0, 10, 20, 30]; // 0 = no limit
 const RATES = ['slow', 'normal', 'fast'];
+const TEXT_SIZES = ['normal', 'large', 'xlarge'];
 
 function rowIcon(name, color) {
   return h('span', { class: `row-icon ${color}` }, icon(name, { size: 18 }));
@@ -294,6 +295,24 @@ export async function renderSettings() {
       h('div', { class: 'row stacked' },
         h('div', { class: 'row-head' }, rowIcon('sun', 'gray'), rowText(t.theme)),
         themeControl()),
+      h('div', { class: 'row stacked' },
+        h('div', { class: 'row-head' }, rowIcon('type', 'indigo'), rowText(t.textSize, t.textSizeSub)),
+        h('div', { class: 'segmented', role: 'radiogroup', 'aria-label': t.textSize },
+          TEXT_SIZES.map((size, i) =>
+            h('label', {},
+              h('input', {
+                type: 'radio',
+                name: 'textSize',
+                value: size,
+                checked: settings.textSize === size,
+                onchange: () => {
+                  settings.textSize = size;
+                  saveSettings();
+                  applyTheme();
+                },
+              }),
+              h('span', { class: `size-sample s${i}` }, 'Aa ก'))))),
+      h('p', { class: 'text-sample', lang: 'ja' }, '水 · 학교 · 你好 · water'),
     ),
 
     groupTitle(t.groupCollection),
