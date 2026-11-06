@@ -80,9 +80,6 @@ export function cachedLang(code) {
   return vocabCache.get(code) || null;
 }
 
-export function loadAllLangs() {
-  return Promise.all(state.index.learn.map((l) => loadLang(l.code)));
-}
 
 export function langMeta(code) {
   return state.index.learn.find((l) => l.code === code);
@@ -112,7 +109,7 @@ export function ensureAudio() {
 }
 
 export function speechTag(code = settings.lang) {
-  return vocabCache.get(code)?.speech || code;
+  return vocabCache.get(code)?.speech || langMeta(code)?.speech || code;
 }
 
 // A lone Hangul letter is read out by name or not at all on many voices, so say it inside a

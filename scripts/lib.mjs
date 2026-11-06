@@ -39,3 +39,9 @@ export function renderChangelogMd(log) {
 export function vocabRev(file) {
   return createHash('sha256').update(readFileSync(path('data', file))).digest('hex').slice(0, 10);
 }
+
+// What languages.json repeats from a vocabulary file (see stamp-vocab.mjs).
+export function vocabFacts(file) {
+  const vocab = readJSON('data', file);
+  return { speech: vocab.speech, words: vocab.sets.reduce((n, s) => n + s.words.length, 0), rev: vocabRev(file) };
+}

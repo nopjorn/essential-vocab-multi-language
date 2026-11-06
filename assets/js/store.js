@@ -112,6 +112,21 @@ export function dueAt(p) {
   return p.d ?? p.t + INTERVAL_DAYS[Math.min(MAX_BOX, p.b)] * DAY_MS;
 }
 
+// Totals of one language straight from the progress map, for pages that don't load its words
+// (Progress overview). Words never answered are "fresh": the caller knows the word count.
+export function langProgress(lang) {
+  const out = { mastered: 0, learning: 0, c: 0, w: 0 };
+  const prefix = `${lang}|`;
+  for (const [key, p] of Object.entries(progress)) {
+    if (!key.startsWith(prefix) || !p.t) continue;
+    if (p.b >= MASTERED_BOX) out.mastered++;
+    else out.learning++;
+    out.c += p.c;
+    out.w += p.w;
+  }
+  return out;
+}
+
 export function isDue(p, now = Date.now()) {
   return p.t > 0 && dueAt(p) <= now;
 }

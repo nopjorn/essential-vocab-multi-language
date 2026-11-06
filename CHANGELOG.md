@@ -5,10 +5,12 @@
 ## [1.20.0] - 2026-11-06
 
 - อัปเดตเร็วขึ้นและเปลืองเน็ตน้อยลง: คำศัพท์เก็บแยกตามเนื้อหาไฟล์ อัปเดตแอปครั้งต่อไปจะดาวน์โหลดใหม่เฉพาะภาษาที่คำศัพท์เปลี่ยน (เดิมโหลดใหม่ทั้งหมดราว 1.6 MB)
+- หน้าความคืบหน้ารวมและหน้าตั้งค่าเปิดเร็วขึ้น ไม่ต้องโหลดคำศัพท์ทุกภาษาก่อน
 
 <details><summary>English</summary>
 
 - Faster, lighter updates: vocabulary is cached by content, so an app update only downloads the languages whose words changed (instead of all ~1.6 MB)
+- The Progress overview and Settings open faster: they no longer download every language's words first
 
 </details>
 

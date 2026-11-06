@@ -133,3 +133,12 @@ test('saveRecord keeps the best: lower match time, higher combo', async () => {
   assert.equal(store.saveRecord('en', 'combo', 5), true);
   assert.equal(store.saveRecord('en', 'combo', 4), false);
 });
+
+test('langProgress counts one language from storage without its word list', async () => {
+  const { store } = await freshStore();
+  for (let i = 0; i < 3; i++) store.record(KEY, true);
+  store.record('ja|food|肉', false);
+  store.record('ko|food|물', true);
+  assert.deepEqual(store.langProgress('ja'), { mastered: 1, learning: 1, c: 3, w: 1 });
+  assert.deepEqual(store.langProgress('zh'), { mastered: 0, learning: 0, c: 0, w: 0 });
+});

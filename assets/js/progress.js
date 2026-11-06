@@ -1,6 +1,6 @@
 // Progress page: overview across all languages, and a detail view per language.
-import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, isLeech, MASTERED_BOX } from './store.js';
-import { state, h, render, nameOf, levelOf, levelLabel, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
+import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, isLeech, langProgress, MASTERED_BOX } from './store.js';
+import { state, h, render, nameOf, levelOf, levelLabel, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
 import { itemsFor, startGame } from './game.js';
 import { icon, MODE_ICON } from './icons.js';
 import { badgeList } from './badges.js';
@@ -183,18 +183,26 @@ export async function renderProgress(lang) {
   const t = state.t;
   if (lang && !langMeta(lang)) lang = null;
   const nav = state.navId;
-  let vocabs;
-  try {
-    vocabs = lang ? [await loadLang(lang)] : await loadAllLangs();
-    if (nav !== state.navId) return;
-  } catch (err) {
-    console.error(err);
-    render(pageHead(t.progressTitle), h('div', { class: 'card error' }, t.loadError));
-    return;
+  if (lang) {
+    let vocab;
+    try {
+      vocab = await loadLang(lang);
+      if (nav !== state.navId) return;
+    } catch (err) {
+      console.error(err);
+      render(pageHead(t.progressTitle), h('div', { class: 'card error' }, t.loadError));
+      return;
+    }
+    return renderLang(langSummary(vocab));
   }
-  if (lang) return renderLang(langSummary(vocabs[0]));
 
-  const sums = vocabs.map(langSummary);
+  // The overview needs counts only: word totals from languages.json and progress from storage,
+  // so it opens at once without downloading every language (≈1.6 MB).
+  const sums = state.index.learn.map((l) => {
+    const p = langProgress(l.code);
+    const total = Math.max(l.words || 0, p.mastered + p.learning);
+    return { vocab: { code: l.code }, total, fresh: total - p.mastered - p.learning, ...p };
+  });
   const all = sums.reduce((a, s) => ({
     total: a.total + s.total, mastered: a.mastered + s.mastered, seen: a.seen + s.total - s.fresh, c: a.c + s.c, w: a.w + s.w,
   }), { total: 0, mastered: 0, seen: 0, c: 0, w: 0 });
