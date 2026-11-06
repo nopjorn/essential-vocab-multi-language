@@ -1,6 +1,6 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
 import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock } from './core.js';
+import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
 import { sfx, buzz } from './sound.js';
@@ -372,9 +372,11 @@ function readingSmall(item) {
   return r ? h('small', {}, r) : null;
 }
 
-function verdict(ok) {
+// Right / wrong, with the star that keeps the word in "My words".
+function verdict(ok, item) {
   const t = state.t;
-  return h('strong', { class: `verdict ${ok ? 'ok' : 'ng'}` }, icon(ok ? 'check' : 'close', { size: 20 }), ok ? t.correct : t.wrong);
+  const v = h('strong', { class: `verdict ${ok ? 'ok' : 'ng'}` }, icon(ok ? 'check' : 'close', { size: 20 }), ok ? t.correct : t.wrong);
+  return item ? h('div', { class: 'verdict-row' }, v, saveBtn(item.key)) : v;
 }
 
 // ---------- flashcards: tap to flip, swipe right = known, left = not yet ----------
@@ -398,6 +400,7 @@ function flashView(session, item, advance) {
     stampKnow,
     stampAgain,
     h('div', { class: 'flash-speaker' }, speakerBtn(item.term)),
+    h('div', { class: 'flash-save' }, saveBtn(item.key)),
   );
   const hasNext = session.i + 1 < session.items.length;
   const deck = h('div', { class: 'deck' }, hasNext ? h('div', { class: 'deck-next', 'aria-hidden': 'true' }) : null, card);
@@ -439,7 +442,7 @@ function flashView(session, item, advance) {
   // Pointer drag (touch, pen and mouse). Small movement = tap = flip.
   let drag = null;
   card.addEventListener('pointerdown', (e) => {
-    if (busy || e.target.closest('.speaker')) return;
+    if (busy || e.target.closest('.speaker, .save-btn')) return;
     drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0, t: performance.now() };
     card.setPointerCapture(e.pointerId);
     card.classList.add('dragging');
@@ -523,7 +526,7 @@ function choiceView(session, item, advance, mode) {
       else if (i === idx) b.classList.add('wrong');
     });
     fill(feedback,
-      verdict(ok),
+      verdict(ok, item),
       mode !== 'quiz' || !ok ? h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), h('span', { class: 'eq' }, '='), h('span', {}, item.answer)) : null,
       noteEl(item),
       // a right answer moves on by itself, too fast to read a sentence
@@ -625,7 +628,7 @@ function typeView(session, item, advance, mode) {
     input.readOnly = true;
     input.classList.add(ok ? 'right' : 'wrong', ok ? 'pop' : 'shake');
     fill(feedback,
-      verdict(ok),
+      verdict(ok, item),
       h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term),
         dictate ? [h('span', { class: 'eq' }, '='), h('span', {}, item.answer)] : null),
       noteEl(item),

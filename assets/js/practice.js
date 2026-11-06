@@ -9,6 +9,7 @@ import { langSummary, dayTotals, streakInfo, FREEZE_MAX } from './progress.js';
 import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway } from './engage.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
+import { savedEntries, playSaved, SAVED_ID } from './words.js';
 
 const QUICK_COUNT = 5;
 // mode tiles drawn as a row with a description (mixed: full width; match and survival: half)
@@ -334,6 +335,16 @@ export async function renderPractice() {
       .filter(Boolean).join('\n').toLowerCase());
   }
 
+  // "My words": the starred words of this language, above the word sets
+  const savedN = savedEntries(vocab).length;
+  const savedRow = h('div', { class: 'group list saved-group' },
+    h('div', { class: 'row set-row saved-row' },
+      h('span', { class: 'set-ic saved-ic', 'aria-hidden': 'true' }, icon('star', { size: 20, fill: true })),
+      h('a', { class: 'row-text saved-link', href: `#/words/${code}/${SAVED_ID}` },
+        h('span', { class: 'row-label' }, t.myWords),
+        h('span', { class: 'row-sub' }, savedN ? `${savedN} ${t.words}` : t.myWordsHint)),
+      savedN ? h('button', { class: 'next-play', type: 'button', 'aria-label': t.practiceSaved, onclick: () => playSaved(vocab) }, icon('play', { size: 18, fill: true })) : null));
+
   const setsList = h('div', { class: 'group list sets-list' });
   const levelInfo = h('p', { class: 'level-info' });
   // Search matches set names and the words inside them, across all levels.
@@ -449,6 +460,7 @@ export async function renderPractice() {
     modeDesc,
     h('section', { class: 'sets-col' },
       setsTitle,
+      savedRow,
       h('label', { class: 'search-box' }, icon('search', { size: 18 }), search),
       levelSeg,
       levelInfo,

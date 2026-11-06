@@ -5,6 +5,7 @@
 const SETTINGS_KEY = 'evocab.settings.v1';
 const PROGRESS_KEY = 'evocab.progress.v1';
 const STATS_KEY = 'evocab.stats.v1';
+const SAVED_KEY = 'evocab.saved.v1';
 const MAX_SESSIONS = 200;
 export const MAX_BOX = 5;
 export const MASTERED_BOX = 3;
@@ -272,6 +273,29 @@ export function resetLanguage(lang) {
   save(STATS_KEY, stats);
 }
 
+// ---------- my words (notebook) ----------
+// { [lang]: [wordKey, ...] } words starred by the player, newest last. Not progress: a reset keeps them.
+const saved = load(SAVED_KEY, {});
+
+export function isSaved(key) {
+  return (saved[key.split('|')[0]] || []).includes(key);
+}
+
+// Stars or unstars a word; returns whether it is saved now.
+export function toggleSaved(key) {
+  const lang = key.split('|')[0];
+  const list = (saved[lang] ||= []);
+  const i = list.indexOf(key);
+  if (i >= 0) list.splice(i, 1);
+  else list.push(key);
+  save(SAVED_KEY, saved);
+  return i < 0;
+}
+
+export function savedKeys(lang) {
+  return saved[lang] || [];
+}
+
 // ---------- backup (export / import) ----------
 export const BACKUP_FORMAT = 'evocab-backup';
 
@@ -283,6 +307,7 @@ export function exportData(version) {
     exportedAt: new Date().toISOString(),
     progress,
     stats,
+    saved,
   };
 }
 
@@ -351,6 +376,14 @@ export function importData(data) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Array.isArray(langs)) continue;
       stats.quests[date] = [...new Set([...(stats.quests[date] || []), ...langs.filter((l) => typeof l === 'string')])];
     }
+  }
+  if (data.saved && typeof data.saved === 'object') {
+    for (const [lang, keys] of Object.entries(data.saved)) {
+      if (!Array.isArray(keys)) continue;
+      const ok = keys.filter((k) => typeof k === 'string' && k.split('|').length === 3 && k.startsWith(`${lang}|`));
+      saved[lang] = [...new Set([...(saved[lang] || []), ...ok])];
+    }
+    save(SAVED_KEY, saved);
   }
   save(PROGRESS_KEY, progress);
   save(STATS_KEY, stats);

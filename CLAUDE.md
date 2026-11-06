@@ -53,6 +53,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
   "Up next" recommended set (plays it alone), mode tiles (Mixed is the wide suggested tile), search for sets and the
   words inside them, level switch, multi-select word sets (fully mastered sets get a gold crown; best 1–3 stars per set)
 - **Example sentences** for some words (level 1 food/places/home so far), with translation and speaker
+- **My words**: star (☆) words in word lists and games; a row above the sets opens `#/words/<lang>/saved` and plays them
 - **Word list of a set** (list icon on a set row): every word with reading, translation, note, example sentence and speaker;
   tap the circle to mark a word as already known (mastered, undoable; not counted as an answer);
   "Practice this set" plays only that set
@@ -77,7 +78,7 @@ sw.js                   offline cache (cache-first); cache name = version + buil
 manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts)
 assets/css/style.css    all styles; tokens on :root, dark tokens for data-theme / prefers-color-scheme
 assets/js/
-  app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog, #/words/<lang>/<set>), tab bar + Start button,
+  app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog, #/words/<lang>/<set>, #/words/<lang>/saved), tab bar + Start button,
                 update toasts, SW; leaving a game re-routes to the page it was started from; first run shows welcome.js
   core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render, loaders, pageHead/groupTitle,
                 speaker/term widgets, toast
@@ -98,7 +99,8 @@ assets/js/
                 unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card
   welcome.js    first-run welcome (language, level, daily goal); shown while store.firstRun and not finished
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
-  words.js      word list of one set (#/words/<lang>/<set>, opened from the list icon on a Home set row; Practice this set)
+  words.js      word list of one set (#/words/<lang>/<set>, opened from the list icon on a Home set row; Practice this set) and
+                My words (#/words/<lang>/saved: savedEntries(), playSaved())
   progress.js   streakInfo() (streak, best, freezes earned every 7 days, max 2), progress overview + per-language detail (tiles, badges, stacked bars, 14-day chart, weak words)
   info.js       guide and changelog pages
   guide.js      guide content {th, en}
@@ -173,7 +175,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `introNew`, `newPerDay` (0 = no limit), `speechRate`, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
   `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t,d?}`; `d` = due time, optional, falls back to `t` + box interval), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct, new?]` (new = first answers, drives `newPerDay`),
   `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
-  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`), `evocab.lastVersion`.
+  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`), `evocab.saved.v1` (`{[lang]: [wordKey]}` My words; kept on reset, included in backups), `evocab.lastVersion`.
   Badges, XP/level, streak freezes, milestones and unlocks are computed, not stored (only finished quest days are, since sessions are trimmed). A device with neither settings nor progress saved gets the welcome screen.
   Changing a format needs a migration and a major version bump.
 - Distractors must differ from the answer in both term and translation (homonyms like 눈 eye/snow).

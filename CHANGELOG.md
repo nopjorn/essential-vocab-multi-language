@@ -10,6 +10,7 @@
 - คำที่ผิดบ่อย: มีป้าย "ผิดบ่อย" ในรายการคำและหน้าความคืบหน้า ตอบผิดอีกจะมีคำแนะนำวิธีจำ และหน้าหลักมีการ์ดทบทวนคำเหล่านี้ด้วยแฟลชการ์ด
 - ความเร็วเสียงอ่าน: ตั้งค่า › ความเร็วเสียงอ่าน (ช้า / ปกติ / เร็ว) และแตะลำโพงเดิมซ้ำภายใน 4 วินาทีเพื่อฟังแบบช้าพิเศษ
 - โหมดใหม่ "ฟังแล้วพิมพ์": ฟังเสียงแล้วพิมพ์คำที่ได้ยิน ในโหมดผสมจะเจอเมื่อคำนั้นจำได้ดีแล้ว (หน้าหลักจัดปุ่มโหมดใหม่ จับคู่และเอาตัวรอดอยู่แถวเดียวกัน)
+- สมุดคำของฉัน: แตะ ☆ เพื่อเก็บคำจากรายการคำหรือระหว่างเล่น แล้วฝึกเฉพาะคำที่เก็บไว้จากแถว "สมุดคำของฉัน" ในหน้าหลัก (รวมอยู่ในไฟล์สำรองข้อมูลด้วย)
 
 <details><summary>English</summary>
 
@@ -19,6 +20,7 @@
 - Often-missed words: an "Often missed" tag in the word list and on Progress, a tip on how to remember them after another miss, and a Home card to go over them with flashcards
 - Speech speed: Settings › Speech speed (slow / normal / fast), and tap the same speaker again within 4 seconds to hear it extra slowly
 - New "Dictation" mode: listen and type the word you hear; mixed mode uses it once a word is well known (Home rearranges the mode tiles, with match and survival side by side)
+- My words: tap ☆ to keep a word from a word list or during a game, then practice just those from the "My words" row on Home (included in backups)
 
 </details>
 

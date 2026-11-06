@@ -743,6 +743,13 @@ input:checked + .switch::after { transform: translateX(20px); }
 .leech-tip { display: inline-flex; align-items: flex-start; gap: 6px; margin: 10px auto 0; max-width: 560px; color: var(--text-2); font-size: 14px; text-align: left; }
 .leech-tip .icon { flex: none; margin-top: 2px; color: var(--ic-orange); }
 .leech-chip { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--bad-soft); color: var(--bad); font-size: 12px; font-weight: 600; vertical-align: middle; }
+.save-btn { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); }
+.save-btn.on { color: var(--gold); }
+.verdict-row { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.flash-save { position: absolute; left: 14px; bottom: 14px; z-index: 2; }
+.saved-group { margin-bottom: 12px; }
+.saved-ic { display: grid; place-items: center; color: var(--gold); background: var(--gold-soft); }
+.saved-link { color: inherit; text-decoration: none; }
 .feedback .example { background: var(--surface); box-shadow: var(--shadow-sm); }
 .ex-ic { flex: none; display: grid; color: var(--primary); }
 .ex-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }

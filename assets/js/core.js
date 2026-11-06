@@ -1,6 +1,6 @@
 // Shared state and DOM helpers used by every screen.
 import { uiFor } from './i18n.js';
-import { settings } from './store.js';
+import { settings, isSaved, toggleSaved } from './store.js';
 import { speak, unlock, speechSupported } from './speech.js';
 import { icon } from './icons.js';
 import { unlockSound } from './sound.js';
@@ -154,6 +154,26 @@ export function speakerBtn(text, { big = false, lang = settings.lang } = {}) {
       e.currentTarget.classList.toggle('slow', again);
     },
   }, icon('speaker', { size: big ? 44 : 22 }));
+}
+
+// Star that adds a word to "My words" (or takes it out).
+export function saveBtn(key, { onChange } = {}) {
+  const btn = h('button', { class: 'save-btn', type: 'button' });
+  const sync = () => {
+    const on = isSaved(key);
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', String(on));
+    btn.setAttribute('aria-label', on ? state.t.unsaveWord : state.t.saveWord);
+    fill(btn, icon('star', { size: 22, fill: on }));
+  };
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    const on = toggleSaved(key);
+    sync();
+    onChange?.(on);
+  };
+  sync();
+  return btn;
 }
 
 // iOS-style large page title, optionally with a back link above it.
