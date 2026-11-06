@@ -47,6 +47,15 @@ for (const lang of index.learn) {
       } else if (!prev) seenTerms.set(w.term, { set: set.id, th: w.tr?.th });
       if (!w.tr?.th) errors.push(`${where(set.id, w.term)}: missing Thai translation`);
       if (w.reading === w.term) warnings.push(`${where(set.id, w.term)}: reading equals term, omit it`);
+      if (w.example) {
+        const ex = w.example;
+        if (!ex.text || !ex.tr?.th) errors.push(`${where(set.id, w.term)}: example needs "text" and "tr.th"`);
+        // English is offered as a translation for every language but English itself
+        else if (lang.code !== 'en' && !ex.tr.en) errors.push(`${where(set.id, w.term)}: example needs "tr.en"`);
+        // inflected verbs may not contain the dictionary form, so this is only a warning
+        else if (!ex.text.toLowerCase().includes(w.term.toLowerCase())) warnings.push(`${where(set.id, w.term)}: example does not contain the word`);
+        if (ex.reading && ex.reading === ex.text) warnings.push(`${where(set.id, w.term)}: example reading equals text, omit it`);
+      }
       for (const c of [...available]) if (!w.tr?.[c]) available.delete(c);
       for (const [c, text] of Object.entries(w.tr || {})) {
         const k = `${c}:${text}`;

@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.19.0] - 2026-11-06
+
+- ประโยคตัวอย่าง: คำในชุดอาหาร สถานที่ และของในบ้าน (ระดับ 1) ของทั้ง 4 ภาษามีประโยคตัวอย่างพร้อมคำแปลและปุ่มฟังเสียง แสดงในรายการคำศัพท์ ด้านหลังแฟลชการ์ด หลังพิมพ์คำตอบ และเมื่อตอบผิด
+
+<details><summary>English</summary>
+
+- Example sentences: words in the food, places and home sets (level 1) of all 4 languages now have an example sentence with a translation and a speaker button, shown in the word list, on the back of flashcards, after typing and after a wrong answer
+
+</details>
+
 ## [1.18.0] - 2026-11-02
 
 - ภาษาจีนครบ 3 ระดับแล้ว เหมือนภาษาอื่น: 88 ชุด รวม 3,001 คำ (ระดับ 1: 1,031 · ระดับ 2: 990 · ระดับ 3: 980)

@@ -616,7 +616,9 @@ input:checked + .switch::after { transform: translateX(20px); }
 .set-words:active { background: var(--fill); }
 .words-sub { margin: -6px 4px 12px; }
 .words-actions { margin: 0 0 6px; }
-.word-row { gap: 10px; }
+.word-row { gap: 10px; flex-wrap: wrap; }
+.rv-example { flex: 1 1 100%; order: 5; }
+.rv-example .example { margin: 0; max-width: none; }
 .known-btn { display: grid; place-items: center; width: 44px; height: 44px; margin: -6px 0; padding: 0; background: none; border: 0; cursor: pointer; flex: none; }
 .known-btn.on .check-circle { background: var(--good); border-color: var(--good); color: #fff; }
 .check-circle {
@@ -712,6 +714,24 @@ input:checked + .switch::after { transform: translateX(20px); }
 .eq { color: var(--muted); }
 .note { display: inline-flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; color: var(--muted); font-size: 15px; text-align: left; }
 .note .icon { margin-top: 3px; }
+/* example sentence: under the answer in games, under a word in the word list */
+.example {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px auto 0;
+  max-width: 560px;
+  padding: 8px 4px 8px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  text-align: left;
+}
+.feedback .example { background: var(--surface); box-shadow: var(--shadow-sm); }
+.ex-ic { flex: none; display: grid; color: var(--primary); }
+.ex-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ex-text { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.ex-reading { color: var(--muted); font-size: 13px; }
+.ex-tr { color: var(--muted); font-size: 14px; font-weight: 400; }
 
 .actions { display: flex; justify-content: center; gap: 10px; }
 .actions.two > .btn { flex: 1; }

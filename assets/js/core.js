@@ -171,6 +171,25 @@ export function termBlock(item, { size = 'xl', reading = settings.showRoman, lan
   );
 }
 
+// Example sentence of a word (optional in the data): text, reading (kana or pinyin) and the
+// translation in the chosen language, falling back to Thai.
+export function exampleOf(word) {
+  const ex = word.example;
+  if (!ex) return null;
+  return { text: ex.text, reading: ex.reading || ex.roman || '', tr: ex.tr[settings.target] || ex.tr.th };
+}
+
+export function exampleBlock(ex, { lang = settings.lang } = {}) {
+  if (!ex) return null;
+  return h('div', { class: 'example' },
+    h('span', { class: 'ex-ic', 'aria-hidden': 'true' }, icon('quote', { size: 16 })),
+    h('span', { class: 'ex-body' },
+      h('span', { class: 'ex-text', lang }, ex.text),
+      settings.showRoman && ex.reading ? h('small', { class: 'ex-reading' }, ex.reading) : null,
+      h('span', { class: 'ex-tr' }, ex.tr)),
+    speakerBtn(ex.text, { lang }));
+}
+
 let toastTimer = null;
 export function toast(message, { action, onAction, sticky = false } = {}) {
   const root = document.getElementById('toast');

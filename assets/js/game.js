@@ -1,6 +1,6 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
 import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, isDue, MAX_BOX, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf } from './core.js';
+import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
 import { sfx, buzz } from './sound.js';
@@ -33,6 +33,7 @@ export function itemsFor(vocab, setIds) {
         roman: w.roman || '',
         answer: answerOf(w),
         note: w.note ? w.note[settings.target] || w.note.th || '' : '',
+        example: exampleOf(w),
         setId: set.id,
       });
     }
@@ -311,6 +312,7 @@ function flashView(session, item, advance) {
     h('div', { class: 'answer-big' }, item.answer),
     termBlock(item, { size: 'md', reading: true }),
     noteEl(item),
+    exampleBlock(item.example),
   );
   const stampKnow = h('div', { class: 'stamp stamp-know', 'aria-hidden': 'true' }, icon('check', { size: 20 }), t.swipeKnow);
   const stampAgain = h('div', { class: 'stamp stamp-again', 'aria-hidden': 'true' }, icon('close', { size: 20 }), t.swipeAgain);
@@ -447,6 +449,8 @@ function choiceView(session, item, advance, mode) {
       verdict(ok),
       mode !== 'quiz' || !ok ? h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), h('span', { class: 'eq' }, '='), h('span', {}, item.answer)) : null,
       noteEl(item),
+      // a right answer moves on by itself, too fast to read a sentence
+      ok ? null : exampleBlock(item.example),
     );
     if (mode !== 'quiz' || settings.autoSpeak) say(item.term);
     if (ok) setTimeout(() => advance(), item.note ? 1600 : 900);
@@ -544,6 +548,7 @@ function typeView(session, item, advance, mode) {
       verdict(ok),
       h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term)),
       noteEl(item),
+      exampleBlock(item.example),
     );
     say(item.term);
     checkBtn.textContent = t.next;

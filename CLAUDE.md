@@ -52,7 +52,8 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
   3 daily quests,
   "Up next" recommended set (plays it alone), mode tiles (Mixed is the wide suggested tile), search for sets and the
   words inside them, level switch, multi-select word sets (fully mastered sets get a gold crown; best 1–3 stars per set)
-- **Word list of a set** (list icon on a set row): every word with reading, translation, note and speaker;
+- **Example sentences** for some words (level 1 food/places/home so far), with translation and speaker
+- **Word list of a set** (list icon on a set row): every word with reading, translation, note, example sentence and speaker;
   tap the circle to mark a word as already known (mastered, undoable; not counted as an answer);
   "Practice this set" plays only that set
 - **8 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint),
@@ -130,7 +131,10 @@ scripts/
 
 - `level` on every set: 0 = letters (see below), 1 = beginner (≈A1), 2 = everyday (≈A2), 3 = intermediate (≈B1). Home shows one level at a
   time (segmented control, remembered per language in `settings.level`); Progress groups sets by level
-- `term` required; `reading` (kana, only when it differs from `term`), `roman`, and `note` are optional
+- `term` required; `reading` (kana, only when it differs from `term`), `roman`, `note` and `example` are optional
+- `example` = `{text, reading?, roman?, tr: {th, en}}`: one short sentence that uses the word (`reading` kana for Japanese,
+  `roman` pinyin for Chinese; `tr.en` required except in English). Shown in the word list, on the flashcard back, after typing and after
+  a wrong answer. So far: level 1 `food`, `places`, `home` in all four languages. The validator warns when `text` lacks the term
 - `tr.th` is required; a translation language is offered only if **every** word has it
 - Within a set: unique `term`s, at least 4 words, avoid duplicate translations (validator warns)
 - Across a language a term appears once; a homonym in a second set needs a different meaning **and** a `note`
