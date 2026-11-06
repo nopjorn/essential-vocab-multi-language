@@ -12,6 +12,7 @@
 - โหมดใหม่ "ฟังแล้วพิมพ์": ฟังเสียงแล้วพิมพ์คำที่ได้ยิน ในโหมดผสมจะเจอเมื่อคำนั้นจำได้ดีแล้ว (หน้าหลักจัดปุ่มโหมดใหม่ จับคู่และเอาตัวรอดอยู่แถวเดียวกัน)
 - สมุดคำของฉัน: แตะ ☆ เพื่อเก็บคำจากรายการคำหรือระหว่างเล่น แล้วฝึกเฉพาะคำที่เก็บไว้จากแถว "สมุดคำของฉัน" ในหน้าหลัก (รวมอยู่ในไฟล์สำรองข้อมูลด้วย)
 - ปุ่ม "รู้แล้วทั้งชุด" ในหน้ารายการคำ: ทำเครื่องหมายทุกคำในชุดว่าจำได้แล้วในครั้งเดียว (ย้อนได้ด้วย "ยกเลิกทั้งชุด")
+- ทดสอบระดับ: แตะ "ทดสอบระดับ" ใต้แถบระดับในหน้าหลัก (หรือในหน้าต้อนรับ) ตอบระดับละ 6 ข้อ แล้วแอปแนะนำระดับที่ควรเริ่ม
 
 <details><summary>English</summary>
 
@@ -23,6 +24,7 @@
 - New "Dictation" mode: listen and type the word you hear; mixed mode uses it once a word is well known (Home rearranges the mode tiles, with match and survival side by side)
 - My words: tap ☆ to keep a word from a word list or during a game, then practice just those from the "My words" row on Home (included in backups)
 - "I know them all" in a set's word list marks every word as known at once ("Undo all" takes it back)
+- Placement test: tap "Find my level" under the level bar on Home (or in the welcome), answer 6 questions per level and the app suggests where to start
 
 </details>
 

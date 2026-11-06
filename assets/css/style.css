@@ -750,6 +750,12 @@ input:checked + .switch::after { transform: translateX(20px); }
 .saved-group { margin-bottom: 12px; }
 .saved-ic { display: grid; place-items: center; color: var(--gold); background: var(--gold-soft); }
 .saved-link { color: inherit; text-decoration: none; }
+.level-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.level-row .text-btn { display: inline-flex; align-items: center; gap: 4px; }
+.placement-btn { margin-top: 12px; }
+.placement-result .results { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.placement-scores { align-self: stretch; margin: 8px 0 0; text-align: left; }
+.placement-result .away-ic { width: 64px; height: 64px; background: var(--primary-soft); color: var(--primary); }
 .feedback .example { background: var(--surface); box-shadow: var(--shadow-sm); }
 .ex-ic { flex: none; display: grid; color: var(--primary); }
 .ex-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }

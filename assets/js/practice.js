@@ -10,6 +10,7 @@ import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway } from './enga
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
 import { savedEntries, playSaved, SAVED_ID } from './words.js';
+import { runPlacement } from './placement.js';
 
 const QUICK_COUNT = 5;
 // mode tiles drawn as a row with a description (mixed: full width; match and survival: half)
@@ -463,7 +464,21 @@ export async function renderPractice() {
       savedRow,
       h('label', { class: 'search-box' }, icon('search', { size: 18 }), search),
       levelSeg,
-      levelInfo,
+      h('div', { class: 'level-row' },
+        levelInfo,
+        h('button', {
+          class: 'text-btn',
+          type: 'button',
+          onclick: () => runPlacement(vocab, {
+            hasLetters: levels.includes(0),
+            onDone: (lv) => {
+              settings.level[code] = lv;
+              saveSettings();
+              renderPractice();
+            },
+            onCancel: renderPractice,
+          }),
+        }, icon('target', { size: 15 }), t.placementShort)),
       setsList,
       setsFoot),
   );

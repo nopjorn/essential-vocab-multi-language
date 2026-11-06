@@ -46,7 +46,8 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 ## What the app can do
 
 - **Learn** English, Korean, Japanese, Chinese (3 levels each, ≈3,000 words per language; Chinese in simplified characters + pinyin, with extra Shanghai/Disneyland travel sets); translations in Thai, and English for Korean/Japanese/Chinese. Korean (7 Hangul sets) and Japanese (10 kana sets) have a separate "Letters" tab for absolute beginners
-- **Welcome** (first run only): 3 steps to pick language, level and daily goal (Skip keeps defaults)
+- **Welcome** (first run only): 3 steps to pick language, level and daily goal (Skip keeps defaults); the level step offers the placement test
+- **Placement test** (Home "Find my level" under the level bar, welcome): 6 pick-the-meaning questions per level, stops early, suggests a level (letters when level 1 is mostly missed); not recorded
 - **Home**: language switch, "We missed you" card after ≥ 3 days away (review of known words), Today card (daily-goal ring, streak
   or "play today to keep your streak", level chip, streak freezes, Mon–Sun week strip, Continue / Quick 5, mastered + accuracy footer),
   3 daily quests,
@@ -97,6 +98,7 @@ assets/js/
                 modes, owl/early, polyglot); badgeList(), earnedIds()
   engage.js     daily quests (seeded per day+language; stats.quests marks finished days), XP + player level, milestones,
                 unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card
+  placement.js  placement test runPlacement(vocab, {hasLetters, onDone, onCancel}), suggestLevel(scores)
   welcome.js    first-run welcome (language, level, daily goal); shown while store.firstRun and not finished
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
   words.js      word list of one set (#/words/<lang>/<set>, opened from the list icon on a Home set row; Practice this set) and
