@@ -1766,3 +1766,8 @@ input:checked + .switch::after { transform: translateX(20px); }
 .size-sample.s1 { font-size: 16px; }
 .size-sample.s2 { font-size: 18px; }
 .text-sample { margin: 0; padding: 0 16px 12px; color: var(--text-2); font-size: calc(19px * var(--ts)); font-weight: 600; }
+
+/* Long lists (36+ set rows, word lists, the changelog): rows off screen skip layout and paint until
+   scrolled near. "auto" remembers each row's real height once it has been drawn. */
+.sets-list > .set-row { content-visibility: auto; contain-intrinsic-size: auto 72px; }
+.word-row { content-visibility: auto; contain-intrinsic-size: auto 120px; }
