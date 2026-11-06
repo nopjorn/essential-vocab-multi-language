@@ -111,8 +111,63 @@ export function startGame(items, pool, { mode = settings.mode } = {}) {
     queue: [],
   };
   if (survival) session.items = [];
-  if (session.mode === 'match') playMatch(session);
-  else playNext(session);
+  const begin = () => (session.mode === 'match' ? playMatch(session) : playNext(session));
+  const fresh = newWords(session);
+  if (fresh.length) introView(fresh, begin);
+  else begin();
+}
+
+// ---------- new words: a look at each word never seen before the round asks it ----------
+
+const INTRO_MAX = 5;
+
+function newWords(session) {
+  // flashcards already show the meaning, and survival builds its words as it goes
+  if (!settings.introNew || session.mode === 'flash' || session.mode === 'survival') return [];
+  return session.items.filter((it) => !getProgress(it.key).t).slice(0, INTRO_MAX);
+}
+
+function introView(list, begin) {
+  const t = state.t;
+  let i = 0;
+  const start = () => {
+    onKeys(null);
+    begin();
+  };
+  const show = () => {
+    const item = list[i];
+    const last = i === list.length - 1;
+    const go = () => {
+      if (last) return start();
+      i++;
+      show();
+    };
+    render(h('div', { class: 'game intro' },
+      h('div', { class: 'game-top' },
+        h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
+        h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(list.length), 'aria-valuenow': String(i + 1) },
+          h('div', { class: 'progress-fill', style: `width:${((i + 1) / list.length) * 100}%` })),
+        h('span', { class: 'counter' }, `${i + 1}/${list.length}`)),
+      h('div', { class: 'mode-pill' }, icon('sparkles', { size: 16 }), t.introTitle),
+      h('div', { class: 'intro-card' },
+        termBlock(item, { reading: true }),
+        speakerBtn(item.term),
+        h('div', { class: 'answer-big' }, item.answer),
+        noteEl(item),
+        exampleBlock(item.example)),
+      h('p', { class: 'hint center' }, t.introSub),
+      h('div', { class: `actions${last ? '' : ' two'}` },
+        last ? null : h('button', { class: 'btn', type: 'button', onclick: start }, t.introSkip),
+        h('button', { class: 'btn primary', type: 'button', onclick: go }, last ? t.introGo : t.introNext, icon('chevronRight', { size: 20 })))));
+    onKeys((e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        go();
+      }
+    });
+    if (settings.autoSpeak) say(item.term);
+  };
+  show();
 }
 
 function exitGame() {

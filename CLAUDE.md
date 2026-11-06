@@ -56,13 +56,14 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **Word list of a set** (list icon on a set row): every word with reading, translation, note, example sentence and speaker;
   tap the circle to mark a word as already known (mastered, undoable; not counted as an answer);
   "Practice this set" plays only that set
+- **New word cards** before a round (up to 5 never-seen words; not flashcards/survival; Settings toggle)
 - **8 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint),
   match (timed, best-time record), survival (3 hearts, harder as the score grows, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
   options at the bottom of the screen on phones
 - **Results screen**: animated ring, stars, newly mastered words, comparison with the last game, goal progress, best combo,
   new records, XP bar + level up, daily quests, newly earned badges and unlocks, set stars, full-screen milestone celebration
 - **Progress**: overview (player level card, best streak, quest days) and per-language detail (tiles, 23 badges, per-level set bars, 14-day chart, weak words with one-tap practice, history)
-- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, sound effects, theme, Collection (player level, accent colour, flashcard pattern, sound pack; locked ones show what unlocks them), export/import progress backup (.json, merged on import; Home reminds after 14 days without one), per-language reset (offers a backup first), check for updates, what's new
+- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, new-word cards, sound effects, theme, Collection (player level, accent colour, flashcard pattern, sound pack; locked ones show what unlocks them), export/import progress backup (.json, merged on import; Home reminds after 14 days without one), per-language reset (offers a backup first), check for updates, what's new
 - **PWA**: installable on iPhone/iPad, works offline, update toast, in-app guide
 
 ## Layout
@@ -168,7 +169,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`); pages read it through `state.t`.
-- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
+- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `introNew`, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
   `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t,d?}`; `d` = due time, optional, falls back to `t` + box interval), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`,
   `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
   stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`), `evocab.lastVersion`.

@@ -4,10 +4,12 @@
     "date": "2026-11-06",
     "changes": {
       "th": [
-        "ประโยคตัวอย่าง: คำในชุดอาหาร สถานที่ และของในบ้าน (ระดับ 1) ของทั้ง 4 ภาษามีประโยคตัวอย่างพร้อมคำแปลและปุ่มฟังเสียง แสดงในรายการคำศัพท์ ด้านหลังแฟลชการ์ด หลังพิมพ์คำตอบ และเมื่อตอบผิด"
+        "ประโยคตัวอย่าง: คำในชุดอาหาร สถานที่ และของในบ้าน (ระดับ 1) ของทั้ง 4 ภาษามีประโยคตัวอย่างพร้อมคำแปลและปุ่มฟังเสียง แสดงในรายการคำศัพท์ ด้านหลังแฟลชการ์ด หลังพิมพ์คำตอบ และเมื่อตอบผิด",
+        "การ์ด \"คำใหม่\": ก่อนเริ่มรอบ คำที่ยังไม่เคยเจอ (สูงสุด 5 คำ) จะขึ้นให้ดูพร้อมคำอ่าน คำแปล ตัวอย่าง และเสียง ก่อนถูกถาม ปิดได้ที่ ตั้งค่า › แนะนำคำใหม่ก่อนเล่น"
       ],
       "en": [
-        "Example sentences: words in the food, places and home sets (level 1) of all 4 languages now have an example sentence with a translation and a speaker button, shown in the word list, on the back of flashcards, after typing and after a wrong answer"
+        "Example sentences: words in the food, places and home sets (level 1) of all 4 languages now have an example sentence with a translation and a speaker button, shown in the word list, on the back of flashcards, after typing and after a wrong answer",
+        "\"New word\" cards: before a round, up to 5 words you have never met are shown with reading, meaning, example and sound before you are asked; turn it off in Settings › Introduce new words"
       ]
     }
   },

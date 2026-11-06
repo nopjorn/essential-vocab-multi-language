@@ -61,6 +61,7 @@ const DEFAULT_SETTINGS = {
   dailyGoal: 20, // answers per day; the Home ring fills toward it
   showRoman: true,
   autoSpeak: true,
+  introNew: true, // show words never seen before at the start of a round
   sound: true, // short sound effects for right/wrong answers and combos
   theme: 'system', // 'system' | 'light' | 'dark'
   // Unlockable looks (engage.js decides what is unlocked; the default is always available)
