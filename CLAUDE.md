@@ -74,7 +74,8 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 ## Layout
 
 ```
-index.html              shell: iOS meta, icons, launch screens, early theme script, loads version.js + app.js
+index.html              shell: iOS meta, icons, launch screens, early theme script, modulepreload of every module (validator
+                        checks a new module is listed), loads version.js + app.js
 TODO.md                 idea backlog grouped by type of work (docs only: not deployed, no version bump)
 version.js              APP_VERSION (semver) + APP_BUILD ('dev'; CI stamps "<run>.<sha>")
 sw.js                   offline cache (cache-first); shell cache name = version + build; CORE file list; vocabulary in a separate

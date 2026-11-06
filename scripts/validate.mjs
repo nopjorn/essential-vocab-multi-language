@@ -130,6 +130,10 @@ for (const f of mustCache) {
   if (!sw.includes(`'${f}'`)) errors.push(`sw.js: CORE is missing '${f}'`);
 }
 const html = readFileSync(path('index.html'), 'utf8');
+// every module but the entry point is preloaded, so a new module can't slow down start-up unnoticed
+for (const f of readdirSync(path('assets/js')).filter((f) => f.endsWith('.js') && f !== 'app.js')) {
+  if (!html.includes(`<link rel="modulepreload" href="assets/js/${f}">`)) errors.push(`index.html: add <link rel="modulepreload" href="assets/js/${f}">`);
+}
 for (const m of html.matchAll(/(?:href|src)="(assets\/[^"]+)"/g)) {
   if (!existsSync(path(m[1]))) errors.push(`index.html references missing file ${m[1]}`);
 }
