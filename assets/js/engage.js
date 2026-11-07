@@ -92,7 +92,7 @@ export function totalXP() {
     }
     if (played) xp += 30;
   }
-  return xp + questDays() * QUEST_BONUS;
+  return xp + questDays() * QUEST_BONUS + (s.xp || 0);
 }
 
 // Level n starts at 50·n·(n−1) XP: 100 XP for level 2, then each level needs 100 more.

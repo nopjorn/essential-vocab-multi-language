@@ -145,6 +145,7 @@ export function isLeech(p) {
 //   survival?: most correct answers in survival, stars?: { [setId]: 1..3 }, perfect?: perfect rounds,
 //   modes?: [modes played], owl?: played late at night, early?: played early in the morning } }
 // quests: { 'YYYY-MM-DD': [lang, ...] } days on which all three daily quests of a language were done
+// xp?: bonus XP not derivable from answers (boss wins, speed bonuses; added in 1.20)
 // Fields marked ? were added later and are optional, so older data needs no migration.
 const stats = { days: {}, sessions: [], records: {}, quests: {}, ...load(STATS_KEY, {}) };
 
@@ -231,6 +232,19 @@ export function noteRound(lang, { mode, n, c }, when = new Date()) {
     if (hour >= 22 || hour < 4) r.owl = true;
     if (hour >= 4 && hour < 7) r.early = true;
   }
+  save(STATS_KEY, stats);
+}
+
+// Extra XP on top of what answers earn (engage.totalXP adds it).
+export function addBonusXP(n) {
+  stats.xp = (stats.xp || 0) + n;
+  save(STATS_KEY, stats);
+}
+
+// A boss round won (all its words typed right): counted per language for the results and badges.
+export function noteBoss(lang) {
+  const r = (stats.records[lang] ||= {});
+  r.bosses = (r.bosses || 0) + 1;
   save(STATS_KEY, stats);
 }
 
@@ -383,10 +397,13 @@ export function importData(data) {
       }
       if (num(r.perfect) > (mine.perfect || 0)) mine.perfect = Math.floor(r.perfect);
       if (Array.isArray(r.modes)) mine.modes = [...new Set([...(mine.modes || []), ...r.modes.filter((m) => typeof m === 'string')])];
+      if (num(r.bosses) > (mine.bosses || 0)) mine.bosses = Math.floor(r.bosses);
       if (r.owl === true) mine.owl = true;
       if (r.early === true) mine.early = true;
     }
   }
+  // bonus XP is a lifetime total per device: keep the larger one rather than adding both
+  if (num(data.stats?.xp) > (stats.xp || 0)) stats.xp = Math.floor(data.stats.xp);
   const quests = data.stats?.quests;
   if (quests && typeof quests === 'object') {
     for (const [date, langs] of Object.entries(quests)) {

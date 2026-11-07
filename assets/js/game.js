@@ -1,5 +1,5 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, saveSettings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, noteBoss, addBonusXP, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, screen, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn, fadeNextRender } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
@@ -94,7 +94,8 @@ function distractors(item, pool, n = 3) {
 // ---------- shell ----------
 
 // `mode` overrides the chosen mode for one round (e.g. review rounds that must not be survival).
-export function startGame(items, pool, { mode = settings.mode } = {}) {
+// `boss`: a single-set round (playSet) ends with a boss round of the set's hardest words.
+export function startGame(items, pool, { mode = settings.mode, boss = false } = {}) {
   // The game replaces whatever page is showing: stop that page's pending async render (and its fade).
   state.navId++;
   fadeNextRender(false);
@@ -123,6 +124,10 @@ export function startGame(items, pool, { mode = settings.mode } = {}) {
     startedAt: Date.now(),
     // survival: items grows as questions are asked; queue holds the words still to come
     hearts: survival ? HEARTS : null,
+    // boss round: offered once the normal questions are done; bossAt = index of its first word
+    boss: boss && mode !== 'match' && !survival && items.length >= BOSS_MIN_ROUND,
+    bossAt: null,
+    bossRight: 0,
     queue: [],
   };
   if (survival) session.items = [];
@@ -262,6 +267,7 @@ function grade(session, item, ok) {
   if (!wasMastered && getProgress(item.key).b >= MASTERED_BOX) session.mastered.set(item.key, item);
   else if (!ok) session.mastered.delete(item.key);
   if (ok) session.correct++;
+  if (ok && inBoss(session)) session.bossRight++;
   else if (!session.wrong.includes(item)) session.wrong.push(item);
   session.combo = ok ? session.combo + 1 : 0;
   session.bestCombo = Math.max(session.bestCombo, session.combo);
@@ -309,6 +315,7 @@ function mixMode(item) {
 }
 
 function modePill(session, mode) {
+  if (inBoss(session)) return h('div', { class: 'mode-pill boss' }, icon('crown', { size: 16 }), state.t.bossPill);
   if (session.mode !== 'mix' && session.mode !== 'survival') return null;
   return h('div', { class: 'mode-pill' }, icon(MODE_ICON[mode], { size: 16 }), state.t.modes[mode][0]);
 }
@@ -333,6 +340,48 @@ function nextSurvivalItem(session) {
   return session.queue.shift();
 }
 
+// ---------- boss round: the set's hardest words, typed, after a single-set round ----------
+
+const BOSS_WORDS = 3;
+const BOSS_MIN_ROUND = 5; // shorter rounds end without a boss
+const BOSS_XP = 50;
+
+const inBoss = (session) => session.bossAt !== null && session.i >= session.bossAt;
+
+// Most missed first (this round's mistakes, then lifetime wrong answers), then the lowest box.
+function bossWords(session) {
+  const score = (it) => {
+    const p = getProgress(it.key);
+    return (session.wrong.includes(it) ? 1000 : 0) + p.w * 10 + (MAX_BOX - p.b);
+  };
+  return [...session.pool].sort((a, b) => score(b) - score(a)).slice(0, BOSS_WORDS);
+}
+
+function bossIntro(session) {
+  const t = state.t;
+  const words = bossWords(session);
+  sfx('combo');
+  const fight = () => {
+    session.bossAt = session.items.length;
+    session.items.push(...words);
+    playNext(session);
+  };
+  render(h('div', { class: 'game boss-intro' },
+    h('div', { class: 'game-top' },
+      h('h1', { class: 'sr-only' }, t.bossTitle),
+      h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: () => showResults(session) }, icon('close'))),
+    h('section', { class: 'boss-card' },
+      h('span', { class: 'boss-crown', 'aria-hidden': 'true' }, icon('crown', { size: 40 })),
+      h('h2', {}, t.bossTitle),
+      h('p', {}, t.bossSub.replace('{n}', words.length).replace('{xp}', BOSS_XP)),
+      h('div', { class: 'actions stack' },
+        h('button', { class: 'btn primary big', type: 'button', onclick: fight }, icon('bolt', { size: 18 }), t.bossFight),
+        h('button', { class: 'btn ghost', type: 'button', onclick: () => showResults(session) }, t.bossSkip)))));
+  onKeys((e) => {
+    if (e.key === 'Enter') fight();
+  });
+}
+
 function playNext(session) {
   if (session.hearts !== null) {
     if (session.hearts <= 0) return showResults(session);
@@ -345,13 +394,16 @@ function playNext(session) {
       playNext(session);
     }, mode);
   }
-  if (session.i >= session.items.length) return showResults(session);
+  if (session.i >= session.items.length) {
+    if (session.boss && session.bossAt === null && bossWords(session).length === BOSS_WORDS) return bossIntro(session);
+    return showResults(session);
+  }
   const item = session.items[session.i];
   const advance = () => {
     session.i++;
     playNext(session);
   };
-  const mode = session.mode === 'mix' ? mixMode(item) : session.mode;
+  const mode = inBoss(session) ? 'type' : session.mode === 'mix' ? mixMode(item) : session.mode;
   const view = { flash: flashView, quiz: choiceView, reverse: choiceView, listen: choiceView, type: typeView, dictate: typeView }[mode];
   view(session, item, advance, mode);
 }
@@ -975,6 +1027,12 @@ function showResults(session) {
   const comboRecord = session.bestCombo >= 2 && saveRecord(lang, 'combo', session.bestCombo) && prevCombo > 0;
   const survivalRecord = survival && session.correct > 0 && saveRecord(lang, 'survival', session.correct) && prevSurvival > 0;
   const starsImproved = roundStars(session);
+  const bossCount = session.bossAt === null ? 0 : session.items.length - session.bossAt;
+  const bossWon = bossCount > 0 && session.bossRight === bossCount;
+  if (bossWon) {
+    noteBoss(lang);
+    addBonusXP(BOSS_XP);
+  }
   const questJustDone = syncQuests(lang);
   const newBadges = badgeList(lang).filter((b) => b.earned && !session.badgesBefore.has(b.id));
   const newMilestones = [...milestones(lang)].filter(([id]) => !session.milestonesBefore.has(id)).map(([, m]) => m);
@@ -999,6 +1057,7 @@ function showResults(session) {
     goal > 0 ? h('span', { class: `chip${today >= goal ? ' up' : ''}` }, icon('target', { size: 14 }), t.goalToday.replace('{n}', today).replace('{goal}', goal)) : null,
     survivalRecord ? h('span', { class: 'chip gold' }, icon('heart', { size: 14 }), t.survivalRecord.replace('{n}', session.correct)) : null,
     survival && !survivalRecord && prevSurvival ? h('span', { class: 'chip' }, icon('trophy', { size: 14 }), `${t.best} ${getRecords(lang).survival}`) : null,
+    bossCount ? h('span', { class: `chip${bossWon ? ' gold' : ''}` }, icon('crown', { size: 14 }), bossWon ? t.bossWon.replace('{xp}', BOSS_XP) : t.bossLost.replace('{n}', session.bossRight).replace('{total}', bossCount)) : null,
     comboRecord ? h('span', { class: 'chip gold' }, icon('bolt', { size: 14 }), t.comboRecord.replace('{n}', session.bestCombo)) : null,
     session.matchRecord ? h('span', { class: 'chip gold' }, icon('trophy', { size: 14 }), `${t.newRecord} ${session.matchRecord.toFixed(1)} ${t.sec}`) : null,
   );
@@ -1020,7 +1079,7 @@ function showResults(session) {
         h('div', { class: 'badge-chips' }, newUnlocks.map((id) =>
           h('a', { class: 'badge-chip', href: '#/settings' }, h('span', { class: 'row-icon indigo' }, icon('palette', { size: 16 })), t.lookNames[id]))))
     : null;
-  const celebrate = goalJustMet || pct === 100 || newBadges.length > 0 || comboRecord || survivalRecord || !!session.matchRecord || questJustDone || levelUp;
+  const celebrate = bossWon || goalJustMet || pct === 100 || newBadges.length > 0 || comboRecord || survivalRecord || !!session.matchRecord || questJustDone || levelUp;
   if (celebrate && !newMilestones.length) sfx('done');
   const masteredBox = mastered.length
     ? h('div', { class: 'mastered-box' },

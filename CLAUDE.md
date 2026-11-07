@@ -62,6 +62,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **Daily new-word limit** (Settings; soft: new words only fill a round that would come up short) and **leeches** (`isLeech`: wrong ≥ 4 and ≥ right; tag, tip after a miss, Home flashcard card)
 - **New word cards** before a round (up to 5 never-seen words; not flashcards/survival; Settings toggle)
 - **First-time tips** (coach marks, once per device in `settings.seenTips`): flashcards, typing, dictation (overlay) and match (inline, timer runs)
+- **Boss round** after a single-set round (playSet, ≥ 5 questions, not match/survival): type the set's 3 hardest words; all right = +50 bonus XP, `records.bosses`
 - **9 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint), dictation (listen and type),
   match (timed, best-time record), survival (3 hearts, harder as the score grows, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
   options at the bottom of the screen on phones
@@ -194,7 +195,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `introNew`, `newPerDay` (0 = no limit), `speechRate`, `textSize`, `seenTips`, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
   `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t,d?}`; `d` = due time, optional, falls back to `t` + box interval), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct, new?]` (new = first answers, drives `newPerDay`),
   `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
-  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`), `evocab.saved.v1` (`{[lang]: [wordKey]}` My words; kept on reset, included in backups), `evocab.lastVersion`.
+  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`, `xp?` = bonus XP (boss wins, speed bonus) added by engage.totalXP; records also `bosses?`), `evocab.saved.v1` (`{[lang]: [wordKey]}` My words; kept on reset, included in backups), `evocab.lastVersion`.
   Badges, XP/level, streak freezes, milestones and unlocks are computed, not stored (only finished quest days are, since sessions are trimmed). A device with neither settings nor progress saved gets the welcome screen.
   Changing a format needs a migration and a major version bump.
 - Distractors must differ from the answer in both term and translation (homonyms like 눈 eye/snow).

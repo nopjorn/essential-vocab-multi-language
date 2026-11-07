@@ -83,7 +83,7 @@ export function playSet(vocab, setId) {
   if (SPEECH_MODES.includes(settings.mode) && !speechSupported) settings.mode = 'quiz';
   saveSettings();
   const items = itemsFor(vocab, [setId]);
-  startGame(pickItems(items, settings.count), items);
+  startGame(pickItems(items, settings.count), items, { boss: true });
 }
 
 // Next set on the learning path: the first unfinished set already started, else the first

@@ -142,3 +142,17 @@ test('langProgress counts one language from storage without its word list', asyn
   assert.deepEqual(store.langProgress('ja'), { mastered: 1, learning: 1, c: 3, w: 1 });
   assert.deepEqual(store.langProgress('zh'), { mastered: 0, learning: 0, c: 0, w: 0 });
 });
+
+test('bonus XP and boss wins add up and survive a backup round trip', async () => {
+  const a = await freshStore();
+  a.store.addBonusXP(50);
+  a.store.addBonusXP(5);
+  a.store.noteBoss('ja');
+  assert.equal(a.store.getStats().xp, 55);
+  assert.equal(a.store.getRecords('ja').bosses, 1);
+  const b = await freshStore();
+  b.store.addBonusXP(10);
+  b.store.importData(JSON.parse(JSON.stringify(a.store.exportData('x'))));
+  assert.equal(b.store.getStats().xp, 55, 'the larger lifetime total wins');
+  assert.equal(b.store.getRecords('ja').bosses, 1);
+});
