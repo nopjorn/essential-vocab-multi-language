@@ -241,7 +241,8 @@ function yearHeatmap(totals) {
   return h('div', { class: 'chart' },
     h('div', { class: 'chart-head' }, h('span', {}, t.yearActive.replace('{n}', active)),
       h('span', { class: 'heat-legend', 'aria-hidden': 'true' }, t.less, [0, 1, 2, 3, 4].map((l) => h('span', { class: `heat l${l}` })), t.more)),
-    h('div', { class: 'heat-scroll' }, grid),
+    // focusable so a keyboard can scroll it sideways too
+    h('div', { class: 'heat-scroll', tabindex: '0', role: 'region', 'aria-label': t.lastYear }, grid),
     caption);
 }
 
