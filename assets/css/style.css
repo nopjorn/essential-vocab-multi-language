@@ -1821,3 +1821,19 @@ input:checked + .switch::after { transform: translateX(20px); }
 .fast-chip { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; padding: 2px 10px; border-radius: 999px; background: var(--gold-soft); color: var(--gold); font-size: 13px; font-weight: 700; animation: pop 0.3s ease; }
 .mode-timed .mode-ic { background: linear-gradient(135deg, #f59e0b, #d9480f); color: #fff; }
 .time-bar .time-fill { background: linear-gradient(90deg, var(--bad), #f59e0b 30%, var(--primary) 60%); background-size: 100vw 100%; }
+
+/* ---------- memory (face-down cards) ---------- */
+.mem-head { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: 14px; }
+.mem-moves { font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.mem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (min-width: 744px) { .mem-grid { grid-template-columns: repeat(4, 1fr); } }
+.mem-card { position: relative; min-height: 92px; padding: 0; border: 0; border-radius: var(--radius); background: none; perspective: 600px; color: var(--text); font: inherit; }
+.mem-back, .mem-front { position: absolute; inset: 0; display: grid; place-items: center; padding: 8px; border-radius: var(--radius); backface-visibility: hidden; transition: transform 0.3s ease; }
+.mem-back { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: #fff; box-shadow: var(--shadow-sm); }
+.mem-front { transform: rotateY(180deg); background: var(--surface); box-shadow: var(--shadow-sm); font-size: calc(17px * var(--ts)); font-weight: 700; text-align: center; overflow-wrap: anywhere; }
+.mem-card.up .mem-back { transform: rotateY(180deg); }
+.mem-card.up .mem-front { transform: rotateY(0); }
+.mem-card.done .mem-front { background: var(--good-soft); color: var(--good); box-shadow: none; }
+.mem-card.shake .mem-front { background: var(--bad-soft); animation: shake 0.35s; }
+.mode-memory .mode-ic { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: #fff; }
+@media (prefers-reduced-motion: reduce) { .mem-back, .mem-front { transition: none; } }

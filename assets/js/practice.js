@@ -14,7 +14,7 @@ import { runPlacement } from './placement.js';
 
 const QUICK_COUNT = 5;
 // mode tiles drawn as a row with a description (mixed: full width; the others here: half)
-const WIDE = ['mix', 'match', 'survival', 'timed'];
+const WIDE = ['mix', 'match', 'memory', 'survival', 'timed'];
 const AWAY_DAYS = 3; // gone this long: Home greets you back with a short review
 const REVIEW_COUNT = 10;
 const DUE_COUNT = 20; // words in one "due for review" round
@@ -319,6 +319,7 @@ export async function renderPractice() {
   );
   modeTiles[0].classList.add('mode-mix');
   modeTiles[MODES.indexOf('match')].classList.add('mode-half');
+  modeTiles[MODES.indexOf('memory')].classList.add('mode-half', 'mode-memory');
   modeTiles[MODES.indexOf('survival')].classList.add('mode-half', 'mode-survival');
   modeTiles[MODES.indexOf('timed')].classList.add('mode-half', 'mode-timed');
 

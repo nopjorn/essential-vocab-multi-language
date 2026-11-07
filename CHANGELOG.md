@@ -15,6 +15,7 @@
 - บอสท้ายชุด: เล่นชุดเดียวจบรอบแล้ว ต้องพิมพ์ 3 คำที่ยากที่สุดของชุดให้ถูกครบ ชนะได้ 50 XP
 - โบนัสความเร็ว ⚡: ตอบถูกภายใน 3 วินาที (ฟังแล้วตอบ 4 วินาที) ได้ +3 XP
 - โหมดใหม่ "จับเวลา 60 วิ": ตอบให้ถูกมากที่สุดใน 1 นาที ผิดเสีย 3 วินาที มีสถิติสูงสุดของแต่ละภาษา
+- โหมดใหม่ "เปิดไพ่จับคู่": การ์ดคว่ำ 12 ใบ เปิดทีละ 2 ใบหาคำกับความหมาย (หน้าหลักจัดปุ่มโหมดใหม่ ครบแถวพอดี)
 
 <details><summary>English</summary>
 
@@ -29,6 +30,7 @@
 - Boss round: finish a single-set round, then type the set's 3 hardest words correctly to win 50 XP
 - Speed bonus ⚡: a right answer within 3 seconds (4 for listening) earns +3 XP
 - New "60-second dash" mode: as many right answers as you can in one minute, a miss costs 3 seconds, with a best score per language
+- New "Memory" mode: 12 face-down cards, turn two at a time to find a word and its meaning (Home's mode tiles rearranged into full rows)
 
 </details>
 

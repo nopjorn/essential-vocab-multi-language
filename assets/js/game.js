@@ -9,7 +9,7 @@ import { dayTotals, streak } from './progress.js';
 import { badgeList, earnedIds } from './badges.js';
 import { totalXP, playerLevel, syncQuests, dailyQuests, milestones, unlockedIds } from './engage.js';
 
-export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'dictate', 'match', 'survival', 'timed'];
+export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'dictate', 'match', 'memory', 'survival', 'timed'];
 // modes that ask words from an endless queue until hearts or time run out (no fixed word list)
 export const ENDLESS = ['survival', 'timed'];
 // modes that need speech synthesis
@@ -130,7 +130,7 @@ export function startGame(items, pool, { mode = settings.mode, boss = false } = 
     // survival: items grows as questions are asked; queue holds the words still to come
     hearts: survival ? HEARTS : null,
     // boss round: offered once the normal questions are done; bossAt = index of its first word
-    boss: boss && mode !== 'match' && !endless && items.length >= BOSS_MIN_ROUND,
+    boss: boss && mode !== 'match' && mode !== 'memory' && !endless && items.length >= BOSS_MIN_ROUND,
     // time attack: when the minute ends (wrong answers move it closer)
     deadline: mode === 'timed' ? Date.now() + TIMED_MS : null,
     bossAt: null,
@@ -140,7 +140,7 @@ export function startGame(items, pool, { mode = settings.mode, boss = false } = 
   };
   if (endless) session.items = [];
   current = session;
-  const begin = () => (session.mode === 'match' ? playMatch(session) : playNext(session));
+  const begin = () => (session.mode === 'match' ? playMatch(session) : session.mode === 'memory' ? playMemory(session) : playNext(session));
   const fresh = newWords(session);
   if (fresh.length) introView(fresh, begin);
   else begin();
@@ -798,6 +798,104 @@ function typeView(session, item, advance, mode) {
   // iOS only opens the keyboard on focus during a user gesture; this still
   // focuses the field on iPad with a hardware keyboard.
   input.focus({ preventScroll: true });
+}
+
+// ---------- memory: face-down cards, turn two at a time to find a word and its meaning ----------
+
+const MEMORY_PAIRS = 6;
+
+function playMemory(session) {
+  const t = state.t;
+  const rounds = [];
+  for (let i = 0; i < session.items.length; i += MEMORY_PAIRS) rounds.push(session.items.slice(i, i + MEMORY_PAIRS));
+  if (rounds.length > 1 && rounds.at(-1).length < 2) rounds.at(-2).push(...rounds.pop());
+  let r = 0;
+  let moves = 0;
+
+  function playRound() {
+    if (r >= rounds.length) {
+      session.i = session.items.length;
+      return showResults(session);
+    }
+    const pairs = rounds[r];
+    const cards = shuffle(pairs.flatMap((item, k) => [{ item, k, term: true }, { item, k, term: false }]));
+    const seen = new Set(); // cards turned over at least once
+    const missed = new Set(); // words whose pair was shown before and still not found
+    let open = [];
+    let left = pairs.length;
+    let lock = false;
+    const movesEl = h('span', { class: 'mem-moves', 'aria-live': 'polite' });
+    const showMoves = () => (movesEl.textContent = t.memMoves.replace('{n}', moves));
+    showMoves();
+
+    const face = (c) => (c.term ? c.item.term : c.item.answer);
+    const els = cards.map((c, idx) => h('button', {
+      class: 'mem-card',
+      type: 'button',
+      'aria-label': t.memHidden.replace('{n}', idx + 1),
+      onclick: () => turn(idx),
+    },
+    h('span', { class: 'mem-back', 'aria-hidden': 'true' }, icon('layers', { size: 26 })),
+    h('span', { class: 'mem-front', lang: c.term ? c.item.lang : null }, face(c))));
+
+    function turn(idx) {
+      const el = els[idx];
+      if (lock || open.includes(idx) || el.classList.contains('done')) return;
+      const before = new Set(seen); // what was known before this card, for judging a miss
+      seen.add(idx);
+      el.classList.add('up');
+      el.setAttribute('aria-label', face(cards[idx]));
+      if (cards[idx].term && settings.autoSpeak) say(cards[idx].item.term);
+      else sfx('tap');
+      open.push(idx);
+      if (open.length < 2) return;
+      const [a, b] = open;
+      open = [];
+      moves++;
+      showMoves();
+      if (cards[a].k === cards[b].k) {
+        const item = cards[a].item;
+        els[a].classList.add('done');
+        els[b].classList.add('done');
+        grade(session, item, !missed.has(item));
+        cheer(session, true);
+        session.i++;
+        if (--left === 0) {
+          lock = true;
+          setTimeout(() => {
+            r++;
+            playRound();
+          }, 700);
+        }
+        return;
+      }
+      // A miss only counts against a word when its partner had already been shown (so it was
+      // not remembered); turning up unknown cards is how the game is played.
+      for (const x of [a, b]) {
+        const partner = cards.findIndex((c, i) => i !== x && c.k === cards[x].k);
+        if (before.has(partner)) missed.add(cards[x].item);
+      }
+      lock = true;
+      sfx('bad');
+      els[a].classList.add('shake');
+      els[b].classList.add('shake');
+      setTimeout(() => {
+        for (const x of [a, b]) {
+          els[x].classList.remove('up', 'shake');
+          els[x].setAttribute('aria-label', t.memHidden.replace('{n}', x + 1));
+        }
+        lock = false;
+      }, 900);
+    }
+
+    render(h('div', { class: 'game game-memory' },
+      topBar(session, `${t.round} ${r + 1}/${rounds.length}`),
+      h('p', { class: 'mem-head' }, t.memHint, movesEl),
+      h('div', { class: `mem-grid n${cards.length}` }, els)));
+    onKeys(null);
+  }
+
+  playRound();
 }
 
 // ---------- matching ----------

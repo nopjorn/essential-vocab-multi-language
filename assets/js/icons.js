@@ -59,7 +59,7 @@ const P = {
 };
 
 // Mode → icon name
-export const MODE_ICON = { mix: 'shuffle', flash: 'flash', quiz: 'quiz', reverse: 'reverse', listen: 'listen', type: 'type', dictate: 'dictate', match: 'match', survival: 'heart', timed: 'clock' };
+export const MODE_ICON = { mix: 'shuffle', flash: 'flash', quiz: 'quiz', reverse: 'reverse', listen: 'listen', type: 'type', dictate: 'dictate', match: 'match', memory: 'layers', survival: 'heart', timed: 'clock' };
 
 const NS = 'http://www.w3.org/2000/svg';
 
