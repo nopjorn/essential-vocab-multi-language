@@ -128,6 +128,7 @@ export function startGame(items, pool, { mode = settings.mode, boss = false } = 
     boss: boss && mode !== 'match' && !survival && items.length >= BOSS_MIN_ROUND,
     bossAt: null,
     bossRight: 0,
+    fast: 0, // right answers within the speed-bonus time
     queue: [],
   };
   if (survival) session.items = [];
@@ -582,8 +583,13 @@ function flashView(session, item, advance) {
 
 // ---------- multiple choice (quiz / reverse / listen) ----------
 
+// Speed bonus: a right pick within this time (listening needs a little longer) earns extra XP.
+const FAST_MS = { quiz: 3000, reverse: 3000, listen: 4000 };
+const FAST_XP = 3;
+
 function choiceView(session, item, advance, mode) {
   const t = state.t;
+  const shownAt = performance.now();
   const options = shuffle([item, ...distractors(item, session.pool)]);
   let answered = false;
 
@@ -609,6 +615,11 @@ function choiceView(session, item, advance, mode) {
     const ok = opt === item;
     grade(session, item, ok);
     cheer(session, ok);
+    const fast = ok && performance.now() - shownAt <= FAST_MS[mode];
+    if (fast) {
+      session.fast++;
+      addBonusXP(FAST_XP);
+    }
     buttons.forEach((b, i) => {
       b.disabled = true;
       if (options[i] === item) b.classList.add('right', ok ? 'pop' : 'reveal-right');
@@ -616,6 +627,7 @@ function choiceView(session, item, advance, mode) {
     });
     fill(feedback,
       verdict(ok, item),
+      fast ? h('span', { class: 'fast-chip', role: 'status' }, icon('bolt', { size: 14 }), t.fastBonus.replace('{xp}', FAST_XP)) : null,
       mode !== 'quiz' || !ok ? h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), h('span', { class: 'eq' }, '='), h('span', {}, item.answer)) : null,
       noteEl(item),
       // a right answer moves on by itself, too fast to read a sentence
@@ -1057,6 +1069,7 @@ function showResults(session) {
     goal > 0 ? h('span', { class: `chip${today >= goal ? ' up' : ''}` }, icon('target', { size: 14 }), t.goalToday.replace('{n}', today).replace('{goal}', goal)) : null,
     survivalRecord ? h('span', { class: 'chip gold' }, icon('heart', { size: 14 }), t.survivalRecord.replace('{n}', session.correct)) : null,
     survival && !survivalRecord && prevSurvival ? h('span', { class: 'chip' }, icon('trophy', { size: 14 }), `${t.best} ${getRecords(lang).survival}`) : null,
+    session.fast ? h('span', { class: 'chip' }, icon('bolt', { size: 14 }), t.fastResult.replace('{n}', session.fast).replace('{xp}', session.fast * FAST_XP)) : null,
     bossCount ? h('span', { class: `chip${bossWon ? ' gold' : ''}` }, icon('crown', { size: 14 }), bossWon ? t.bossWon.replace('{xp}', BOSS_XP) : t.bossLost.replace('{n}', session.bossRight).replace('{total}', bossCount)) : null,
     comboRecord ? h('span', { class: 'chip gold' }, icon('bolt', { size: 14 }), t.comboRecord.replace('{n}', session.bestCombo)) : null,
     session.matchRecord ? h('span', { class: 'chip gold' }, icon('trophy', { size: 14 }), `${t.newRecord} ${session.matchRecord.toFixed(1)} ${t.sec}`) : null,

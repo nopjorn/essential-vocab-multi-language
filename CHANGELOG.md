@@ -13,6 +13,7 @@
 - หน้าความคืบหน้ามีการ์ด "สัปดาห์นี้" เทียบกับสัปดาห์ก่อน และปฏิทินกิจกรรมทั้งปี (ช่องละวัน แตะเพื่อดูตัวเลข)
 - ทางลัดบนไอคอนแอป (Android และ Chrome บนคอมพิวเตอร์): "เล่นด่วน 5 คำ" และ "ทบทวนคำที่ถึงกำหนด"
 - บอสท้ายชุด: เล่นชุดเดียวจบรอบแล้ว ต้องพิมพ์ 3 คำที่ยากที่สุดของชุดให้ถูกครบ ชนะได้ 50 XP
+- โบนัสความเร็ว ⚡: ตอบถูกภายใน 3 วินาที (ฟังแล้วตอบ 4 วินาที) ได้ +3 XP
 
 <details><summary>English</summary>
 
@@ -25,6 +26,7 @@
 - Progress now has a "This week" card compared with last week, and a past-year activity calendar (one square a day, tap for numbers)
 - App icon shortcuts (Android and desktop Chrome): "Quick 5" and "Review due words"
 - Boss round: finish a single-set round, then type the set's 3 hardest words correctly to win 50 XP
+- Speed bonus ⚡: a right answer within 3 seconds (4 for listening) earns +3 XP
 
 </details>
 

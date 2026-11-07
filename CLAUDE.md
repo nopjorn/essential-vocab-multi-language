@@ -62,6 +62,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **Daily new-word limit** (Settings; soft: new words only fill a round that would come up short) and **leeches** (`isLeech`: wrong ≥ 4 and ≥ right; tag, tip after a miss, Home flashcard card)
 - **New word cards** before a round (up to 5 never-seen words; not flashcards/survival; Settings toggle)
 - **First-time tips** (coach marks, once per device in `settings.seenTips`): flashcards, typing, dictation (overlay) and match (inline, timer runs)
+- **Speed bonus** ⚡: a right choice answer within 3 s (listen 4 s) = +3 bonus XP, counted on the results screen
 - **Boss round** after a single-set round (playSet, ≥ 5 questions, not match/survival): type the set's 3 hardest words; all right = +50 bonus XP, `records.bosses`
 - **9 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint), dictation (listen and type),
   match (timed, best-time record), survival (3 hearts, harder as the score grows, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
