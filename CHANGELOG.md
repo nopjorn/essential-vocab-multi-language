@@ -19,6 +19,7 @@
 - โจทย์ประจำวัน: 10 ข้อชุดเดียวกันสำหรับทุกคนในวันนั้น ข้ามระดับ 1–3 นับเฉพาะครั้งแรก และแชร์ผลเป็นช่องสี 🟩🟥 ได้โดยไม่เปิดเผยคำ
 - แข่ง 2 คนบนเครื่องเดียว: แบ่งจอบน/ล่าง (เหมาะกับ iPad วางบนโต๊ะ) ใครแตะคำแปลถูกก่อนได้แต้ม 10 ข้อ
 - ประโยคตัวอย่างเพิ่มอีก 157 ประโยค: ชุดซื้อของและธรรมชาติ (ระดับ 1) ครบ 4 ภาษา รวมเป็น 417 ประโยคใน 5 ชุด
+- ปุ่ม "แจ้งคำผิดในชุดนี้" ท้ายหน้ารายการคำ: เปิดแบบฟอร์มบน GitHub ที่กรอกภาษาและชุดไว้ให้แล้ว
 
 <details><summary>English</summary>
 
@@ -37,6 +38,7 @@
 - Daily challenge: the same 10 questions for everyone each day across levels 1–3; your first try counts and you can share it as 🟩🟥 squares without spoilers
 - Two players on one device: split screen (great with an iPad on the table), first right tap scores, 10 questions
 - 157 more example sentences: the shopping and nature sets (level 1) in all 4 languages, 417 in 5 sets so far
+- "Report a mistake in this set" at the end of a word list opens a GitHub form with the language and set filled in
 
 </details>
 

@@ -18,3 +18,12 @@ export function isIPad() {
 export function isStandalone() {
   return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 }
+
+// Where word mistakes are reported (GitHub issue form .github/ISSUE_TEMPLATE/word-fix.yml).
+export const REPO_URL = 'https://github.com/nopjorn/essential-vocab-multi-language';
+
+// A new issue with the form filled in as far as the app knows (language, set, word).
+export function reportUrl({ lang, set, word = '' }) {
+  const q = new URLSearchParams({ template: 'word-fix.yml', title: `แจ้งคำผิด: ${lang} › ${set}${word ? ` › ${word}` : ''}`, lang, set, word });
+  return `${REPO_URL}/issues/new?${q}`;
+}

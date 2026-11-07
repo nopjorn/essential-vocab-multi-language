@@ -1862,3 +1862,4 @@ input:checked + .switch::after { transform: translateX(20px); }
 .duel-end { align-items: center; text-align: center; }
 .duel-end strong { font-size: 26px; }
 .duel-final { font-size: 44px; font-variant-numeric: tabular-nums; }
+.report-row { display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 16px 0 8px; text-align: center; }

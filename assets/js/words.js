@@ -5,6 +5,7 @@ import { state, h, render, nameOf, loadLang, setUiLang, pageHead, groupTitle, re
 import { playSet } from './practice.js';
 import { itemsFor, startGame, ENDLESS } from './game.js';
 import { icon } from './icons.js';
+import { reportUrl } from './app-info.js';
 
 export const SAVED_ID = 'saved'; // no word set uses this id
 
@@ -115,5 +116,9 @@ export async function renderWords(code, setId) {
             word.example ? h('div', { class: 'rv-example' }, exampleBlock(exampleOf(word), { lang: code })) : null);
         }))
       : h('p', { class: 'empty' }, icon('star', { size: 20 }), t.savedEmpty),
+    // a wrong translation, reading or example: opens a GitHub issue form filled in for this set
+    mine ? null : h('div', { class: 'report-row' },
+      h('a', { class: 'btn ghost', href: reportUrl({ lang: code, set: set.id }), target: '_blank', rel: 'noopener' }, icon('info', { size: 16 }), t.reportWord),
+      h('p', { class: 'group-foot' }, t.reportWordSub)),
   );
 }
