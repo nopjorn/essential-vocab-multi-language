@@ -1,0 +1,36 @@
+name: แจ้งคำผิด / Report a word
+description: คำแปล คำอ่าน เสียง หรือประโยคตัวอย่างไม่ถูกต้อง · A translation, reading, sound or example is wrong
+title: "แจ้งคำผิด: "
+labels: ["คำศัพท์"]
+body:
+  - type: input
+    id: lang
+    attributes:
+      label: ภาษา / Language
+      description: en, ko, ja หรือ zh
+    validations:
+      required: true
+  - type: input
+    id: set
+    attributes:
+      label: ชุดคำศัพท์ / Word set
+    validations:
+      required: true
+  - type: input
+    id: word
+    attributes:
+      label: คำที่ผิด / The word
+      placeholder: เช่น 水 หรือ water
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: ผิดตรงไหน / What is wrong
+      placeholder: เช่น คำแปลไม่ตรง คำอ่านผิด ประโยคตัวอย่างไม่เป็นธรรมชาติ
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: ที่ถูกควรเป็น / Suggested fix

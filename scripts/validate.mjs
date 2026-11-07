@@ -1,7 +1,7 @@
 // Checks vocabulary data, versioning and offline cache list.
 // Run with `node scripts/validate.mjs` (CI runs it before every deploy).
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { path, readJSON, readVersion, renderChangelogMd } from './lib.mjs';
+import { path, readJSON, readVersion, renderChangelogMd, vocabFacts } from './lib.mjs';
 
 const errors = [];
 const warnings = [];
@@ -52,8 +52,12 @@ for (const lang of index.learn) {
         if (!ex.text || !ex.tr?.th) errors.push(`${where(set.id, w.term)}: example needs "text" and "tr.th"`);
         // English is offered as a translation for every language but English itself
         else if (lang.code !== 'en' && !ex.tr.en) errors.push(`${where(set.id, w.term)}: example needs "tr.en"`);
-        // inflected verbs may not contain the dictionary form, so this is only a warning
-        else if (!ex.text.toLowerCase().includes(w.term.toLowerCase())) warnings.push(`${where(set.id, w.term)}: example does not contain the word`);
+        // "form" is the word as written in the sentence (an inflected verb: 덥다 → 더워요); without it the
+        // term itself, minus a note in brackets, must appear
+        else {
+          const word = (ex.form || w.term.replace(/\s*\([^)]*\)/g, '')).toLowerCase();
+          if (!ex.text.toLowerCase().includes(word)) (ex.form ? errors : warnings).push(`${where(set.id, w.term)}: example does not contain ${ex.form ? `its form "${ex.form}"` : 'the word'}`);
+        }
         if (ex.reading && ex.reading === ex.text) warnings.push(`${where(set.id, w.term)}: example reading equals text, omit it`);
       }
       for (const c of [...available]) if (!w.tr?.[c]) available.delete(c);
@@ -118,12 +122,22 @@ const mustCache = [
   'index.html', 'version.js', 'manifest.webmanifest', 'assets/css/style.css',
   ...readdirSync(path('assets/js')).filter((f) => f.endsWith('.js')).map((f) => `assets/js/${f}`),
   'data/languages.json', 'data/changelog.json',
-  ...index.learn.map((l) => `data/${l.file}`),
 ];
+// vocabulary is cached per content hash instead (see sw.js), so its rev must match the file
+for (const l of index.learn) {
+  const facts = vocabFacts(l.file);
+  for (const k of Object.keys(facts)) {
+    if (l[k] !== facts[k]) errors.push(`languages.json: "${k}" of ${l.code} is out of date: run \`node scripts/stamp-vocab.mjs\``);
+  }
+}
 for (const f of mustCache) {
   if (!sw.includes(`'${f}'`)) errors.push(`sw.js: CORE is missing '${f}'`);
 }
 const html = readFileSync(path('index.html'), 'utf8');
+// every module but the entry point is preloaded, so a new module can't slow down start-up unnoticed
+for (const f of readdirSync(path('assets/js')).filter((f) => f.endsWith('.js') && f !== 'app.js')) {
+  if (!html.includes(`<link rel="modulepreload" href="assets/js/${f}">`)) errors.push(`index.html: add <link rel="modulepreload" href="assets/js/${f}">`);
+}
 for (const m of html.matchAll(/(?:href|src)="(assets\/[^"]+)"/g)) {
   if (!existsSync(path(m[1]))) errors.push(`index.html references missing file ${m[1]}`);
 }

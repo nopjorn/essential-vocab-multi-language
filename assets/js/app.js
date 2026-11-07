@@ -1,9 +1,9 @@
 // App shell: routing, bottom tab bar, theme, version and update prompts.
 // Routes: #/ home (practice setup) · #/progress[/<lang>] · #/help[/<section>] · #/settings · #/changelog · #/words/<lang>/<set>
 import { settings, saveSettings, getLastVersion, setLastVersion } from './store.js';
-import { state, h, fill, render, loadIndex, setUiLang, toast } from './core.js';
+import { state, h, fill, render, loadIndex, setUiLang, toast, fadeNextRender } from './core.js';
 import { uiFor } from './i18n.js';
-import { renderPractice, startPractice } from './practice.js';
+import { renderPractice, startPractice, startDue } from './practice.js';
 import { renderProgress } from './progress.js';
 import { renderWords } from './words.js';
 import { renderSettings } from './settings.js';
@@ -37,8 +37,11 @@ function renderTabBar(active) {
   fill(document.getElementById('tabbar'), tabs.slice(0, 2), start, tabs.slice(2));
 }
 
+const QUICK_SHORTCUT = 5;
+
 function route() {
   state.navId++;
+  fadeNextRender();
   onKeys(null);
   document.body.classList.remove('in-game');
   setUiLang();
@@ -60,6 +63,12 @@ function route() {
   if (page === 'settings') return renderSettings();
   if (page === 'changelog') return renderChangelog();
   if (page === 'words') return renderWords(arg, arg2);
+  // Home Screen icon shortcuts (manifest): open Home underneath, so leaving the round lands there
+  if (page === 'start') {
+    history.replaceState(null, '', '#/');
+    renderPractice();
+    return arg === 'due' ? startDue() : startPractice({ count: QUICK_SHORTCUT });
+  }
   return renderPractice();
 }
 

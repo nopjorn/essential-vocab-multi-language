@@ -39,7 +39,7 @@ const VIEWPORTS = [
   { name: 'iPad landscape', viewport: { width: 1180, height: 820 } },
 ];
 const PAGES = ['#/', '#/progress', '#/progress/ja', '#/help', '#/settings', '#/changelog', '#/words/ja/food', '#/words/ja/saved'];
-const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'dictate', 'match', 'survival'];
+const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'dictate', 'match', 'memory', 'survival', 'timed'];
 const SETTINGS = { lang: 'ja', sets: { ja: ['food'] }, introNew: false, autoSpeak: false, sound: false, seenTips: ['flash', 'type', 'dictate', 'match'] };
 
 const failures = [];
@@ -85,6 +85,10 @@ for (const vp of VIEWPORTS) {
             await page.click('.type-form .btn.primary');
           } else if (await page.locator('.flashcard').count()) await page.locator('.round-btn.good').click();
           else if (await page.locator('.tile').count()) await page.locator('.tile').first().click();
+          else if (await page.locator('.mem-card').count()) {
+            await page.locator('.mem-card').nth(0).click();
+            await page.locator('.mem-card').nth(1).click();
+          }
           await page.waitForTimeout(250);
           const next = page.locator('.actions .btn.primary:not(.hidden), .type-form .btn.primary');
           if (await next.count()) await next.first().click().catch(() => {});

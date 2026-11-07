@@ -1,9 +1,9 @@
 {
   "learn": [
-    {"code": "en", "file": "vocab/en.json", "flag": "🇬🇧", "name": {"th": "อังกฤษ", "en": "English"}, "nativeName": "English"},
-    {"code": "ko", "letters": true, "file": "vocab/ko.json", "flag": "🇰🇷", "name": {"th": "เกาหลี", "en": "Korean"}, "nativeName": "한국어"},
-    {"code": "ja", "letters": true, "file": "vocab/ja.json", "flag": "🇯🇵", "name": {"th": "ญี่ปุ่น", "en": "Japanese"}, "nativeName": "日本語"},
-    {"code": "zh", "file": "vocab/zh.json", "flag": "🇨🇳", "name": {"th": "จีน", "en": "Chinese"}, "nativeName": "中文"}
+    {"code": "en", "file": "vocab/en.json", "flag": "🇬🇧", "name": {"th": "อังกฤษ", "en": "English"}, "nativeName": "English", "speech": "en-US", "words": 3291, "rev": "36574dec66"},
+    {"code": "ko", "letters": true, "file": "vocab/ko.json", "flag": "🇰🇷", "name": {"th": "เกาหลี", "en": "Korean"}, "nativeName": "한국어", "speech": "ko-KR", "words": 3283, "rev": "e19a126b08"},
+    {"code": "ja", "letters": true, "file": "vocab/ja.json", "flag": "🇯🇵", "name": {"th": "ญี่ปุ่น", "en": "Japanese"}, "nativeName": "日本語", "speech": "ja-JP", "words": 3399, "rev": "a2d8d65169"},
+    {"code": "zh", "file": "vocab/zh.json", "flag": "🇨🇳", "name": {"th": "จีน", "en": "Chinese"}, "nativeName": "中文", "speech": "zh-CN", "words": 3001, "rev": "c61b91f834"}
   ],
   "translate": [
     {"code": "th", "name": {"th": "ไทย", "en": "Thai"}, "nativeName": "ไทย"},

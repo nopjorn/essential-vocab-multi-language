@@ -37,9 +37,36 @@ export function fill(el, ...nodes) {
   el.replaceChildren(...nodes.flat(Infinity).filter((n) => n != null && n !== false));
 }
 
+// Page changes cross-fade (View Transitions, where supported and motion is welcome). Only the render
+// right after a navigation fades: the swap then runs a frame later, which games can't have, since
+// they focus inputs and add tips right after render(). startGame() cancels a pending fade.
+let fadeNext = false;
+export function fadeNextRender(on = true) {
+  fadeNext = on;
+}
+
+let renderSeq = 0;
+
 export function render(...nodes) {
-  fill(screen, ...nodes);
-  window.scrollTo(0, 0);
+  // A faded swap runs a frame later; if anything rendered since (e.g. a game started), it is stale.
+  const seq = ++renderSeq;
+  const swap = () => {
+    if (seq !== renderSeq) return;
+    fill(screen, ...nodes);
+    window.scrollTo(0, 0);
+  };
+  const fade = fadeNext && document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  fadeNext = false;
+  // resolves once the new page is in the DOM, for code that scrolls to something on it
+  if (fade) {
+    const vt = document.startViewTransition(swap);
+    // a quick next navigation skips this fade; that is fine, not an error
+    vt.ready.catch(() => {});
+    vt.finished.catch(() => {});
+    return vt.updateCallbackDone.catch(() => {});
+  }
+  swap();
+  return Promise.resolve();
 }
 
 export function shuffle(arr) {
@@ -69,7 +96,8 @@ export async function loadIndex() {
 export async function loadLang(code) {
   if (vocabCache.has(code)) return vocabCache.get(code);
   const meta = state.index.learn.find((l) => l.code === code);
-  const data = await fetchJSON(`data/${meta.file}`);
+  // rev = content hash (languages.json): a new rev is a new URL, so caches never serve old words
+  const data = await fetchJSON(`data/${meta.file}${meta.rev ? `?rev=${meta.rev}` : ''}`);
   vocabCache.set(code, data);
   return data;
 }
@@ -79,9 +107,6 @@ export function cachedLang(code) {
   return vocabCache.get(code) || null;
 }
 
-export function loadAllLangs() {
-  return Promise.all(state.index.learn.map((l) => loadLang(l.code)));
-}
 
 export function langMeta(code) {
   return state.index.learn.find((l) => l.code === code);
@@ -111,7 +136,7 @@ export function ensureAudio() {
 }
 
 export function speechTag(code = settings.lang) {
-  return vocabCache.get(code)?.speech || code;
+  return vocabCache.get(code)?.speech || langMeta(code)?.speech || code;
 }
 
 // A lone Hangul letter is read out by name or not at all on many voices, so say it inside a

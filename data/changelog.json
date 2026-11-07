@@ -1,5 +1,47 @@
 [
   {
+    "version": "1.20.0",
+    "date": "2026-11-06",
+    "changes": {
+      "th": [
+        "อัปเดตเร็วขึ้นและเปลืองเน็ตน้อยลง: คำศัพท์เก็บแยกตามเนื้อหาไฟล์ อัปเดตแอปครั้งต่อไปจะดาวน์โหลดใหม่เฉพาะภาษาที่คำศัพท์เปลี่ยน (เดิมโหลดใหม่ทั้งหมดราว 1.6 MB)",
+        "หน้าความคืบหน้ารวมและหน้าตั้งค่าเปิดเร็วขึ้น ไม่ต้องโหลดคำศัพท์ทุกภาษาก่อน",
+        "เปิดแอปเร็วขึ้น: โหลดไฟล์ของแอปพร้อมกันทั้งหมดแทนการโหลดต่อกันทีละชั้น (ราว 0.1–0.2 วินาทีบนเน็ตมือถือ)",
+        "เลื่อนและสลับระดับในรายการชุดคำศัพท์และรายการคำลื่นขึ้นบนเครื่องรุ่นเก่า",
+        "เปลี่ยนหน้าแบบนุ่มนวล: สลับแท็บหรือเปิดหน้าใหม่จะค่อย ๆ จางเข้า (ปิดอัตโนมัติเมื่อเครื่องตั้งค่าลดการเคลื่อนไหว)",
+        "การ์ด \"คำประจำวัน\" ในหน้าหลัก: คำใหม่ทุกวันจากระดับที่เลือก พร้อมคำแปล ประโยคตัวอย่าง เสียง และเก็บเข้าสมุดคำได้",
+        "หน้าความคืบหน้ามีการ์ด \"สัปดาห์นี้\" เทียบกับสัปดาห์ก่อน และปฏิทินกิจกรรมทั้งปี (ช่องละวัน แตะเพื่อดูตัวเลข)",
+        "ทางลัดบนไอคอนแอป (Android และ Chrome บนคอมพิวเตอร์): \"เล่นด่วน 5 คำ\" และ \"ทบทวนคำที่ถึงกำหนด\"",
+        "บอสท้ายชุด: เล่นชุดเดียวจบรอบแล้ว ต้องพิมพ์ 3 คำที่ยากที่สุดของชุดให้ถูกครบ ชนะได้ 50 XP",
+        "โบนัสความเร็ว ⚡: ตอบถูกภายใน 3 วินาที (ฟังแล้วตอบ 4 วินาที) ได้ +3 XP",
+        "โหมดใหม่ \"จับเวลา 60 วิ\": ตอบให้ถูกมากที่สุดใน 1 นาที ผิดเสีย 3 วินาที มีสถิติสูงสุดของแต่ละภาษา",
+        "โหมดใหม่ \"เปิดไพ่จับคู่\": การ์ดคว่ำ 12 ใบ เปิดทีละ 2 ใบหาคำกับความหมาย (หน้าหลักจัดปุ่มโหมดใหม่ ครบแถวพอดี)",
+        "โจทย์ประจำวัน: 10 ข้อชุดเดียวกันสำหรับทุกคนในวันนั้น ข้ามระดับ 1–3 นับเฉพาะครั้งแรก และแชร์ผลเป็นช่องสี 🟩🟥 ได้โดยไม่เปิดเผยคำ",
+        "แข่ง 2 คนบนเครื่องเดียว: แบ่งจอบน/ล่าง (เหมาะกับ iPad วางบนโต๊ะ) ใครแตะคำแปลถูกก่อนได้แต้ม 10 ข้อ",
+        "ประโยคตัวอย่างเพิ่มอีก 157 ประโยค: ชุดซื้อของและธรรมชาติ (ระดับ 1) ครบ 4 ภาษา รวมเป็น 417 ประโยคใน 5 ชุด",
+        "ปุ่ม \"แจ้งคำผิดในชุดนี้\" ท้ายหน้ารายการคำ: เปิดแบบฟอร์มบน GitHub ที่กรอกภาษาและชุดไว้ให้แล้ว"
+      ],
+      "en": [
+        "Faster, lighter updates: vocabulary is cached by content, so an app update only downloads the languages whose words changed (instead of all ~1.6 MB)",
+        "The Progress overview and Settings open faster: they no longer download every language's words first",
+        "Faster start: the app's files now load in parallel instead of one after another (about 0.1–0.2 s on mobile data)",
+        "Smoother scrolling and level switching in the word-set list and word lists on older devices",
+        "Smooth page changes: switching tabs or opening a page cross-fades (off when the device asks for reduced motion)",
+        "\"Word of the day\" card on Home: a new word every day from your level, with meaning, example, sound and ☆ to keep it",
+        "Progress now has a \"This week\" card compared with last week, and a past-year activity calendar (one square a day, tap for numbers)",
+        "App icon shortcuts (Android and desktop Chrome): \"Quick 5\" and \"Review due words\"",
+        "Boss round: finish a single-set round, then type the set's 3 hardest words correctly to win 50 XP",
+        "Speed bonus ⚡: a right answer within 3 seconds (4 for listening) earns +3 XP",
+        "New \"60-second dash\" mode: as many right answers as you can in one minute, a miss costs 3 seconds, with a best score per language",
+        "New \"Memory\" mode: 12 face-down cards, turn two at a time to find a word and its meaning (Home's mode tiles rearranged into full rows)",
+        "Daily challenge: the same 10 questions for everyone each day across levels 1–3; your first try counts and you can share it as 🟩🟥 squares without spoilers",
+        "Two players on one device: split screen (great with an iPad on the table), first right tap scores, 10 questions",
+        "157 more example sentences: the shopping and nature sets (level 1) in all 4 languages, 417 in 5 sets so far",
+        "\"Report a mistake in this set\" at the end of a word list opens a GitHub form with the language and set filled in"
+      ]
+    }
+  },
+  {
     "version": "1.19.0",
     "date": "2026-11-06",
     "changes": {

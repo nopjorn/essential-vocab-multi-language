@@ -1,6 +1,6 @@
 // Placement test: a few "pick the meaning" questions per level (1 → 3) that suggest where to start.
 // It only reads the vocabulary: answers are not recorded as progress.
-import { state, h, render, shuffle, levelOf, levelLabel, termBlock, answerOf, ensureAudio } from './core.js';
+import { state, h, render, fadeNextRender, shuffle, levelOf, levelLabel, termBlock, answerOf, ensureAudio } from './core.js';
 import { icon } from './icons.js';
 import { sfx } from './sound.js';
 import { suggestLevel, PER_LEVEL, STOP } from './rules.js';
@@ -24,6 +24,7 @@ function questions(vocab, level) {
 export function runPlacement(vocab, { hasLetters = false, onDone, onCancel }) {
   const t = state.t;
   state.navId++;
+  fadeNextRender(false);
   document.body.classList.add('in-game');
   ensureAudio();
   const levels = [1, 2, 3].filter((lv) => vocab.sets.some((s) => levelOf(s) === lv));

@@ -17,6 +17,8 @@
     { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
+    { "name": "เล่นด่วน 5 คำ", "short_name": "เล่นด่วน", "url": "./#/start/quick", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "ทบทวนคำที่ถึงกำหนด", "short_name": "ทบทวน", "url": "./#/start/due", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "ความคืบหน้า", "url": "./#/progress", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "คู่มือการเล่น", "url": "./#/help", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] }
   ]

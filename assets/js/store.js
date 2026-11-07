@@ -112,6 +112,21 @@ export function dueAt(p) {
   return p.d ?? p.t + INTERVAL_DAYS[Math.min(MAX_BOX, p.b)] * DAY_MS;
 }
 
+// Totals of one language straight from the progress map, for pages that don't load its words
+// (Progress overview). Words never answered are "fresh": the caller knows the word count.
+export function langProgress(lang) {
+  const out = { mastered: 0, learning: 0, c: 0, w: 0 };
+  const prefix = `${lang}|`;
+  for (const [key, p] of Object.entries(progress)) {
+    if (!key.startsWith(prefix) || !p.t) continue;
+    if (p.b >= MASTERED_BOX) out.mastered++;
+    else out.learning++;
+    out.c += p.c;
+    out.w += p.w;
+  }
+  return out;
+}
+
 export function isDue(p, now = Date.now()) {
   return p.t > 0 && dueAt(p) <= now;
 }
@@ -127,9 +142,11 @@ export function isLeech(p) {
 // days: { 'YYYY-MM-DD': { [lang]: [answers, correct, new?] } } (new = words answered for the first time, added in 1.19)
 // sessions: [{ lang, mode, n, c, s: seconds, t: timestamp, b?: best combo, m?: newly mastered }], newest last
 // records: { [lang]: { match: fastest full match round in seconds, combo: longest answer streak,
-//   survival?: most correct answers in survival, stars?: { [setId]: 1..3 }, perfect?: perfect rounds,
+//   survival?: most correct answers in survival, timed?: most in the 60-second dash (1.20), stars?: { [setId]: 1..3 }, perfect?: perfect rounds,
 //   modes?: [modes played], owl?: played late at night, early?: played early in the morning } }
 // quests: { 'YYYY-MM-DD': [lang, ...] } days on which all three daily quests of a language were done
+// xp?: bonus XP not derivable from answers (boss wins, speed bonuses; added in 1.20)
+// challenge?: { 'YYYY-MM-DD': { [lang]: '1101…' } } first try at the daily challenge, one digit per question (1.20)
 // Fields marked ? were added later and are optional, so older data needs no migration.
 const stats = { days: {}, sessions: [], records: {}, quests: {}, ...load(STATS_KEY, {}) };
 
@@ -216,6 +233,33 @@ export function noteRound(lang, { mode, n, c }, when = new Date()) {
     if (hour >= 22 || hour < 4) r.owl = true;
     if (hour >= 4 && hour < 7) r.early = true;
   }
+  save(STATS_KEY, stats);
+}
+
+// The daily challenge counts once a day: the first finished try is kept, later ones are practice.
+export function getChallenge(lang, day = dayKey()) {
+  return stats.challenge?.[day]?.[lang] ?? null;
+}
+
+export function saveChallenge(lang, marks, day = dayKey()) {
+  const days = (stats.challenge ||= {});
+  const d = (days[day] ||= {});
+  if (d[lang] != null) return false;
+  d[lang] = marks;
+  save(STATS_KEY, stats);
+  return true;
+}
+
+// Extra XP on top of what answers earn (engage.totalXP adds it).
+export function addBonusXP(n) {
+  stats.xp = (stats.xp || 0) + n;
+  save(STATS_KEY, stats);
+}
+
+// A boss round won (all its words typed right): counted per language for the results and badges.
+export function noteBoss(lang) {
+  const r = (stats.records[lang] ||= {});
+  r.bosses = (r.bosses || 0) + 1;
   save(STATS_KEY, stats);
 }
 
@@ -360,6 +404,7 @@ export function importData(data) {
       if (num(r.match) > 0) saveRecord(lang, 'match', r.match);
       if (num(r.combo) > 0) saveRecord(lang, 'combo', r.combo);
       if (num(r.survival) > 0) saveRecord(lang, 'survival', r.survival);
+      if (num(r.timed) > 0) saveRecord(lang, 'timed', r.timed);
       const mine = (stats.records[lang] ||= {});
       if (r.stars && typeof r.stars === 'object') {
         for (const [setId, n] of Object.entries(r.stars)) {
@@ -368,8 +413,20 @@ export function importData(data) {
       }
       if (num(r.perfect) > (mine.perfect || 0)) mine.perfect = Math.floor(r.perfect);
       if (Array.isArray(r.modes)) mine.modes = [...new Set([...(mine.modes || []), ...r.modes.filter((m) => typeof m === 'string')])];
+      if (num(r.bosses) > (mine.bosses || 0)) mine.bosses = Math.floor(r.bosses);
       if (r.owl === true) mine.owl = true;
       if (r.early === true) mine.early = true;
+    }
+  }
+  // bonus XP is a lifetime total per device: keep the larger one rather than adding both
+  if (num(data.stats?.xp) > (stats.xp || 0)) stats.xp = Math.floor(data.stats.xp);
+  const challenge = data.stats?.challenge;
+  if (challenge && typeof challenge === 'object') {
+    for (const [day, langs] of Object.entries(challenge)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !langs || typeof langs !== 'object') continue;
+      for (const [lang, marks] of Object.entries(langs)) {
+        if (typeof marks === 'string' && /^[01]{1,20}$/.test(marks)) saveChallenge(lang, marks, day);
+      }
     }
   }
   const quests = data.stats?.quests;

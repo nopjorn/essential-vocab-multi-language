@@ -48,6 +48,28 @@
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="assets/css/style.css">
+  <!-- every module app.js imports, fetched in parallel instead of one import level at a time (validate.mjs checks the list) -->
+  <link rel="modulepreload" href="assets/js/app-info.js">
+  <link rel="modulepreload" href="assets/js/badges.js">
+  <link rel="modulepreload" href="assets/js/core.js">
+  <link rel="modulepreload" href="assets/js/duel.js">
+  <link rel="modulepreload" href="assets/js/engage.js">
+  <link rel="modulepreload" href="assets/js/game.js">
+  <link rel="modulepreload" href="assets/js/guide.js">
+  <link rel="modulepreload" href="assets/js/i18n.js">
+  <link rel="modulepreload" href="assets/js/icons.js">
+  <link rel="modulepreload" href="assets/js/info.js">
+  <link rel="modulepreload" href="assets/js/placement.js">
+  <link rel="modulepreload" href="assets/js/practice.js">
+  <link rel="modulepreload" href="assets/js/progress.js">
+  <link rel="modulepreload" href="assets/js/rules.js">
+  <link rel="modulepreload" href="assets/js/settings.js">
+  <link rel="modulepreload" href="assets/js/sound.js">
+  <link rel="modulepreload" href="assets/js/speech.js">
+  <link rel="modulepreload" href="assets/js/store.js">
+  <link rel="modulepreload" href="assets/js/theme.js">
+  <link rel="modulepreload" href="assets/js/welcome.js">
+  <link rel="modulepreload" href="assets/js/words.js">
 </head>
 <body>
   <main id="screen" class="screen">

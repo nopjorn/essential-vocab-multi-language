@@ -133,3 +133,38 @@ test('saveRecord keeps the best: lower match time, higher combo', async () => {
   assert.equal(store.saveRecord('en', 'combo', 5), true);
   assert.equal(store.saveRecord('en', 'combo', 4), false);
 });
+
+test('langProgress counts one language from storage without its word list', async () => {
+  const { store } = await freshStore();
+  for (let i = 0; i < 3; i++) store.record(KEY, true);
+  store.record('ja|food|肉', false);
+  store.record('ko|food|물', true);
+  assert.deepEqual(store.langProgress('ja'), { mastered: 1, learning: 1, c: 3, w: 1 });
+  assert.deepEqual(store.langProgress('zh'), { mastered: 0, learning: 0, c: 0, w: 0 });
+});
+
+test('bonus XP and boss wins add up and survive a backup round trip', async () => {
+  const a = await freshStore();
+  a.store.addBonusXP(50);
+  a.store.addBonusXP(5);
+  a.store.noteBoss('ja');
+  assert.equal(a.store.getStats().xp, 55);
+  assert.equal(a.store.getRecords('ja').bosses, 1);
+  const b = await freshStore();
+  b.store.addBonusXP(10);
+  b.store.importData(JSON.parse(JSON.stringify(a.store.exportData('x'))));
+  assert.equal(b.store.getStats().xp, 55, 'the larger lifetime total wins');
+  assert.equal(b.store.getRecords('ja').bosses, 1);
+});
+
+test('daily challenge keeps only the first try of a day, per language, and imports', async () => {
+  const a = await freshStore();
+  assert.equal(a.store.getChallenge('ja', '2026-11-07'), null);
+  assert.equal(a.store.saveChallenge('ja', '1101', '2026-11-07'), true);
+  assert.equal(a.store.saveChallenge('ja', '1111', '2026-11-07'), false, 'a replay does not count');
+  assert.equal(a.store.getChallenge('ja', '2026-11-07'), '1101');
+  const b = await freshStore();
+  b.store.importData({ ...JSON.parse(JSON.stringify(a.store.exportData('x'))), stats: { ...a.store.exportData('x').stats, challenge: { '2026-11-07': { ja: '1101', ko: 'bad!' } } } });
+  assert.equal(b.store.getChallenge('ja', '2026-11-07'), '1101');
+  assert.equal(b.store.getChallenge('ko', '2026-11-07'), null, 'malformed marks are ignored');
+});

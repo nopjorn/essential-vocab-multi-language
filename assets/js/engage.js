@@ -92,7 +92,7 @@ export function totalXP() {
     }
     if (played) xp += 30;
   }
-  return xp + questDays() * QUEST_BONUS;
+  return xp + questDays() * QUEST_BONUS + (s.xp || 0);
 }
 
 // Level n starts at 50·n·(n−1) XP: 100 XP for level 2, then each level needs 100 more.
@@ -198,4 +198,30 @@ export function daysAway(lang) {
   const [y, m, d] = last.split('-').map(Number);
   const now = new Date();
   return Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(y, m - 1, d)) / 86400000);
+}
+
+// Word of the day for Home: the same word all day for a language, from the level being shown
+// (letters fall back to level 1). Words with an example sentence come first, since the card shows it.
+export function wordOfDay(vocab, level, day = dayKey()) {
+  const lv = level || 1;
+  const words = vocab.sets.filter((s) => (s.level ?? 1) === lv).flatMap((set) => set.words.map((word) => ({ set, word })));
+  if (!words.length) return null;
+  const rich = words.filter((x) => x.word.example);
+  const pool = rich.length ? rich : words;
+  return pool[Math.floor(seeded(`${day}|${vocab.code}|word`)() * pool.length)];
+}
+
+// Daily challenge: the same 10 words for everyone on a day and language (seeded, no randomness from
+// the device), spread over the levels (4 · 3 · 3) so it tests more than the basics.
+export const CHALLENGE_PLAN = [[1, 4], [2, 3], [3, 3]];
+export function challengeWords(vocab, day = dayKey()) {
+  const rnd = seeded(`${day}|${vocab.code}|challenge`);
+  const out = [];
+  for (const [lv, n] of CHALLENGE_PLAN) {
+    const words = vocab.sets.filter((s) => (s.level ?? 1) === lv).flatMap((set) => set.words.map((word) => ({ set, word })));
+    const taken = new Set();
+    while (taken.size < Math.min(n, words.length)) taken.add(Math.floor(rnd() * words.length));
+    out.push(...[...taken].map((i) => words[i]));
+  }
+  return out;
 }

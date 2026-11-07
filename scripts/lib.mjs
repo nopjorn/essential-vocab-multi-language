@@ -1,5 +1,6 @@
 // Helpers shared by the maintenance scripts.
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -30,4 +31,17 @@ export function renderChangelogMd(log) {
     out.push('', '</details>', '');
   }
   return out.join('\n');
+}
+
+// Short content hash of a vocabulary file. languages.json stores it as "rev", the app loads
+// data/<file>?rev=<rev>, and the service worker keeps vocabulary per rev, so a deploy only makes
+// people download the languages whose words actually changed.
+export function vocabRev(file) {
+  return createHash('sha256').update(readFileSync(path('data', file))).digest('hex').slice(0, 10);
+}
+
+// What languages.json repeats from a vocabulary file (see stamp-vocab.mjs).
+export function vocabFacts(file) {
+  const vocab = readJSON('data', file);
+  return { speech: vocab.speech, words: vocab.sets.reduce((n, s) => n + s.words.length, 0), rev: vocabRev(file) };
 }

@@ -1,6 +1,6 @@
 // Settings tab: learning options, display, learning data and about (iOS-style grouped list).
 import { settings, saveSettings, resetLanguage, exportData, importData, dayKey, BACKUP_FORMAT } from './store.js';
-import { state, h, render, nameOf, pageHead, groupTitle, setUiLang, loadLang, speechTag, toast, say, ensureAudio } from './core.js';
+import { state, h, render, nameOf, pageHead, groupTitle, setUiLang, speechTag, toast, say, ensureAudio } from './core.js';
 import { speechSupported, hasVoice } from './speech.js';
 import { themeControl, applyTheme } from './theme.js';
 import { playerLevel, LOOKS, isUnlocked, unlockNeed } from './engage.js';
@@ -143,7 +143,6 @@ function lookPicker(key, t) {
 export async function renderSettings() {
   setUiLang();
   const t = state.t;
-  const nav = state.navId;
 
   const targetSelect = h('select', {
     id: 'target',
@@ -220,23 +219,13 @@ export async function renderSettings() {
         }),
         h('span', {}, t.rateNames[r]))));
 
-  // Voice availability for each language (needs its speech tag, so load the vocab files).
+  // Voice availability for each language (speech tags come from languages.json, no vocab download).
   let voiceNote = null;
   if (!speechSupported) voiceNote = t.noSpeech;
   else {
-    try {
-      const missing = [];
-      for (const l of state.index.learn) {
-        await loadLang(l.code);
-        if (!hasVoice(speechTag(l.code))) missing.push(nameOf(l.name));
-      }
-      if (missing.length) voiceNote = t.noVoice.replace('{lang}', missing.join(', '));
-    } catch {
-      /* offline and not cached: skip the note */
-    }
+    const missing = state.index.learn.filter((l) => !hasVoice(speechTag(l.code))).map((l) => nameOf(l.name));
+    if (missing.length) voiceNote = t.noVoice.replace('{lang}', missing.join(', '));
   }
-
-  if (nav !== state.navId) return;
 
   const resetRows = state.index.learn.map((l) =>
     h('button', {

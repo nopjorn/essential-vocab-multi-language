@@ -12,7 +12,7 @@ Safari or as a Home Screen app.
   Chinese 🇨🇳 (simplified + pinyin, 88 sets, 3,001; same topic plan plus zh-only `trip_phrases` (L1), `theme_park`, `shanghai` (L2)),
   each in 3 levels (≈1,000 words per level)
 - Translate into: Thai (all languages); English (Korean, Japanese and Chinese)
-- 9 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, dictate (listen + type), match, survival (3 hearts); Leitner boxes 0–5 (box ≥ 3 = mastered) with due dates (`d`: 1/3/7/14/30 days by box; Home "due for review" card)
+- 11 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, dictate (listen + type), match, memory (face-down cards), survival (3 hearts), timed (60 s); Leitner boxes 0–5 (box ≥ 3 = mastered) with due dates (`d`: 1/3/7/14/30 days by box; Home "due for review" card)
 - Game feel: combo counter, Web Audio sound effects (Settings toggle, unlockable sound packs), pop/shake feedback, match timer with best time, badges,
   stars per set, daily quests, XP/player level, streak freezes, milestones, unlockable looks (accent colour, flashcard pattern)
 - Native-app style UI: bottom tab bar (Home · Progress · **Start** · Guide · Settings; Start is a raised round
@@ -32,7 +32,8 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 3. **Guide**: update `assets/js/guide.js` (Thai **and** English, same section ids) when gameplay,
    settings or install steps change.
 4. **This file**: update the sections below when structure, conventions or counts change.
-5. **Cache list**: a new file the app loads → add it to `CORE` in `sw.js`.
+5. **Cache list**: a new file the app loads → add it to `CORE` in `sw.js`. Changed a `data/vocab/*.json`? Run
+   `node scripts/stamp-vocab.mjs` (updates its content hash `rev` in `languages.json`; validate.mjs fails otherwise).
 6. Run `node scripts/validate.mjs` (must print `OK`) and test in a browser (see Testing).
 7. **Commit messages and pull requests are written in Thai** (title and body). Code identifiers,
    file names and commands stay as they are, e.g. `v1.2.0: เพิ่มภาษาจีน และแก้บั๊กโหมดจับคู่`.
@@ -50,39 +51,49 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **Placement test** (Home "Find my level" under the level bar, welcome): 6 pick-the-meaning questions per level, stops early, suggests a level (letters when level 1 is mostly missed); not recorded
 - **Home**: language switch, "We missed you" card after ≥ 3 days away (review of known words), Today card (daily-goal ring, streak
   or "play today to keep your streak", level chip, streak freezes, Mon–Sun week strip, Continue / Quick 5, mastered + accuracy footer),
-  3 daily quests,
+  3 daily quests, Daily challenge (same 10 seeded questions per day + language, 4·3·3 over levels, first try kept in
+  `stats.challenge`, spoiler-free share text), Word of the day (seeded per day + language from the shown level, words with examples first),
   "Up next" recommended set (plays it alone), mode tiles (Mixed is the wide suggested tile), search for sets and the
   words inside them, level switch, multi-select word sets (fully mastered sets get a gold crown; best 1–3 stars per set)
-- **Example sentences** for some words (level 1 food/places/home so far), with translation and speaker
+- **Example sentences** for some words (level 1 food/places/home/shopping/nature so far, 417 sentences), with translation and speaker
 - **My words**: star (☆) words in word lists and games; a row above the sets opens `#/words/<lang>/saved` and plays them
 - **Word list of a set** (list icon on a set row): every word with reading, translation, note, example sentence and speaker;
+  "Report a mistake in this set" opens the GitHub issue form `.github/ISSUE_TEMPLATE/word-fix.yml` prefilled (app-info.reportUrl);
   tap the circle to mark a word as already known (mastered, undoable; not counted as an answer), or the whole set at once;
   "Practice this set" plays only that set
 - **Daily new-word limit** (Settings; soft: new words only fill a round that would come up short) and **leeches** (`isLeech`: wrong ≥ 4 and ≥ right; tag, tip after a miss, Home flashcard card)
 - **New word cards** before a round (up to 5 never-seen words; not flashcards/survival; Settings toggle)
 - **First-time tips** (coach marks, once per device in `settings.seenTips`): flashcards, typing, dictation (overlay) and match (inline, timer runs)
-- **9 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint), dictation (listen and type),
-  match (timed, best-time record), survival (3 hearts, harder as the score grows, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
+- **Speed bonus** ⚡: a right choice answer within 3 s (listen 4 s) = +3 bonus XP, counted on the results screen
+- **Two players** (duel.js; Home link under the modes): split screen, top half rotated, 10 questions from the chosen sets, first right tap scores; nothing recorded
+- **Boss round** after a single-set round (playSet, ≥ 5 questions, not match/survival): type the set's 3 hardest words; all right = +50 bonus XP, `records.bosses`
+- **11 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint), dictation (listen and type),
+  match (timed, best-time record), memory (12 face-down cards per round; a miss counts only when the pair was already seen), survival (3 hearts, harder as the score grows, best score), 60-second dash (`timed`: choice questions, a miss costs 3 s, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
   options at the bottom of the screen on phones
 - **Results screen**: animated ring, stars, newly mastered words, comparison with the last game, goal progress, best combo,
   new records, XP bar + level up, daily quests, newly earned badges and unlocks, set stars, full-screen milestone celebration
-- **Progress**: overview (player level card, best streak, quest days) and per-language detail (tiles, 23 badges, per-level set bars, 14-day chart, weak words with one-tap practice, history)
+- **Progress**: overview (player level card, best streak, quest days) and per-language detail (tiles, 23 badges, per-level set bars, 14-day chart, weak words with one-tap practice, history); both have
+  this week vs the same days of last week and a year heatmap (53 weeks, colour by answers vs the daily goal)
 - **Settings**: translation/app language, questions per round, daily goal, new words per day, reading, auto speak, speech speed (slow/normal/fast; a second tap on a speaker within 4 s plays it extra slowly), new-word cards, sound effects, theme, text size (normal/large/xlarge: `data-text` on `<html>` scales words, answers and options via `--ts`), Collection (player level, accent colour, flashcard pattern, sound pack; locked ones show what unlocks them), export/import progress backup (.json, merged on import; Home reminds after 14 days without one), per-language reset (offers a backup first), check for updates, what's new
 - **PWA**: installable on iPhone/iPad, works offline, update toast, in-app guide
 
 ## Layout
 
 ```
-index.html              shell: iOS meta, icons, launch screens, early theme script, loads version.js + app.js
+index.html              shell: iOS meta, icons, launch screens, early theme script, modulepreload of every module (validator
+                        checks a new module is listed), loads version.js + app.js
 TODO.md                 idea backlog grouped by type of work (docs only: not deployed, no version bump)
 version.js              APP_VERSION (semver) + APP_BUILD ('dev'; CI stamps "<run>.<sha>")
-sw.js                   offline cache (cache-first); cache name = version + build; CORE file list
-manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts)
+sw.js                   offline cache (cache-first); shell cache name = version + build; CORE file list; vocabulary in a separate
+                        `evocab-vocab` cache keyed by `?rev=` that survives deploys (only changed languages are downloaded)
+manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts: Quick 5 `#/start/quick`, Review due `#/start/due`, Progress, Guide;
+                        not on iOS). `#/start/*` opens Home, rewrites the hash to `#/` and starts the round
 assets/css/style.css    all styles; tokens on :root, dark tokens for data-theme / prefers-color-scheme
 assets/js/
   app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog, #/words/<lang>/<set>, #/words/<lang>/saved), tab bar + Start button,
                 update toasts, SW; leaving a game re-routes to the page it was started from; first run shows welcome.js
-  core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render, loaders, pageHead/groupTitle,
+  core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render (a faded swap is dropped if a newer render
+                came first), loaders, pageHead/groupTitle,
                 speaker/term widgets, toast
   practice.js   Home tab: language switch, Today card (daily-goal ring, streak, Continue / Quick 5, progress footer),
                 Up next card, mode tiles, set search + list + selection summary;
@@ -90,7 +101,7 @@ assets/js/
                 playSet() (one set on its own; Up next card and word list)
   settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, sound effects, theme,
                 daily goal, progress export/import, per-language reset, about (version, what's new, guide, install)
-  game.js       item building, weighted picking, distractors, all 9 modes (survival: endless queue, hearts, harder by score) (mix picks quiz/reverse/listen, type once box ≥ 2, dictate once box ≥ 3; SPEECH_MODES need speech; the all-modes badge stays at 8),
+  game.js       item building, weighted picking, distractors, all 11 modes (ENDLESS = survival + timed: endless queue, no word list) (survival: endless queue, hearts, harder by score) (mix picks quiz/reverse/listen, type once box ≥ 2, dictate once box ≥ 3; SPEECH_MODES need speech; the all-modes badge stays at 8),
                 combo + bursts, flashcard undo (store.undoRecord), type hint, match timer/record, results screen
                 (animated ring, stars, newly mastered words, vs last game, goal progress, best combo, records, XP bar, quests,
                 new badges/unlocks/set stars, confetti, milestone overlay); startGame(items, pool, { mode }) can override the mode
@@ -98,8 +109,9 @@ assets/js/
   badges.js     badges per language computed from progress/stats/records (streak, words, sets, levels, combo, perfect, survival,
                 modes, owl/early, polyglot); badgeList(), earnedIds()
   engage.js     daily quests (seeded per day+language; stats.quests marks finished days), XP + player level, milestones,
-                unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card
+                unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card, wordOfDay()
   rules.js      pure rules with no DOM/storage (unit-tested): normalize/acceptedAnswers for typing, suggestLevel for placement
+  duel.js       two players on one device: startDuel(items, pool) (uses game.js distractors/exitGame/confetti)
   placement.js  placement test runPlacement(vocab, {hasLetters, onDone, onCancel}), suggestLevel(scores)
   welcome.js    first-run welcome (language, level, daily goal); shown while store.firstRun and not finished
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
@@ -113,20 +125,24 @@ assets/js/
                 writes are batched (flush() on hidden/pagehide, ~0.5 s otherwise); record() returns an undo token for undoRecord(); exportData()/importData() backup (merge)
   theme.js      applyTheme() (theme + data-accent + data-card + data-text), theme segmented control (used in Settings)
   speech.js     Web Speech API wrapper (iOS needs a user tap before first speech); speak(text, tag, rate), rates in core.js SPEECH_RATES
-  app-info.js   APP_VERSION/APP_BUILD, versionLabel(), isIOS/isStandalone
+  app-info.js   APP_VERSION/APP_BUILD, versionLabel(), isIOS/isStandalone, REPO_URL + reportUrl() for word reports
 assets/icons/           app icons + splash screens (generated by scripts/make-icons.py)
-data/languages.json     learn[] (code, file, flag, names) and translate[] languages
+data/languages.json     learn[] (code, file, flag, names; speech, words, rev = copied/hashed from the vocab file by stamp-vocab.mjs)
+                        and translate[] languages. Progress overview and Settings read these instead of loading every language
 data/vocab/<code>.json  vocabulary (CC0)
 data/changelog.json     version log, newest first: {version, date, changes: {th[], en[]}}
 data/LICENSE            CC0 dedication for vocabulary
 scripts/
   validate.mjs      data (incl. examples) + version/changelog + guide + i18n th/en keys and {placeholders} + sw CORE + index.html asset checks
+  minify-site.mjs   minify the JSON of the built site (pages.yml, before upload; ≈13% smaller)
+  stamp-vocab.mjs   write each vocab file's speech tag, word count and content hash into languages.json
   bump-version.mjs  bump version.js, add changelog entry, regenerate CHANGELOG.md (--sync)
   lib.mjs           helpers shared by the scripts
   make-icons.py     regenerate icons/splashes (Pillow; Inter + WenQuanYi Zen Hei fonts)
 tests/
   unit/*.test.mjs   node --test, no dependencies: store.js on an in-memory localStorage (setup.mjs) and rules.js
   smoke.mjs         Playwright: every tab and mode × light/dark on 3 screen sizes; fails on page errors or overflow
+.github/ISSUE_TEMPLATE/word-fix.yml  issue form for word mistakes (fields lang, set, word, problem, fix; prefilled from the app)
 .github/workflows/  ci.yml (PR checks: validate, version-bump guard, unit tests; smoke job), pages.yml (validate, stamp build, deploy main)
 ```
 
@@ -143,9 +159,10 @@ tests/
 - `level` on every set: 0 = letters (see below), 1 = beginner (≈A1), 2 = everyday (≈A2), 3 = intermediate (≈B1). Home shows one level at a
   time (segmented control, remembered per language in `settings.level`); Progress groups sets by level
 - `term` required; `reading` (kana, only when it differs from `term`), `roman`, `note` and `example` are optional
-- `example` = `{text, reading?, roman?, tr: {th, en}}`: one short sentence that uses the word (`reading` kana for Japanese,
+- `example` = `{text, reading?, roman?, form?, tr: {th, en}}`: one short sentence that uses the word (`reading` kana for Japanese,
   `roman` pinyin for Chinese; `tr.en` required except in English). Shown in the word list, on the flashcard back, after typing and after
-  a wrong answer. So far: level 1 `food`, `places`, `home` in all four languages. The validator warns when `text` lacks the term
+  a wrong answer. So far: level 1 `food`, `places`, `home`, `shopping`, `nature` in all four languages. `form` = the word as it appears when
+  inflected (덥다 → 더워요, 買う → 買い): the validator requires it in `text`; without `form` it warns when `text` lacks the term
 - `tr.th` is required; a translation language is offered only if **every** word has it
 - Within a set: unique `term`s, at least 4 words, avoid duplicate translations (validator warns)
 - Across a language a term appears once; a homonym in a second set needs a different meaning **and** a `note`
@@ -176,13 +193,16 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
   flags and word-set icons. Keep the look formal but friendly: indigo primary, neutral surfaces.
 - Games add `body.in-game` (hides the tab bar); `route()` removes it. `startGame()` bumps `state.navId` so a
   pending async page render can't draw over the game.
+- Page changes cross-fade: `route()` calls `fadeNextRender()`, so the next `render()` swaps inside a View Transition
+  (a frame later). Code that needs the new page in the DOM awaits `render()`'s promise; games and placement call
+  `fadeNextRender(false)` because they focus inputs and add tips right after rendering.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`, same keys and `{placeholders}`: validate.mjs checks); pages read it through `state.t`.
 - Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `introNew`, `newPerDay` (0 = no limit), `speechRate`, `textSize`, `seenTips`, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
   `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t,d?}`; `d` = due time, optional, falls back to `t` + box interval), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct, new?]` (new = first answers, drives `newPerDay`),
-  `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
-  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`), `evocab.saved.v1` (`{[lang]: [wordKey]}` My words; kept on reset, included in backups), `evocab.lastVersion`.
+  `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?, timed?,
+  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`, `challenge?[YYYY-MM-DD][lang] = '1101…'` first daily-challenge try, `xp?` = bonus XP (boss wins, speed bonus) added by engage.totalXP; records also `bosses?`), `evocab.saved.v1` (`{[lang]: [wordKey]}` My words; kept on reset, included in backups), `evocab.lastVersion`.
   Badges, XP/level, streak freezes, milestones and unlocks are computed, not stored (only finished quest days are, since sessions are trimmed). A device with neither settings nor progress saved gets the welcome screen.
   Changing a format needs a migration and a major version bump.
 - Distractors must differ from the answer in both term and translation (homonyms like 눈 eye/snow).
@@ -218,6 +238,6 @@ decides, a short drag snaps back, a tap flips.
 
 ## Deploy
 
-Push/merge to `main` → `pages.yml` validates, stamps `APP_BUILD`, deploys to GitHub Pages
+Push/merge to `main` → `pages.yml` validates, copies the site, minifies its JSON, stamps `APP_BUILD`, deploys to GitHub Pages
 (Settings › Pages › Source = GitHub Actions). The service worker sees the new version.js, re-caches,
 and the app shows "new version ready"; after reload it shows "updated to vX".

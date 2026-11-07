@@ -1,20 +1,21 @@
 // Home tab: language switch, progress summary, game mode and word sets, plus
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
-import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, isLeech, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
+import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, isLeech, getChallenge, MASTERED_BOX } from './store.js';
+import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast, termBlock, speakerBtn, saveBtn, exampleOf, exampleBlock, answerOf } from './core.js';
 import { speechSupported } from './speech.js';
-import { MODES, SPEECH_MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
+import { MODES, SPEECH_MODES, itemsFor, pickItems, startGame, starRow, challengeBox } from './game.js';
 import { langSummary, dayTotals, streakInfo, FREEZE_MAX } from './progress.js';
-import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway } from './engage.js';
+import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway, wordOfDay, challengeWords } from './engage.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
 import { savedEntries, playSaved, SAVED_ID } from './words.js';
 import { runPlacement } from './placement.js';
+import { startDuel } from './duel.js';
 
 const QUICK_COUNT = 5;
-// mode tiles drawn as a row with a description (mixed: full width; match and survival: half)
-const WIDE = ['mix', 'match', 'survival'];
+// mode tiles drawn as a row with a description (mixed: full width; the others here: half)
+const WIDE = ['mix', 'match', 'memory', 'survival', 'timed'];
 const AWAY_DAYS = 3; // gone this long: Home greets you back with a short review
 const REVIEW_COUNT = 10;
 const DUE_COUNT = 20; // words in one "due for review" round
@@ -52,6 +53,30 @@ export async function startPractice({ count = settings.count } = {}) {
   startGame(pickItems(items, count), items);
 }
 
+// Words of a language due for review, most overdue first (Home card and the "Review" app shortcut).
+function dueWords(vocab) {
+  const all = itemsFor(vocab, vocab.sets.map((x) => x.id));
+  const due = all.filter((it) => isDue(getProgress(it.key))).sort((a, b) => dueAt(getProgress(a.key)) - dueAt(getProgress(b.key)));
+  return { all, due };
+}
+
+// The Home Screen icon's "Review due words" shortcut: a due round, or Home with a note when none are due.
+export async function startDue() {
+  const t = state.t;
+  ensureAudio();
+  const nav = state.navId;
+  let vocab;
+  try {
+    vocab = await loadLang(settings.lang);
+  } catch {
+    return toast(t.loadError);
+  }
+  if (nav !== state.navId) return;
+  const { all, due } = dueWords(vocab);
+  if (due.length < DUE_MIN) return toast(t.noneDue);
+  startGame(shuffle(due.slice(0, DUE_COUNT)), all, { mode: 'mix' });
+}
+
 // Plays one set on its own without changing the selection (recommended card, word list).
 export function playSet(vocab, setId) {
   ensureAudio(); // iOS only allows speech after a tap
@@ -59,7 +84,7 @@ export function playSet(vocab, setId) {
   if (SPEECH_MODES.includes(settings.mode) && !speechSupported) settings.mode = 'quiz';
   saveSettings();
   const items = itemsFor(vocab, [setId]);
-  startGame(pickItems(items, settings.count), items);
+  startGame(pickItems(items, settings.count), items, { boss: true });
 }
 
 // Next set on the learning path: the first unfinished set already started, else the first
@@ -210,8 +235,7 @@ export async function renderPractice() {
   }
 
   // ---- words due for review (Leitner intervals): a one-tap review round ----
-  const allItems = itemsFor(vocab, vocab.sets.map((x) => x.id));
-  const dueItems = allItems.filter((it) => isDue(getProgress(it.key))).sort((a, b) => dueAt(getProgress(a.key)) - dueAt(getProgress(b.key)));
+  const { all: allItems, due: dueItems } = dueWords(vocab);
   const dueBySet = new Map();
   for (const it of dueItems) dueBySet.set(it.setId, (dueBySet.get(it.setId) || 0) + 1);
   const dueCard = dueItems.length >= DUE_MIN && !awayCard
@@ -236,6 +260,37 @@ export async function renderPractice() {
           icon('flash', { size: 16 }), t.leechBtn))
     : null;
 
+  // ---- daily challenge: the same 10 questions for everyone today ----
+  const playChallenge = () => {
+    ensureAudio();
+    const byKey = new Map(allItems.map((it) => [it.key, it]));
+    const items = challengeWords(vocab).map(({ set, word }) => byKey.get(wordKey(code, set.id, word.term))).filter(Boolean);
+    startGame(items, allItems, { mode: 'quiz', daily: true });
+  };
+  const challengeDone = getChallenge(code) !== null;
+  const challengeCard = h('section', { class: `away-card challenge-card${challengeDone ? ' done' : ''}` },
+    h('span', { class: 'away-ic', 'aria-hidden': 'true' }, icon('target', { size: 22 })),
+    h('span', { class: 'row-text' },
+      h('strong', {}, t.challengeTitle),
+      h('span', { class: 'row-sub' }, challengeDone ? t.challengeAgainSub : t.challengeSub)),
+    challengeDone ? challengeBox(code) : null,
+    h('button', { class: `btn${challengeDone ? '' : ' primary'}`, type: 'button', onclick: playChallenge },
+      icon(challengeDone ? 'repeat' : 'play', { size: 16, fill: !challengeDone }), challengeDone ? t.challengeAgain : t.challengeStart));
+
+  // ---- word of the day: something to look at and hear the moment Home opens ----
+  const wod = wordOfDay(vocab, settings.level[code]);
+  const wodCard = wod
+    ? h('section', { class: 'wod-card' },
+        h('div', { class: 'wod-head' },
+          h('span', { class: 'next-label' }, icon('sparkles', { size: 14 }), t.wordOfDay),
+          h('a', { class: 'wod-set', href: `#/words/${code}/${wod.set.id}` }, `${wod.set.icon} ${nameOf(wod.set.name)}`)),
+        h('div', { class: 'wod-main' },
+          termBlock({ term: wod.word.term, reading: wod.word.reading || '', roman: wod.word.roman || '' }, { size: 'md', reading: true, lang: code }),
+          h('span', { class: 'wod-actions' }, saveBtn(wordKey(code, wod.set.id, wod.word.term)), speakerBtn(wod.word.term, { lang: code }))),
+        h('p', { class: 'wod-answer' }, answerOf(wod.word)),
+        exampleBlock(exampleOf(wod.word), { lang: code }))
+    : null;
+
   // ---- what Start will play (the button itself is in the tab bar) ----
   const setsFoot = h('p', { class: 'group-foot sets-foot' });
   const refreshFoot = () => {
@@ -248,6 +303,12 @@ export async function renderPractice() {
 
   // ---- game modes ----
   const modeDesc = h('p', { class: 'mode-desc-line' }, t.modes[settings.mode][1]);
+  // personal best on the challenge tiles (each mode keeps its own record; match is the fastest time)
+  const bestBadge = (m) => {
+    const best = getRecords(code)[m];
+    if (!best) return null;
+    return h('span', { class: 'mini-badge gold' }, `${t.best} ${m === 'match' ? `${best.toFixed(1)} ${t.sec}` : best}`);
+  };
   const modeTiles = MODES.map((m) =>
     h('button', {
       type: 'button',
@@ -270,14 +331,15 @@ export async function renderPractice() {
     WIDE.includes(m)
       ? h('span', { class: 'mode-text' },
           h('span', { class: 'mode-name' }, t.modes[m][0],
-            m === 'mix' ? h('span', { class: 'mini-badge' }, t.recommended)
-              : getRecords(code).survival ? h('span', { class: 'mini-badge gold' }, `${t.best} ${getRecords(code).survival}`) : null),
+            m === 'mix' ? h('span', { class: 'mini-badge' }, t.recommended) : bestBadge(m)),
           h('span', { class: 'mode-sub' }, t.modes[m][1]))
       : h('span', { class: 'mode-name' }, t.modes[m][0])),
   );
   modeTiles[0].classList.add('mode-mix');
   modeTiles[MODES.indexOf('match')].classList.add('mode-half');
+  modeTiles[MODES.indexOf('memory')].classList.add('mode-half', 'mode-memory');
   modeTiles[MODES.indexOf('survival')].classList.add('mode-half', 'mode-survival');
+  modeTiles[MODES.indexOf('timed')].classList.add('mode-half', 'mode-timed');
 
   // ---- word sets, one level at a time ----
   const levels = [...new Set(vocab.sets.map(levelOf))].sort((a, b) => a - b);
@@ -441,6 +503,8 @@ export async function renderPractice() {
     dueCard,
     todayCard,
     questCard,
+    challengeCard,
+    wodCard,
     recCard,
     leechCard,
     backupDue()
@@ -459,6 +523,16 @@ export async function renderPractice() {
     groupTitle(t.chooseMode),
     h('div', { class: 'mode-grid', role: 'radiogroup', 'aria-label': t.chooseMode }, modeTiles),
     modeDesc,
+    // two players on one device, with the chosen sets (nothing is recorded)
+    h('button', {
+      class: 'duel-link',
+      type: 'button',
+      onclick: () => {
+        const items = itemsFor(vocab, [...chosen]);
+        if (items.length < 4) return toast(t.notEnough);
+        startDuel(items, items);
+      },
+    }, icon('trophy', { size: 18 }), h('span', { class: 'row-text' }, h('span', { class: 'row-label' }, t.duelTitle), h('span', { class: 'row-sub' }, t.duelSub)), icon('chevronRight', { size: 18, cls: 'chev' })),
     h('section', { class: 'sets-col' },
       setsTitle,
       savedRow,
