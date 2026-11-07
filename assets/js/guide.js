@@ -106,6 +106,7 @@ export const GUIDE = {
         { b: '3.', text: 'เลื่อนลงแล้วเลือก "เพิ่มไปยังหน้าจอโฮม"' },
         { b: '4.', text: 'เปิด "เปิดเป็นเว็บแอป" ไว้ แล้วแตะ "เพิ่ม"' },
         'จากนั้นเปิดจากไอคอนบนหน้าโฮม แอปจะแสดงเต็มจอ ไม่มีแถบ Safari และใช้งานออฟไลน์ได้',
+        'บน Android และ Chrome บนคอมพิวเตอร์ กดค้าง (หรือคลิกขวา) ที่ไอคอนแอปเพื่อเลือกทางลัด "เล่นด่วน 5 คำ" หรือ "ทบทวนคำที่ถึงกำหนด" ได้ทันที (iPhone/iPad ยังไม่รองรับทางลัดของเว็บแอป)',
       ],
     },
     {
@@ -240,6 +241,7 @@ export const GUIDE = {
         { b: '3.', text: 'Scroll down and choose "Add to Home Screen"' },
         { b: '4.', text: 'Keep "Open as Web App" on, then tap "Add"' },
         'Launch it from the Home Screen icon: full screen, no Safari bars, works offline',
+        "On Android and desktop Chrome, long-press (or right-click) the app icon for the \"Quick 5\" and \"Review due words\" shortcuts (iPhone/iPad don't offer web app shortcuts yet)",
       ],
     },
     {

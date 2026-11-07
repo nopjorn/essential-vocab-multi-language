@@ -81,12 +81,14 @@ TODO.md                 idea backlog grouped by type of work (docs only: not dep
 version.js              APP_VERSION (semver) + APP_BUILD ('dev'; CI stamps "<run>.<sha>")
 sw.js                   offline cache (cache-first); shell cache name = version + build; CORE file list; vocabulary in a separate
                         `evocab-vocab` cache keyed by `?rev=` that survives deploys (only changed languages are downloaded)
-manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts)
+manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts: Quick 5 `#/start/quick`, Review due `#/start/due`, Progress, Guide;
+                        not on iOS). `#/start/*` opens Home, rewrites the hash to `#/` and starts the round
 assets/css/style.css    all styles; tokens on :root, dark tokens for data-theme / prefers-color-scheme
 assets/js/
   app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog, #/words/<lang>/<set>, #/words/<lang>/saved), tab bar + Start button,
                 update toasts, SW; leaving a game re-routes to the page it was started from; first run shows welcome.js
-  core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render, loaders, pageHead/groupTitle,
+  core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render (a faded swap is dropped if a newer render
+                came first), loaders, pageHead/groupTitle,
                 speaker/term widgets, toast
   practice.js   Home tab: language switch, Today card (daily-goal ring, streak, Continue / Quick 5, progress footer),
                 Up next card, mode tiles, set search + list + selection summary;

@@ -45,8 +45,13 @@ export function fadeNextRender(on = true) {
   fadeNext = on;
 }
 
+let renderSeq = 0;
+
 export function render(...nodes) {
+  // A faded swap runs a frame later; if anything rendered since (e.g. a game started), it is stale.
+  const seq = ++renderSeq;
   const swap = () => {
+    if (seq !== renderSeq) return;
     fill(screen, ...nodes);
     window.scrollTo(0, 0);
   };

@@ -11,6 +11,7 @@
 - เปลี่ยนหน้าแบบนุ่มนวล: สลับแท็บหรือเปิดหน้าใหม่จะค่อย ๆ จางเข้า (ปิดอัตโนมัติเมื่อเครื่องตั้งค่าลดการเคลื่อนไหว)
 - การ์ด "คำประจำวัน" ในหน้าหลัก: คำใหม่ทุกวันจากระดับที่เลือก พร้อมคำแปล ประโยคตัวอย่าง เสียง และเก็บเข้าสมุดคำได้
 - หน้าความคืบหน้ามีการ์ด "สัปดาห์นี้" เทียบกับสัปดาห์ก่อน และปฏิทินกิจกรรมทั้งปี (ช่องละวัน แตะเพื่อดูตัวเลข)
+- ทางลัดบนไอคอนแอป (Android และ Chrome บนคอมพิวเตอร์): "เล่นด่วน 5 คำ" และ "ทบทวนคำที่ถึงกำหนด"
 
 <details><summary>English</summary>
 
@@ -21,6 +22,7 @@
 - Smooth page changes: switching tabs or opening a page cross-fades (off when the device asks for reduced motion)
 - "Word of the day" card on Home: a new word every day from your level, with meaning, example, sound and ☆ to keep it
 - Progress now has a "This week" card compared with last week, and a past-year activity calendar (one square a day, tap for numbers)
+- App icon shortcuts (Android and desktop Chrome): "Quick 5" and "Review due words"
 
 </details>
 

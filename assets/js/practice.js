@@ -52,6 +52,30 @@ export async function startPractice({ count = settings.count } = {}) {
   startGame(pickItems(items, count), items);
 }
 
+// Words of a language due for review, most overdue first (Home card and the "Review" app shortcut).
+function dueWords(vocab) {
+  const all = itemsFor(vocab, vocab.sets.map((x) => x.id));
+  const due = all.filter((it) => isDue(getProgress(it.key))).sort((a, b) => dueAt(getProgress(a.key)) - dueAt(getProgress(b.key)));
+  return { all, due };
+}
+
+// The Home Screen icon's "Review due words" shortcut: a due round, or Home with a note when none are due.
+export async function startDue() {
+  const t = state.t;
+  ensureAudio();
+  const nav = state.navId;
+  let vocab;
+  try {
+    vocab = await loadLang(settings.lang);
+  } catch {
+    return toast(t.loadError);
+  }
+  if (nav !== state.navId) return;
+  const { all, due } = dueWords(vocab);
+  if (due.length < DUE_MIN) return toast(t.noneDue);
+  startGame(shuffle(due.slice(0, DUE_COUNT)), all, { mode: 'mix' });
+}
+
 // Plays one set on its own without changing the selection (recommended card, word list).
 export function playSet(vocab, setId) {
   ensureAudio(); // iOS only allows speech after a tap
@@ -210,8 +234,7 @@ export async function renderPractice() {
   }
 
   // ---- words due for review (Leitner intervals): a one-tap review round ----
-  const allItems = itemsFor(vocab, vocab.sets.map((x) => x.id));
-  const dueItems = allItems.filter((it) => isDue(getProgress(it.key))).sort((a, b) => dueAt(getProgress(a.key)) - dueAt(getProgress(b.key)));
+  const { all: allItems, due: dueItems } = dueWords(vocab);
   const dueBySet = new Map();
   for (const it of dueItems) dueBySet.set(it.setId, (dueBySet.get(it.setId) || 0) + 1);
   const dueCard = dueItems.length >= DUE_MIN && !awayCard
