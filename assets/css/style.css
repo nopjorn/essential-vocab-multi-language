@@ -1844,3 +1844,21 @@ input:checked + .switch::after { transform: translateX(20px); }
 .challenge-card .challenge-box { flex: 1 1 100%; margin: 0; padding: 0; background: none; box-shadow: none; }
 .challenge-card .challenge-box > strong { display: none; }
 .challenge-grid { margin: 6px 0 8px; font-size: 20px; letter-spacing: 2px; line-height: 1; }
+
+/* ---------- two players: the top half faces the player opposite ---------- */
+.duel-link { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 8px; padding: 12px 16px; border: 0; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text); font: inherit; text-align: left; }
+.duel-link > .icon:first-child { color: var(--gold); }
+.duel { display: flex; flex-direction: column; min-height: 100dvh; margin: calc(-1 * env(safe-area-inset-top)) calc(-1 * var(--gutter)) 0; }
+.duel-half { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 16px var(--gutter); transition: background 0.2s; }
+.duel-half.p2 { transform: rotate(180deg); background: var(--surface-2); }
+.duel-half.won { background: var(--good-soft); }
+.duel-half.locked .duel-options { opacity: 0.45; }
+.duel-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.duel-name { font-weight: 700; color: var(--text-2); }
+.duel-score { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--primary); }
+.duel-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.duel-opt { min-height: 56px; }
+.duel-mid { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px var(--gutter); border-block: 1px solid var(--line); background: var(--bg); }
+.duel-end { align-items: center; text-align: center; }
+.duel-end strong { font-size: 26px; }
+.duel-final { font-size: 44px; font-variant-numeric: tabular-nums; }

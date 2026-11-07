@@ -64,6 +64,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **New word cards** before a round (up to 5 never-seen words; not flashcards/survival; Settings toggle)
 - **First-time tips** (coach marks, once per device in `settings.seenTips`): flashcards, typing, dictation (overlay) and match (inline, timer runs)
 - **Speed bonus** ⚡: a right choice answer within 3 s (listen 4 s) = +3 bonus XP, counted on the results screen
+- **Two players** (duel.js; Home link under the modes): split screen, top half rotated, 10 questions from the chosen sets, first right tap scores; nothing recorded
 - **Boss round** after a single-set round (playSet, ≥ 5 questions, not match/survival): type the set's 3 hardest words; all right = +50 bonus XP, `records.bosses`
 - **11 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint), dictation (listen and type),
   match (timed, best-time record), memory (12 face-down cards per round; a miss counts only when the pair was already seen), survival (3 hearts, harder as the score grows, best score), 60-second dash (`timed`: choice questions, a miss costs 3 s, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
@@ -109,6 +110,7 @@ assets/js/
   engage.js     daily quests (seeded per day+language; stats.quests marks finished days), XP + player level, milestones,
                 unlockable looks (UNLOCKS/LOOKS), week strip, daysAway() for the welcome-back card, wordOfDay()
   rules.js      pure rules with no DOM/storage (unit-tested): normalize/acceptedAnswers for typing, suggestLevel for placement
+  duel.js       two players on one device: startDuel(items, pool) (uses game.js distractors/exitGame/confetti)
   placement.js  placement test runPlacement(vocab, {hasLetters, onDone, onCancel}), suggestLevel(scores)
   welcome.js    first-run welcome (language, level, daily goal); shown while store.firstRun and not finished
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map

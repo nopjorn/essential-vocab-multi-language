@@ -11,6 +11,7 @@ import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
 import { savedEntries, playSaved, SAVED_ID } from './words.js';
 import { runPlacement } from './placement.js';
+import { startDuel } from './duel.js';
 
 const QUICK_COUNT = 5;
 // mode tiles drawn as a row with a description (mixed: full width; the others here: half)
@@ -522,6 +523,16 @@ export async function renderPractice() {
     groupTitle(t.chooseMode),
     h('div', { class: 'mode-grid', role: 'radiogroup', 'aria-label': t.chooseMode }, modeTiles),
     modeDesc,
+    // two players on one device, with the chosen sets (nothing is recorded)
+    h('button', {
+      class: 'duel-link',
+      type: 'button',
+      onclick: () => {
+        const items = itemsFor(vocab, [...chosen]);
+        if (items.length < 4) return toast(t.notEnough);
+        startDuel(items, items);
+      },
+    }, icon('trophy', { size: 18 }), h('span', { class: 'row-text' }, h('span', { class: 'row-label' }, t.duelTitle), h('span', { class: 'row-sub' }, t.duelSub)), icon('chevronRight', { size: 18, cls: 'chev' })),
     h('section', { class: 'sets-col' },
       setsTitle,
       savedRow,

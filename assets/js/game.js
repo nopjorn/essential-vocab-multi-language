@@ -77,7 +77,7 @@ export function pickItems(items, count) {
 
 // Distractors must differ from the correct item in both the term and the answer,
 // so homonyms (e.g. 눈 eye / 눈 snow) and shared meanings never produce two right options.
-function distractors(item, pool, n = 3) {
+export function distractors(item, pool, n = 3) {
   const out = [];
   const seenT = new Set([item.term]);
   const seenA = new Set([item.answer]);
@@ -203,7 +203,7 @@ function introView(list, begin) {
   show();
 }
 
-function exitGame() {
+export function exitGame() {
   current = null;
   onKeys(null);
   onExit();
@@ -1068,7 +1068,7 @@ function countUp(el, to, suffix = '') {
 const CONFETTI_COLORS = ['#f5b84a', '#5b75f6', '#3ccf73', '#ff5c66', '#a78bfa'];
 
 // A short burst of falling pieces; pointer-events:none so it never blocks taps.
-function confetti() {
+export function confetti() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
   return h('div', { class: 'confetti', 'aria-hidden': 'true' },
     Array.from({ length: 28 }, (_, i) => h('i', {
