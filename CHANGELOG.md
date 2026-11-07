@@ -18,6 +18,7 @@
 - โหมดใหม่ "เปิดไพ่จับคู่": การ์ดคว่ำ 12 ใบ เปิดทีละ 2 ใบหาคำกับความหมาย (หน้าหลักจัดปุ่มโหมดใหม่ ครบแถวพอดี)
 - โจทย์ประจำวัน: 10 ข้อชุดเดียวกันสำหรับทุกคนในวันนั้น ข้ามระดับ 1–3 นับเฉพาะครั้งแรก และแชร์ผลเป็นช่องสี 🟩🟥 ได้โดยไม่เปิดเผยคำ
 - แข่ง 2 คนบนเครื่องเดียว: แบ่งจอบน/ล่าง (เหมาะกับ iPad วางบนโต๊ะ) ใครแตะคำแปลถูกก่อนได้แต้ม 10 ข้อ
+- ประโยคตัวอย่างเพิ่มอีก 157 ประโยค: ชุดซื้อของและธรรมชาติ (ระดับ 1) ครบ 4 ภาษา รวมเป็น 417 ประโยคใน 5 ชุด
 
 <details><summary>English</summary>
 
@@ -35,6 +36,7 @@
 - New "Memory" mode: 12 face-down cards, turn two at a time to find a word and its meaning (Home's mode tiles rearranged into full rows)
 - Daily challenge: the same 10 questions for everyone each day across levels 1–3; your first try counts and you can share it as 🟩🟥 squares without spoilers
 - Two players on one device: split screen (great with an iPad on the table), first right tap scores, 10 questions
+- 157 more example sentences: the shopping and nature sets (level 1) in all 4 languages, 417 in 5 sets so far
 
 </details>
 

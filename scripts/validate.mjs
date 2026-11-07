@@ -52,8 +52,12 @@ for (const lang of index.learn) {
         if (!ex.text || !ex.tr?.th) errors.push(`${where(set.id, w.term)}: example needs "text" and "tr.th"`);
         // English is offered as a translation for every language but English itself
         else if (lang.code !== 'en' && !ex.tr.en) errors.push(`${where(set.id, w.term)}: example needs "tr.en"`);
-        // inflected verbs may not contain the dictionary form, so this is only a warning
-        else if (!ex.text.toLowerCase().includes(w.term.toLowerCase())) warnings.push(`${where(set.id, w.term)}: example does not contain the word`);
+        // "form" is the word as written in the sentence (an inflected verb: 덥다 → 더워요); without it the
+        // term itself, minus a note in brackets, must appear
+        else {
+          const word = (ex.form || w.term.replace(/\s*\([^)]*\)/g, '')).toLowerCase();
+          if (!ex.text.toLowerCase().includes(word)) (ex.form ? errors : warnings).push(`${where(set.id, w.term)}: example does not contain ${ex.form ? `its form "${ex.form}"` : 'the word'}`);
+        }
         if (ex.reading && ex.reading === ex.text) warnings.push(`${where(set.id, w.term)}: example reading equals text, omit it`);
       }
       for (const c of [...available]) if (!w.tr?.[c]) available.delete(c);
