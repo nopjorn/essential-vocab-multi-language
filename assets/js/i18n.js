@@ -69,6 +69,7 @@ export const UI = {
       dictate: ['ฟังแล้วพิมพ์', 'ฟังเสียง แล้วพิมพ์คำที่ได้ยิน'],
       match: ['จับคู่', 'จับคู่คำศัพท์กับคำแปลให้เร็วที่สุด'],
       survival: ['เอาตัวรอด', 'ตอบไปเรื่อย ๆ ผิดได้ 3 ครั้ง ยิ่งไปไกลยิ่งยาก'],
+      timed: ['จับเวลา 60 วิ', 'ตอบให้ถูกมากที่สุดใน 1 นาที ผิดเสีย 3 วินาที'],
     },
 
     // game
@@ -124,6 +125,9 @@ export const UI = {
     heartsLeft: 'หัวใจที่เหลือ',
     survivalOver: 'ไปได้ {n} ข้อ! ลองทำลายสถิติอีกรอบ',
     survivalRecord: 'สถิติเอาตัวรอดใหม่ {n} ข้อ',
+    timedOver: 'หมดเวลา! ตอบถูก {n} ข้อใน 1 นาที',
+    timedRecord: 'สถิติจับเวลาใหม่ {n} ข้อ',
+    timeLeft: 'เหลือเวลา {n} วินาที',
     survivalScore: 'ข้อที่ถูก',
     starsUnit: 'ดาว',
     newStars: 'ได้ดาวเพิ่ม',
@@ -407,6 +411,7 @@ export const UI = {
       dictate: ['Dictation', 'Listen, then type the word you hear'],
       match: ['Match pairs', 'Match words with translations, fast'],
       survival: ['Survival', 'Keep going until you miss 3 times; it gets harder as you go'],
+      timed: ['60-second dash', 'As many right answers as you can in 1 minute; a miss costs 3 seconds'],
     },
 
     quit: 'Quit game',
@@ -460,6 +465,9 @@ export const UI = {
     heartsLeft: 'Hearts left',
     survivalOver: 'You got {n} right! Try to beat your record',
     survivalRecord: 'New survival record: {n}',
+    timedOver: "Time's up! {n} right in one minute",
+    timedRecord: 'New 60-second record: {n}',
+    timeLeft: '{n} seconds left',
     survivalScore: 'correct',
     starsUnit: 'stars',
     newStars: 'More stars',

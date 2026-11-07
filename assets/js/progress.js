@@ -1,7 +1,7 @@
 // Progress page: overview across all languages, and a detail view per language.
 import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, isLeech, langProgress, MASTERED_BOX } from './store.js';
 import { state, h, render, nameOf, levelOf, levelLabel, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
-import { itemsFor, startGame } from './game.js';
+import { itemsFor, startGame, ENDLESS } from './game.js';
 import { icon, MODE_ICON } from './icons.js';
 import { badgeList } from './badges.js';
 import { playerLevel, questDays } from './engage.js';
@@ -394,8 +394,8 @@ function renderLang(s) {
     const keys = new Set(top.map((x) => wordKey(code, x.set.id, x.word.term)));
     const items = pool.filter((it) => keys.has(it.key));
     if (settings.mode === 'match' && items.length < 2) settings.mode = 'quiz';
-    // survival never ends on its own word list, so weak words get the mixed mode instead
-    startGame(items, pool, { mode: settings.mode === 'survival' ? 'mix' : settings.mode });
+    // survival and time attack never end on their own word list, so weak words get the mixed mode instead
+    startGame(items, pool, { mode: ENDLESS.includes(settings.mode) ? 'mix' : settings.mode });
   };
 
   render(

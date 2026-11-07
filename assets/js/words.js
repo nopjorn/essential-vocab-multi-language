@@ -3,7 +3,7 @@
 import { settings, wordKey, getProgress, setKnown, isLeech, savedKeys, MASTERED_BOX } from './store.js';
 import { state, h, render, nameOf, loadLang, setUiLang, pageHead, groupTitle, readingText, answerOf, speakerBtn, exampleOf, exampleBlock, saveBtn, ensureAudio, toast } from './core.js';
 import { playSet } from './practice.js';
-import { itemsFor, startGame } from './game.js';
+import { itemsFor, startGame, ENDLESS } from './game.js';
 import { icon } from './icons.js';
 
 export const SAVED_ID = 'saved'; // no word set uses this id
@@ -26,7 +26,7 @@ export function playSaved(vocab) {
   if (!items.length) return toast(state.t.savedEmpty);
   ensureAudio();
   settings.lang = vocab.code;
-  const mode = items.length < 4 ? 'flash' : settings.mode === 'survival' ? 'mix' : settings.mode;
+  const mode = items.length < 4 ? 'flash' : ENDLESS.includes(settings.mode) ? 'mix' : settings.mode;
   startGame(items, pool, { mode });
 }
 

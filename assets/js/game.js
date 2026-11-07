@@ -9,10 +9,14 @@ import { dayTotals, streak } from './progress.js';
 import { badgeList, earnedIds } from './badges.js';
 import { totalXP, playerLevel, syncQuests, dailyQuests, milestones, unlockedIds } from './engage.js';
 
-export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'dictate', 'match', 'survival'];
+export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'dictate', 'match', 'survival', 'timed'];
+// modes that ask words from an endless queue until hearts or time run out (no fixed word list)
+export const ENDLESS = ['survival', 'timed'];
 // modes that need speech synthesis
 export const SPEECH_MODES = ['listen', 'dictate'];
 const HEARTS = 3; // survival: wrong answers allowed before the run ends
+const TIMED_MS = 60000; // time attack: one minute
+const TIMED_PENALTY_MS = 3000; // a wrong answer costs this much time
 const MATCH_PAIRS = 6;
 const SWIPE_RATIO = 0.28; // fraction of the card width that counts as a decision
 
@@ -101,6 +105,7 @@ export function startGame(items, pool, { mode = settings.mode, boss = false } = 
   fadeNextRender(false);
   document.body.classList.add('in-game');
   const survival = mode === 'survival';
+  const endless = ENDLESS.includes(mode);
   const session = {
     mode,
     lang: settings.lang,
@@ -125,13 +130,16 @@ export function startGame(items, pool, { mode = settings.mode, boss = false } = 
     // survival: items grows as questions are asked; queue holds the words still to come
     hearts: survival ? HEARTS : null,
     // boss round: offered once the normal questions are done; bossAt = index of its first word
-    boss: boss && mode !== 'match' && !survival && items.length >= BOSS_MIN_ROUND,
+    boss: boss && mode !== 'match' && !endless && items.length >= BOSS_MIN_ROUND,
+    // time attack: when the minute ends (wrong answers move it closer)
+    deadline: mode === 'timed' ? Date.now() + TIMED_MS : null,
     bossAt: null,
     bossRight: 0,
     fast: 0, // right answers within the speed-bonus time
     queue: [],
   };
-  if (survival) session.items = [];
+  if (endless) session.items = [];
+  current = session;
   const begin = () => (session.mode === 'match' ? playMatch(session) : playNext(session));
   const fresh = newWords(session);
   if (fresh.length) introView(fresh, begin);
@@ -144,7 +152,7 @@ const INTRO_MAX = 5;
 
 function newWords(session) {
   // flashcards already show the meaning, and survival builds its words as it goes
-  if (!settings.introNew || session.mode === 'flash' || session.mode === 'survival') return [];
+  if (!settings.introNew || session.mode === 'flash' || ENDLESS.includes(session.mode)) return [];
   return session.items.filter((it) => !getProgress(it.key).t).slice(0, INTRO_MAX);
 }
 
@@ -193,6 +201,7 @@ function introView(list, begin) {
 }
 
 function exitGame() {
+  current = null;
   onKeys(null);
   onExit();
 }
@@ -209,6 +218,23 @@ function topBar(session, label, extra = null) {
   const t = state.t;
   const total = session.items.length;
   const pct = Math.round((session.i / total) * 100);
+  if (session.deadline !== null) {
+    const left = Math.max(0, session.deadline - Date.now());
+    const fillEl = h('div', { class: 'progress-fill time-fill', style: `width:${(left / TIMED_MS) * 100}%` });
+    // drains smoothly to empty over the time that is left
+    requestAnimationFrame(() => {
+      fillEl.style.transition = `width ${left}ms linear`;
+      fillEl.style.width = '0%';
+    });
+    return h('div', { class: 'game-top' },
+      h('h1', { class: 'sr-only' }, t.modes.timed[0]),
+      h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
+      h('div', { class: 'progress time-bar', role: 'timer', 'aria-label': t.timeLeft.replace('{n}', Math.ceil(left / 1000)) }, fillEl),
+      session.comboEl,
+      h('span', { class: 'counter survival-score', title: t.score }, icon('check', { size: 16 }), String(session.correct)),
+      extra,
+    );
+  }
   if (session.hearts !== null) {
     session.heartsEl = heartsEl(session);
     return h('div', { class: 'game-top' },
@@ -273,6 +299,7 @@ function grade(session, item, ok) {
   session.combo = ok ? session.combo + 1 : 0;
   session.bestCombo = Math.max(session.bestCombo, session.combo);
   updateCombo(session, ok);
+  if (!ok && session.deadline !== null) session.deadline -= TIMED_PENALTY_MS;
   if (!ok && session.hearts !== null) {
     session.hearts = Math.max(0, session.hearts - 1);
     const el = heartsEl(session);
@@ -317,7 +344,7 @@ function mixMode(item) {
 
 function modePill(session, mode) {
   if (inBoss(session)) return h('div', { class: 'mode-pill boss' }, icon('crown', { size: 16 }), state.t.bossPill);
-  if (session.mode !== 'mix' && session.mode !== 'survival') return null;
+  if (session.mode !== 'mix' && !ENDLESS.includes(session.mode)) return null;
   return h('div', { class: 'mode-pill' }, icon(MODE_ICON[mode], { size: 16 }), state.t.modes[mode][0]);
 }
 
@@ -383,7 +410,31 @@ function bossIntro(session) {
   });
 }
 
+// The game on screen, so the time-attack clock can tell whether its round is still being played.
+let current = null;
+
+// Time attack: questions keep coming until the minute is up. The clock ends the round even in the
+// middle of a question (watchClock), and playNext checks it between questions.
+function watchClock(session) {
+  clearTimeout(session.clock);
+  const left = session.deadline - Date.now();
+  session.clock = setTimeout(() => {
+    if (current === session && !session.ended) showResults(session);
+  }, Math.max(0, left));
+}
+
 function playNext(session) {
+  if (session.deadline !== null) {
+    if (Date.now() >= session.deadline) return showResults(session);
+    watchClock(session);
+    if (session.i >= session.items.length) session.items.push(nextSurvivalItem(session));
+    const item = session.items[session.i];
+    const modes = ['quiz', 'reverse', ...(speechSupported ? ['listen'] : [])];
+    return choiceView(session, item, () => {
+      session.i++;
+      playNext(session);
+    }, modes[Math.floor(Math.random() * modes.length)]);
+  }
   if (session.hearts !== null) {
     if (session.hearts <= 0) return showResults(session);
     if (session.i >= session.items.length) session.items.push(nextSurvivalItem(session));
@@ -635,7 +686,8 @@ function choiceView(session, item, advance, mode) {
       leechTip(item, ok),
     );
     if (mode !== 'quiz' || settings.autoSpeak) say(item.term);
-    if (ok) setTimeout(() => advance(), item.note ? 1600 : 900);
+    if (session.deadline !== null) setTimeout(() => advance(), ok ? 450 : 1100); // time attack keeps moving
+    else if (ok) setTimeout(() => advance(), item.note ? 1600 : 900);
     else nextBtn.classList.remove('hidden');
   }
 
@@ -937,7 +989,7 @@ export function starRow(n, { size = 16, cls = '' } = {}) {
 
 // Best stars per word set from this round: sets with at least 4 questions in it count.
 function roundStars(session) {
-  if (session.mode === 'survival') return [];
+  if (ENDLESS.includes(session.mode)) return [];
   const bySet = new Map();
   for (const e of session.history) {
     const x = bySet.get(e.item.setId) || { n: 0, c: 0 };
@@ -1021,13 +1073,18 @@ function levelName(lv) {
 
 function showResults(session) {
   const t = state.t;
+  if (session.ended) return;
+  session.ended = true;
+  clearTimeout(session.clock);
   onKeys(null);
-  const survival = session.mode === 'survival';
+  const timed = session.mode === 'timed';
+  // scored by right answers against a record, not by accuracy over a word list
+  const survival = ENDLESS.includes(session.mode);
   const lang = session.lang;
   const total = session.items.length;
   const pct = total ? Math.round((session.correct / total) * 100) : 0;
   const secs = Math.round((Date.now() - session.startedAt) / 1000);
-  const prev = getStats().sessions.filter((x) => x.lang === lang && x.n && x.mode !== 'survival').at(-1);
+  const prev = getStats().sessions.filter((x) => x.lang === lang && x.n && !ENDLESS.includes(x.mode)).at(-1);
   const prevPct = prev && !survival ? Math.round((prev.c / prev.n) * 100) : null;
   const mastered = [...session.mastered.values()];
   logSession({ lang, mode: session.mode, n: total, c: session.correct, s: secs, t: Date.now(), b: session.bestCombo, m: mastered.length });
@@ -1035,9 +1092,10 @@ function showResults(session) {
   // Only call it a record when there was one to beat, not on the very first game.
   const records = getRecords(lang);
   const prevCombo = records.combo || 0;
-  const prevSurvival = records.survival || 0;
+  const recordKey = timed ? 'timed' : 'survival';
+  const prevSurvival = records[recordKey] || 0;
   const comboRecord = session.bestCombo >= 2 && saveRecord(lang, 'combo', session.bestCombo) && prevCombo > 0;
-  const survivalRecord = survival && session.correct > 0 && saveRecord(lang, 'survival', session.correct) && prevSurvival > 0;
+  const survivalRecord = survival && session.correct > 0 && saveRecord(lang, recordKey, session.correct) && prevSurvival > 0;
   const starsImproved = roundStars(session);
   const bossCount = session.bossAt === null ? 0 : session.items.length - session.bossAt;
   const bossWon = bossCount > 0 && session.bossRight === bossCount;
@@ -1052,7 +1110,7 @@ function showResults(session) {
   const levelUp = playerLevel(xpAfter).level > playerLevel(session.xpBefore).level;
   const newUnlocks = [...unlockedIds()].filter((id) => !session.unlocksBefore.has(id));
   const message = survival
-    ? t.survivalOver.replace('{n}', session.correct)
+    ? (timed ? t.timedOver : t.survivalOver).replace('{n}', session.correct)
     : pct >= 90 ? t.resultGreat : pct >= 60 ? t.resultGood : t.resultKeep;
 
   const goal = settings.dailyGoal;
@@ -1067,8 +1125,8 @@ function showResults(session) {
     diff ? h('span', { class: `chip ${diff > 0 ? 'up' : 'down'}` }, `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)}% ${t.vsLast}`) : null,
     days ? h('span', { class: 'chip' }, icon('flame', { size: 14 }), `${days} ${t.days}`) : null,
     goal > 0 ? h('span', { class: `chip${today >= goal ? ' up' : ''}` }, icon('target', { size: 14 }), t.goalToday.replace('{n}', today).replace('{goal}', goal)) : null,
-    survivalRecord ? h('span', { class: 'chip gold' }, icon('heart', { size: 14 }), t.survivalRecord.replace('{n}', session.correct)) : null,
-    survival && !survivalRecord && prevSurvival ? h('span', { class: 'chip' }, icon('trophy', { size: 14 }), `${t.best} ${getRecords(lang).survival}`) : null,
+    survivalRecord ? h('span', { class: 'chip gold' }, icon('heart', { size: 14 }), (timed ? t.timedRecord : t.survivalRecord).replace('{n}', session.correct)) : null,
+    survival && !survivalRecord && prevSurvival ? h('span', { class: 'chip' }, icon('trophy', { size: 14 }), `${t.best} ${getRecords(lang)[recordKey]}`) : null,
     session.fast ? h('span', { class: 'chip' }, icon('bolt', { size: 14 }), t.fastResult.replace('{n}', session.fast).replace('{xp}', session.fast * FAST_XP)) : null,
     bossCount ? h('span', { class: `chip${bossWon ? ' gold' : ''}` }, icon('crown', { size: 14 }), bossWon ? t.bossWon.replace('{xp}', BOSS_XP) : t.bossLost.replace('{n}', session.bossRight).replace('{total}', bossCount)) : null,
     comboRecord ? h('span', { class: 'chip gold' }, icon('bolt', { size: 14 }), t.comboRecord.replace('{n}', session.bestCombo)) : null,
@@ -1117,7 +1175,7 @@ function showResults(session) {
     ),
     h('section', { class: 'result-hero' },
       celebrate ? confetti() : null,
-      h('div', { class: 'ring-wrap' }, scoreRing(survival ? Math.min(100, (session.correct / Math.max(1, getRecords(lang).survival || 1)) * 100) : pct),
+      h('div', { class: 'ring-wrap' }, scoreRing(survival ? Math.min(100, (session.correct / Math.max(1, getRecords(lang)[recordKey] || 1)) * 100) : pct),
         h('div', { class: 'ring-label' }, pctNum, h('span', {}, survival ? t.survivalScore : t.accuracy))),
       stars !== null ? starRow(stars, { size: 30, cls: 'big' }) : null,
       h('p', { class: 'result-msg' }, goalJustMet ? t.goalReached : message),

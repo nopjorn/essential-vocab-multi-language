@@ -12,7 +12,7 @@ Safari or as a Home Screen app.
   Chinese 🇨🇳 (simplified + pinyin, 88 sets, 3,001; same topic plan plus zh-only `trip_phrases` (L1), `theme_park`, `shanghai` (L2)),
   each in 3 levels (≈1,000 words per level)
 - Translate into: Thai (all languages); English (Korean, Japanese and Chinese)
-- 9 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, dictate (listen + type), match, survival (3 hearts); Leitner boxes 0–5 (box ≥ 3 = mastered) with due dates (`d`: 1/3/7/14/30 days by box; Home "due for review" card)
+- 10 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, dictate (listen + type), match, survival (3 hearts), timed (60 s); Leitner boxes 0–5 (box ≥ 3 = mastered) with due dates (`d`: 1/3/7/14/30 days by box; Home "due for review" card)
 - Game feel: combo counter, Web Audio sound effects (Settings toggle, unlockable sound packs), pop/shake feedback, match timer with best time, badges,
   stars per set, daily quests, XP/player level, streak freezes, milestones, unlockable looks (accent colour, flashcard pattern)
 - Native-app style UI: bottom tab bar (Home · Progress · **Start** · Guide · Settings; Start is a raised round
@@ -64,8 +64,8 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **First-time tips** (coach marks, once per device in `settings.seenTips`): flashcards, typing, dictation (overlay) and match (inline, timer runs)
 - **Speed bonus** ⚡: a right choice answer within 3 s (listen 4 s) = +3 bonus XP, counted on the results screen
 - **Boss round** after a single-set round (playSet, ≥ 5 questions, not match/survival): type the set's 3 hardest words; all right = +50 bonus XP, `records.bosses`
-- **9 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint), dictation (listen and type),
-  match (timed, best-time record), survival (3 hearts, harder as the score grows, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
+- **10 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint), dictation (listen and type),
+  match (timed, best-time record), survival (3 hearts, harder as the score grows, best score), 60-second dash (`timed`: choice questions, a miss costs 3 s, best score); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
   options at the bottom of the screen on phones
 - **Results screen**: animated ring, stars, newly mastered words, comparison with the last game, goal progress, best combo,
   new records, XP bar + level up, daily quests, newly earned badges and unlocks, set stars, full-screen milestone celebration
@@ -98,7 +98,7 @@ assets/js/
                 playSet() (one set on its own; Up next card and word list)
   settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, sound effects, theme,
                 daily goal, progress export/import, per-language reset, about (version, what's new, guide, install)
-  game.js       item building, weighted picking, distractors, all 9 modes (survival: endless queue, hearts, harder by score) (mix picks quiz/reverse/listen, type once box ≥ 2, dictate once box ≥ 3; SPEECH_MODES need speech; the all-modes badge stays at 8),
+  game.js       item building, weighted picking, distractors, all 10 modes (ENDLESS = survival + timed: endless queue, no word list) (survival: endless queue, hearts, harder by score) (mix picks quiz/reverse/listen, type once box ≥ 2, dictate once box ≥ 3; SPEECH_MODES need speech; the all-modes badge stays at 8),
                 combo + bursts, flashcard undo (store.undoRecord), type hint, match timer/record, results screen
                 (animated ring, stars, newly mastered words, vs last game, goal progress, best combo, records, XP bar, quests,
                 new badges/unlocks/set stars, confetti, milestone overlay); startGame(items, pool, { mode }) can override the mode
@@ -195,7 +195,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - UI text goes in `i18n.js` (both `th` and `en`, same keys and `{placeholders}`: validate.mjs checks); pages read it through `state.t`.
 - Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `introNew`, `newPerDay` (0 = no limit), `speechRate`, `textSize`, `seenTips`, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
   `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t,d?}`; `d` = due time, optional, falls back to `t` + box interval), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct, new?]` (new = first answers, drives `newPerDay`),
-  `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?,
+  `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?, timed?,
   stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`, `xp?` = bonus XP (boss wins, speed bonus) added by engage.totalXP; records also `bosses?`), `evocab.saved.v1` (`{[lang]: [wordKey]}` My words; kept on reset, included in backups), `evocab.lastVersion`.
   Badges, XP/level, streak freezes, milestones and unlocks are computed, not stored (only finished quest days are, since sessions are trimmed). A device with neither settings nor progress saved gets the welcome screen.
   Changing a format needs a migration and a major version bump.

@@ -142,7 +142,7 @@ export function isLeech(p) {
 // days: { 'YYYY-MM-DD': { [lang]: [answers, correct, new?] } } (new = words answered for the first time, added in 1.19)
 // sessions: [{ lang, mode, n, c, s: seconds, t: timestamp, b?: best combo, m?: newly mastered }], newest last
 // records: { [lang]: { match: fastest full match round in seconds, combo: longest answer streak,
-//   survival?: most correct answers in survival, stars?: { [setId]: 1..3 }, perfect?: perfect rounds,
+//   survival?: most correct answers in survival, timed?: most in the 60-second dash (1.20), stars?: { [setId]: 1..3 }, perfect?: perfect rounds,
 //   modes?: [modes played], owl?: played late at night, early?: played early in the morning } }
 // quests: { 'YYYY-MM-DD': [lang, ...] } days on which all three daily quests of a language were done
 // xp?: bonus XP not derivable from answers (boss wins, speed bonuses; added in 1.20)
@@ -389,6 +389,7 @@ export function importData(data) {
       if (num(r.match) > 0) saveRecord(lang, 'match', r.match);
       if (num(r.combo) > 0) saveRecord(lang, 'combo', r.combo);
       if (num(r.survival) > 0) saveRecord(lang, 'survival', r.survival);
+      if (num(r.timed) > 0) saveRecord(lang, 'timed', r.timed);
       const mine = (stats.records[lang] ||= {});
       if (r.stars && typeof r.stars === 'object') {
         for (const [setId, n] of Object.entries(r.stars)) {

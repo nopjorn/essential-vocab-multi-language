@@ -13,8 +13,8 @@ import { savedEntries, playSaved, SAVED_ID } from './words.js';
 import { runPlacement } from './placement.js';
 
 const QUICK_COUNT = 5;
-// mode tiles drawn as a row with a description (mixed: full width; match and survival: half)
-const WIDE = ['mix', 'match', 'survival'];
+// mode tiles drawn as a row with a description (mixed: full width; the others here: half)
+const WIDE = ['mix', 'match', 'survival', 'timed'];
 const AWAY_DAYS = 3; // gone this long: Home greets you back with a short review
 const REVIEW_COUNT = 10;
 const DUE_COUNT = 20; // words in one "due for review" round
@@ -285,6 +285,12 @@ export async function renderPractice() {
 
   // ---- game modes ----
   const modeDesc = h('p', { class: 'mode-desc-line' }, t.modes[settings.mode][1]);
+  // personal best on the challenge tiles (each mode keeps its own record; match is the fastest time)
+  const bestBadge = (m) => {
+    const best = getRecords(code)[m];
+    if (!best) return null;
+    return h('span', { class: 'mini-badge gold' }, `${t.best} ${m === 'match' ? `${best.toFixed(1)} ${t.sec}` : best}`);
+  };
   const modeTiles = MODES.map((m) =>
     h('button', {
       type: 'button',
@@ -307,14 +313,14 @@ export async function renderPractice() {
     WIDE.includes(m)
       ? h('span', { class: 'mode-text' },
           h('span', { class: 'mode-name' }, t.modes[m][0],
-            m === 'mix' ? h('span', { class: 'mini-badge' }, t.recommended)
-              : getRecords(code).survival ? h('span', { class: 'mini-badge gold' }, `${t.best} ${getRecords(code).survival}`) : null),
+            m === 'mix' ? h('span', { class: 'mini-badge' }, t.recommended) : bestBadge(m)),
           h('span', { class: 'mode-sub' }, t.modes[m][1]))
       : h('span', { class: 'mode-name' }, t.modes[m][0])),
   );
   modeTiles[0].classList.add('mode-mix');
   modeTiles[MODES.indexOf('match')].classList.add('mode-half');
   modeTiles[MODES.indexOf('survival')].classList.add('mode-half', 'mode-survival');
+  modeTiles[MODES.indexOf('timed')].classList.add('mode-half', 'mode-timed');
 
   // ---- word sets, one level at a time ----
   const levels = [...new Set(vocab.sets.map(levelOf))].sort((a, b) => a - b);
