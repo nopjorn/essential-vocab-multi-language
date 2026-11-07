@@ -146,6 +146,7 @@ export function isLeech(p) {
 //   modes?: [modes played], owl?: played late at night, early?: played early in the morning } }
 // quests: { 'YYYY-MM-DD': [lang, ...] } days on which all three daily quests of a language were done
 // xp?: bonus XP not derivable from answers (boss wins, speed bonuses; added in 1.20)
+// challenge?: { 'YYYY-MM-DD': { [lang]: '1101…' } } first try at the daily challenge, one digit per question (1.20)
 // Fields marked ? were added later and are optional, so older data needs no migration.
 const stats = { days: {}, sessions: [], records: {}, quests: {}, ...load(STATS_KEY, {}) };
 
@@ -233,6 +234,20 @@ export function noteRound(lang, { mode, n, c }, when = new Date()) {
     if (hour >= 4 && hour < 7) r.early = true;
   }
   save(STATS_KEY, stats);
+}
+
+// The daily challenge counts once a day: the first finished try is kept, later ones are practice.
+export function getChallenge(lang, day = dayKey()) {
+  return stats.challenge?.[day]?.[lang] ?? null;
+}
+
+export function saveChallenge(lang, marks, day = dayKey()) {
+  const days = (stats.challenge ||= {});
+  const d = (days[day] ||= {});
+  if (d[lang] != null) return false;
+  d[lang] = marks;
+  save(STATS_KEY, stats);
+  return true;
 }
 
 // Extra XP on top of what answers earn (engage.totalXP adds it).
@@ -405,6 +420,15 @@ export function importData(data) {
   }
   // bonus XP is a lifetime total per device: keep the larger one rather than adding both
   if (num(data.stats?.xp) > (stats.xp || 0)) stats.xp = Math.floor(data.stats.xp);
+  const challenge = data.stats?.challenge;
+  if (challenge && typeof challenge === 'object') {
+    for (const [day, langs] of Object.entries(challenge)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !langs || typeof langs !== 'object') continue;
+      for (const [lang, marks] of Object.entries(langs)) {
+        if (typeof marks === 'string' && /^[01]{1,20}$/.test(marks)) saveChallenge(lang, marks, day);
+      }
+    }
+  }
   const quests = data.stats?.quests;
   if (quests && typeof quests === 'object') {
     for (const [date, langs] of Object.entries(quests)) {

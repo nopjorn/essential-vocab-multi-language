@@ -1837,3 +1837,10 @@ input:checked + .switch::after { transform: translateX(20px); }
 .mem-card.shake .mem-front { background: var(--bad-soft); animation: shake 0.35s; }
 .mode-memory .mode-ic { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: #fff; }
 @media (prefers-reduced-motion: reduce) { .mem-back, .mem-front { transition: none; } }
+
+/* ---------- daily challenge ---------- */
+.challenge-card { background: var(--gold-soft); }
+.challenge-card .away-ic { color: var(--gold); }
+.challenge-card .challenge-box { flex: 1 1 100%; margin: 0; padding: 0; background: none; box-shadow: none; }
+.challenge-card .challenge-box > strong { display: none; }
+.challenge-grid { margin: 6px 0 8px; font-size: 20px; letter-spacing: 2px; line-height: 1; }

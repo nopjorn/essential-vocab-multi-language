@@ -16,6 +16,7 @@
 - โบนัสความเร็ว ⚡: ตอบถูกภายใน 3 วินาที (ฟังแล้วตอบ 4 วินาที) ได้ +3 XP
 - โหมดใหม่ "จับเวลา 60 วิ": ตอบให้ถูกมากที่สุดใน 1 นาที ผิดเสีย 3 วินาที มีสถิติสูงสุดของแต่ละภาษา
 - โหมดใหม่ "เปิดไพ่จับคู่": การ์ดคว่ำ 12 ใบ เปิดทีละ 2 ใบหาคำกับความหมาย (หน้าหลักจัดปุ่มโหมดใหม่ ครบแถวพอดี)
+- โจทย์ประจำวัน: 10 ข้อชุดเดียวกันสำหรับทุกคนในวันนั้น ข้ามระดับ 1–3 นับเฉพาะครั้งแรก และแชร์ผลเป็นช่องสี 🟩🟥 ได้โดยไม่เปิดเผยคำ
 
 <details><summary>English</summary>
 
@@ -31,6 +32,7 @@
 - Speed bonus ⚡: a right answer within 3 seconds (4 for listening) earns +3 XP
 - New "60-second dash" mode: as many right answers as you can in one minute, a miss costs 3 seconds, with a best score per language
 - New "Memory" mode: 12 face-down cards, turn two at a time to find a word and its meaning (Home's mode tiles rearranged into full rows)
+- Daily challenge: the same 10 questions for everyone each day across levels 1–3; your first try counts and you can share it as 🟩🟥 squares without spoilers
 
 </details>
 

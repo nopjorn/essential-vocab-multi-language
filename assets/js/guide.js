@@ -75,6 +75,7 @@ export const GUIDE = {
       id: 'daily', icon: 'flame', color: 'orange', title: 'เล่นทุกวัน: สตรีค ภารกิจ และรางวัล',
       items: [
         { b: 'สตรีค', text: 'นับวันที่เล่นติดกันของแต่ละภาษา ถ้าวันนี้ยังไม่ได้เล่น การ์ด "วันนี้" จะเตือนให้เล่นเพื่อรักษาสตรีค' },
+        { b: 'โจทย์ประจำวัน', text: 'ทุกวันมี 10 ข้อ (เลือกความหมาย ข้ามระดับ 1–3) ที่ทุกคนได้ชุดเดียวกันในภาษานั้น นับเฉพาะครั้งแรกที่ทำจบ เล่นซ้ำได้แต่ไม่เปลี่ยนคะแนน แตะ "แชร์ผล" เพื่อส่งคะแนนกับช่องสี 🟩🟥 ให้เพื่อน (ไม่เปิดเผยคำศัพท์)' },
         { b: 'เกราะกันสตรีค 🛡️', text: 'เล่นติดกันครบ 7 วันได้เกราะ 1 อัน เก็บได้สูงสุด 2 อัน วันที่ไม่ได้เล่นจะใช้เกราะให้อัตโนมัติ สตรีคจึงไม่หาย' },
         { b: 'แถบสัปดาห์', text: 'จุด จ.–อา. บนการ์ด "วันนี้": สีเขียว = ทำเป้าครบ · เส้นรอบ = เล่นแล้ว · สีฟ้ามีโล่ = ใช้เกราะ · วงกระพริบ = วันนี้ยังไม่ได้เล่น' },
         { b: 'ภารกิจประจำวัน', text: 'ภารกิจ 3 ข้อใต้การ์ด "วันนี้" เปลี่ยนทุกวัน (เช่น ตอบถูก 15 ข้อ ทำคอมโบ ×8 เล่นโหมดฟัง) ทำครบทั้ง 3 ข้อได้ +100 XP' },
@@ -214,6 +215,7 @@ export const GUIDE = {
       id: 'daily', icon: 'flame', color: 'orange', title: 'Play every day: streaks, quests and rewards',
       items: [
         { b: 'Streak', text: 'Days played in a row, per language. If you have not played yet today, the "Today" card reminds you to keep it going' },
+        { b: 'Daily challenge', text: 'Every day has 10 questions (pick the meaning, levels 1–3) that are the same for everyone learning that language. Only your first finished try counts; replays are practice. Tap "Share" to send your score and 🟩🟥 squares to friends (no words given away)' },
         { b: 'Streak freeze 🛡️', text: 'Play 7 days in a row to earn one; hold up to 2. A missed day uses one automatically so your streak survives' },
         { b: 'Week strip', text: 'Mon–Sun dots on the "Today" card: green = goal reached · ring = played · blue shield = freeze used · pulsing ring = not played yet today' },
         { b: 'Daily quests', text: '3 quests under the "Today" card, new every day (e.g. 15 right answers, a ×8 combo, a listening round). Finish all 3 for +100 XP' },

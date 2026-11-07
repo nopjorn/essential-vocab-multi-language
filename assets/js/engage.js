@@ -210,3 +210,18 @@ export function wordOfDay(vocab, level, day = dayKey()) {
   const pool = rich.length ? rich : words;
   return pool[Math.floor(seeded(`${day}|${vocab.code}|word`)() * pool.length)];
 }
+
+// Daily challenge: the same 10 words for everyone on a day and language (seeded, no randomness from
+// the device), spread over the levels (4 · 3 · 3) so it tests more than the basics.
+export const CHALLENGE_PLAN = [[1, 4], [2, 3], [3, 3]];
+export function challengeWords(vocab, day = dayKey()) {
+  const rnd = seeded(`${day}|${vocab.code}|challenge`);
+  const out = [];
+  for (const [lv, n] of CHALLENGE_PLAN) {
+    const words = vocab.sets.filter((s) => (s.level ?? 1) === lv).flatMap((set) => set.words.map((word) => ({ set, word })));
+    const taken = new Set();
+    while (taken.size < Math.min(n, words.length)) taken.add(Math.floor(rnd() * words.length));
+    out.push(...[...taken].map((i) => words[i]));
+  }
+  return out;
+}

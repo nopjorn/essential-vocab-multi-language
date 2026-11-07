@@ -51,7 +51,8 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **Placement test** (Home "Find my level" under the level bar, welcome): 6 pick-the-meaning questions per level, stops early, suggests a level (letters when level 1 is mostly missed); not recorded
 - **Home**: language switch, "We missed you" card after ≥ 3 days away (review of known words), Today card (daily-goal ring, streak
   or "play today to keep your streak", level chip, streak freezes, Mon–Sun week strip, Continue / Quick 5, mastered + accuracy footer),
-  3 daily quests, Word of the day (seeded per day + language from the shown level, words with examples first),
+  3 daily quests, Daily challenge (same 10 seeded questions per day + language, 4·3·3 over levels, first try kept in
+  `stats.challenge`, spoiler-free share text), Word of the day (seeded per day + language from the shown level, words with examples first),
   "Up next" recommended set (plays it alone), mode tiles (Mixed is the wide suggested tile), search for sets and the
   words inside them, level switch, multi-select word sets (fully mastered sets get a gold crown; best 1–3 stars per set)
 - **Example sentences** for some words (level 1 food/places/home so far), with translation and speaker
@@ -196,7 +197,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, `introNew`, `newPerDay` (0 = no limit), `speechRate`, `textSize`, `seenTips`, `sound`, `accent`, `cardStyle`, `soundPack`, `lastExportedAt`, `backupSnooze`),
   `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t,d?}`; `d` = due time, optional, falls back to `t` + box interval), `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct, new?]` (new = first answers, drives `newPerDay`),
   `sessions[]` (`{lang, mode, n, c, s, t, b?: best combo, m?: newly mastered}`), `records[lang] = {match: best secs, combo, survival?, timed?,
-  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`, `xp?` = bonus XP (boss wins, speed bonus) added by engage.totalXP; records also `bosses?`), `evocab.saved.v1` (`{[lang]: [wordKey]}` My words; kept on reset, included in backups), `evocab.lastVersion`.
+  stars?: {setId: 1–3}, perfect?, modes?[], owl?, early?}`, `quests?[YYYY-MM-DD] = [lang]`, `challenge?[YYYY-MM-DD][lang] = '1101…'` first daily-challenge try, `xp?` = bonus XP (boss wins, speed bonus) added by engage.totalXP; records also `bosses?`), `evocab.saved.v1` (`{[lang]: [wordKey]}` My words; kept on reset, included in backups), `evocab.lastVersion`.
   Badges, XP/level, streak freezes, milestones and unlocks are computed, not stored (only finished quest days are, since sessions are trimmed). A device with neither settings nor progress saved gets the welcome screen.
   Changing a format needs a migration and a major version bump.
 - Distractors must differ from the answer in both term and translation (homonyms like 눈 eye/snow).

@@ -1,12 +1,12 @@
 // Home tab: language switch, progress summary, game mode and word sets, plus
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
-import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, isLeech, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, todayAnswers, getRecords, getStats, isDue, dueAt, isLeech, getChallenge, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, nameOf, levelOf, levelLabel, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast, termBlock, speakerBtn, saveBtn, exampleOf, exampleBlock, answerOf } from './core.js';
 import { speechSupported } from './speech.js';
-import { MODES, SPEECH_MODES, itemsFor, pickItems, startGame, starRow } from './game.js';
+import { MODES, SPEECH_MODES, itemsFor, pickItems, startGame, starRow, challengeBox } from './game.js';
 import { langSummary, dayTotals, streakInfo, FREEZE_MAX } from './progress.js';
-import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway, wordOfDay } from './engage.js';
+import { dailyQuests, syncQuests, playerLevel, weekDays, daysAway, wordOfDay, challengeWords } from './engage.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
 import { savedEntries, playSaved, SAVED_ID } from './words.js';
@@ -259,6 +259,23 @@ export async function renderPractice() {
           icon('flash', { size: 16 }), t.leechBtn))
     : null;
 
+  // ---- daily challenge: the same 10 questions for everyone today ----
+  const playChallenge = () => {
+    ensureAudio();
+    const byKey = new Map(allItems.map((it) => [it.key, it]));
+    const items = challengeWords(vocab).map(({ set, word }) => byKey.get(wordKey(code, set.id, word.term))).filter(Boolean);
+    startGame(items, allItems, { mode: 'quiz', daily: true });
+  };
+  const challengeDone = getChallenge(code) !== null;
+  const challengeCard = h('section', { class: `away-card challenge-card${challengeDone ? ' done' : ''}` },
+    h('span', { class: 'away-ic', 'aria-hidden': 'true' }, icon('target', { size: 22 })),
+    h('span', { class: 'row-text' },
+      h('strong', {}, t.challengeTitle),
+      h('span', { class: 'row-sub' }, challengeDone ? t.challengeAgainSub : t.challengeSub)),
+    challengeDone ? challengeBox(code) : null,
+    h('button', { class: `btn${challengeDone ? '' : ' primary'}`, type: 'button', onclick: playChallenge },
+      icon(challengeDone ? 'repeat' : 'play', { size: 16, fill: !challengeDone }), challengeDone ? t.challengeAgain : t.challengeStart));
+
   // ---- word of the day: something to look at and hear the moment Home opens ----
   const wod = wordOfDay(vocab, settings.level[code]);
   const wodCard = wod
@@ -485,6 +502,7 @@ export async function renderPractice() {
     dueCard,
     todayCard,
     questCard,
+    challengeCard,
     wodCard,
     recCard,
     leechCard,

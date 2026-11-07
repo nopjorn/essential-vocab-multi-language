@@ -1,6 +1,6 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, saveSettings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, noteBoss, addBonusXP, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
-import { state, h, fill, render, screen, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn, fadeNextRender } from './core.js';
+import { settings, saveSettings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, saveStars, noteRound, noteBoss, addBonusXP, getChallenge, saveChallenge, logSession, getStats, todayAnswers, todayNew, isDue, isLeech, MAX_BOX, MASTERED_BOX } from './store.js';
+import { state, h, fill, render, screen, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle, cachedLang, nameOf, exampleOf, exampleBlock, saveBtn, fadeNextRender, toast } from './core.js';
 import { icon, MODE_ICON } from './icons.js';
 import { speechSupported } from './speech.js';
 import { sfx, buzz } from './sound.js';
@@ -99,7 +99,8 @@ function distractors(item, pool, n = 3) {
 
 // `mode` overrides the chosen mode for one round (e.g. review rounds that must not be survival).
 // `boss`: a single-set round (playSet) ends with a boss round of the set's hardest words.
-export function startGame(items, pool, { mode = settings.mode, boss = false } = {}) {
+// `daily`: the daily challenge (fixed questions in a fixed order; the first try of the day is kept).
+export function startGame(items, pool, { mode = settings.mode, boss = false, daily = false } = {}) {
   // The game replaces whatever page is showing: stop that page's pending async render (and its fade).
   state.navId++;
   fadeNextRender(false);
@@ -130,7 +131,8 @@ export function startGame(items, pool, { mode = settings.mode, boss = false } = 
     // survival: items grows as questions are asked; queue holds the words still to come
     hearts: survival ? HEARTS : null,
     // boss round: offered once the normal questions are done; bossAt = index of its first word
-    boss: boss && mode !== 'match' && mode !== 'memory' && !endless && items.length >= BOSS_MIN_ROUND,
+    daily,
+    boss: !daily && boss && mode !== 'match' && mode !== 'memory' && !endless && items.length >= BOSS_MIN_ROUND,
     // time attack: when the minute ends (wrong answers move it closer)
     deadline: mode === 'timed' ? Date.now() + TIMED_MS : null,
     bossAt: null,
@@ -152,7 +154,8 @@ const INTRO_MAX = 5;
 
 function newWords(session) {
   // flashcards already show the meaning, and survival builds its words as it goes
-  if (!settings.introNew || session.mode === 'flash' || ENDLESS.includes(session.mode)) return [];
+  // the daily challenge is a test: no peeking at its words first
+  if (!settings.introNew || session.daily || session.mode === 'flash' || ENDLESS.includes(session.mode)) return [];
   return session.items.filter((it) => !getProgress(it.key).t).slice(0, INTRO_MAX);
 }
 
@@ -1169,6 +1172,39 @@ function levelName(lv) {
   return lv === 0 ? t.levelLetters : t.levelN.replace('{n}', lv);
 }
 
+// Daily challenge result (the counted first try) with a share button, as on Home.
+export function challengeBox(lang, first = false) {
+  const t = state.t;
+  const marks = getChallenge(lang);
+  if (marks === null) return null;
+  return h('div', { class: 'badge-box challenge-box' },
+    h('strong', {}, icon('target', { size: 18 }), first ? t.challengeDone : t.challengeCounted),
+    h('p', { class: 'challenge-grid', 'aria-label': `${[...marks].filter((m) => m === '1').length}/${marks.length}` }, challengeGrid(marks)),
+    h('button', { class: 'btn small', type: 'button', onclick: () => shareChallenge(lang, marks) }, icon('share', { size: 16 }), t.challengeShare));
+}
+
+export function challengeGrid(marks) {
+  return [...marks].map((m) => (m === '1' ? '🟩' : '🟥')).join('');
+}
+
+// Shares (or copies) a spoiler-free result: the score and the squares, never the words.
+async function shareChallenge(lang, marks) {
+  const t = state.t;
+  const meta = state.index.learn.find((l) => l.code === lang);
+  const right = [...marks].filter((m) => m === '1').length;
+  const date = new Date().toLocaleDateString(settings.target === 'th' ? 'th-TH' : 'en-US', { day: 'numeric', month: 'short' });
+  const text = `${t.appName} · ${t.challengeTitle} ${date} ${meta?.flag || ''}\n${right}/${marks.length} ${challengeGrid(marks)}\n${location.origin}${location.pathname}`;
+  try {
+    if (navigator.share) await navigator.share({ text });
+    else {
+      await navigator.clipboard.writeText(text);
+      toast(t.challengeCopied);
+    }
+  } catch {
+    /* share sheet dismissed */
+  }
+}
+
 function showResults(session) {
   const t = state.t;
   if (session.ended) return;
@@ -1195,6 +1231,9 @@ function showResults(session) {
   const comboRecord = session.bestCombo >= 2 && saveRecord(lang, 'combo', session.bestCombo) && prevCombo > 0;
   const survivalRecord = survival && session.correct > 0 && saveRecord(lang, recordKey, session.correct) && prevSurvival > 0;
   const starsImproved = roundStars(session);
+  // daily challenge: one mark per question in order; only the day's first finished try counts
+  const challengeMarks = session.daily ? session.history.map((e) => (e.ok ? '1' : '0')).join('') : null;
+  const challengeFirst = challengeMarks !== null && saveChallenge(lang, challengeMarks);
   const bossCount = session.bossAt === null ? 0 : session.items.length - session.bossAt;
   const bossWon = bossCount > 0 && session.bossRight === bossCount;
   if (bossWon) {
@@ -1248,7 +1287,7 @@ function showResults(session) {
         h('div', { class: 'badge-chips' }, newUnlocks.map((id) =>
           h('a', { class: 'badge-chip', href: '#/settings' }, h('span', { class: 'row-icon indigo' }, icon('palette', { size: 16 })), t.lookNames[id]))))
     : null;
-  const celebrate = bossWon || goalJustMet || pct === 100 || newBadges.length > 0 || comboRecord || survivalRecord || !!session.matchRecord || questJustDone || levelUp;
+  const celebrate = challengeFirst || goalJustMet || pct === 100 || newBadges.length > 0 || comboRecord || survivalRecord || !!session.matchRecord || questJustDone || levelUp;
   if (celebrate && !newMilestones.length) sfx('done');
   const masteredBox = mastered.length
     ? h('div', { class: 'mastered-box' },
@@ -1284,6 +1323,7 @@ function showResults(session) {
         h('div', { class: 'stat' }, h('b', {}, `×${session.bestCombo}`), h('span', {}, t.bestCombo)),
       ),
     ),
+    challengeMarks !== null ? challengeBox(lang, challengeFirst) : null,
     xpBar(session.xpBefore, xpAfter),
     questBox(lang, questJustDone),
     unlockBox,
